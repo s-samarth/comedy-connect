@@ -275,7 +275,7 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                   </Link>
                 ) : (
                   <Link 
-                    href={`/api/auth/signin?callback=/shows/${show.id}/book`}
+                    href={`/auth/signin?callback=/shows/${show.id}/book`}
                     className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 block"
                   >
                     Sign In to Book

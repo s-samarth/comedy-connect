@@ -36,7 +36,7 @@ export default async function ShowsPage() {
             ) : (
               <>
                 <Link 
-                  href="/api/auth/signin"
+                  href="/auth/signin"
                   className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
                 >
                   Sign In to List Show

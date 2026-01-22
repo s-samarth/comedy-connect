@@ -44,10 +44,10 @@ export default async function Home() {
           ) : (
             <div className="flex flex-col gap-4">
               <div className="flex gap-4">
-                <Link href="/api/auth/signin" className="text-blue-600 hover:underline">
+                <Link href="/auth/signin" className="text-blue-600 hover:underline">
                   Sign In
                 </Link>
-                <Link href="/api/auth/signin?signup=true" className="text-green-600 hover:underline">
+                <Link href="/auth/signin?signup=true" className="text-green-600 hover:underline">
                   Sign Up
                 </Link>
               </div>

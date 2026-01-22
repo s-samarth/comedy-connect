@@ -57,7 +57,10 @@ export default function SignIn() {
         {error && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <p className="text-sm">
-              {error === 'Callback' ? 'Authentication failed. Please try again.' : 'An error occurred during authentication.'}
+              {error === 'Callback' ? 'Authentication failed. Please try again.' : 
+               error === 'OAuthSignin' ? 'Could not sign in with Google. Please try again.' :
+               error === 'Default' ? 'An error occurred during authentication.' :
+               'Authentication failed. Please try again.'}
             </p>
           </div>
         )}

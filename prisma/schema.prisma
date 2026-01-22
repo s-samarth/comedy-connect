@@ -17,3 +17,155 @@ model HealthCheck {
   id        String   @id @default(uuid())
   createdAt DateTime @default(now())
 }
+
+enum UserRole {
+  AUDIENCE
+  ORGANIZER_UNVERIFIED
+  ORGANIZER_VERIFIED
+  ADMIN
+}
+
+model User {
+  id                String   @id @default(uuid())
+  email             String   @unique
+  role              UserRole @default(AUDIENCE)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Organizer profile extension
+  organizerProfile  OrganizerProfile?
+  
+  // Admin actions
+  approvedOrganizers OrganizerApproval[] @relation("AdminApprovals")
+  
+  // Comedian creation
+  createdComedians  Comedian[] @relation("ComedianCreator")
+  
+  // Show creation
+  createdShows      Show[] @relation("ShowCreator")
+  
+  // User bookings
+  bookings          Booking[] @relation("UserBookings")
+}
+
+model OrganizerProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  name        String
+  contact     String?
+  description String?
+  venue       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvals   OrganizerApproval[]
+}
+
+model OrganizerApproval {
+  id         String   @id @default(uuid())
+  organizerId String
+  adminId    String
+  status     ApprovalStatus @default(PENDING)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  organizer  OrganizerProfile @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  admin      User             @relation("AdminApprovals", fields: [adminId], references: [id])
+  
+  @@unique([organizerId, adminId])
+}
+
+model Comedian {
+  id                String   @id @default(uuid())
+  name              String
+  bio               String?
+  profileImageUrl   String?
+  socialLinks       Json?    // { instagram: "", twitter: "", youtube: "" }
+  promoVideoUrl     String?  // External URL only
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Created by verified organizer
+  createdBy         String
+  creator           User     @relation("ComedianCreator", fields: [createdBy], references: [id])
+  
+  // Associated with shows
+  showComedians     ShowComedian[]
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Show {
+  id                String   @id @default(uuid())
+  title             String
+  description       String?
+  date              DateTime
+  venue             String
+  ticketPrice       Float
+  totalTickets      Int
+  posterImageUrl    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Created by verified organizer
+  createdBy         String
+  creator           User     @relation("ShowCreator", fields: [createdBy], references: [id])
+  
+  // Associated comedians
+  showComedians     ShowComedian[]
+  
+  // Ticket inventory
+  ticketInventory   TicketInventory[]
+  bookings          Booking[]
+}
+
+model ShowComedian {
+  id        String   @id @default(uuid())
+  showId    String
+  comedianId String
+  order     Int      @default(0) // Order in which comedians appear
+  
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+  comedian  Comedian @relation(fields: [comedianId], references: [id], onDelete: Cascade)
+  
+  @@unique([showId, comedianId])
+}
+
+model TicketInventory {
+  id        String   @id @default(uuid())
+  showId    String   @unique
+  available Int
+  locked    Int      @default(0) // Temporarily locked for booking
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id           String   @id @default(uuid())
+  showId       String
+  userId       String
+  quantity     Int
+  totalAmount  Float
+  platformFee  Float
+  status       BookingStatus @default(PENDING)
+  paymentId    String?  // Razorpay payment ID
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  show         Show     @relation(fields: [showId], references: [id])
+  user         User     @relation("UserBookings", fields: [userId], references: [id])
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  FAILED
+}

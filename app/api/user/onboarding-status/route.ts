@@ -13,21 +13,20 @@ export async function GET() {
       )
     }
 
-    // Check if user has completed onboarding
+    // Check if user has completed onboarding using the new flag
     const userProfile = await prisma.user.findUnique({
       where: { id: user.id },
       select: { 
-        name: true,
-        phone: true,
-        age: true,
-        bio: true,
-        interests: true
+        onboardingCompleted: true
       }
     })
 
-    const completed = !!(userProfile?.name && userProfile?.phone && userProfile?.age)
+    const completed = userProfile?.onboardingCompleted || false
 
-    return NextResponse.json({ completed })
+    return NextResponse.json({ 
+      needsOnboarding: !completed,
+      completed 
+    })
   } catch (error) {
     console.error('Error checking onboarding status:', error)
     return NextResponse.json(

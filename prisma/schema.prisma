@@ -41,6 +41,8 @@ model User {
   adminPasswordHash String?   // Additional admin password (hashed)
   adminResetCode    String?   // OTP code for password reset
   adminResetExpires DateTime? // Expiration time for reset code
+  onboardingCompleted Boolean @default(false) // Track if user completed onboarding
+  heardAboutUs      String?   // Where user heard about the platform
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   

@@ -55,9 +55,13 @@ export const authOptions: NextAuthOptions = {
         ; (session.user as any).id = user.id
           ; (session.user as any).role = (user as any).role
 
-        // Check if user has completed onboarding
-        const isNewUser = !(user as any).name && !(user as any).phone && !(user as any).age
-          ; (session.user as any).isNewUser = isNewUser
+        // Check if user has completed onboarding using the database flag
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { onboardingCompleted: true }
+        })
+        
+        ; (session.user as any).onboardingCompleted = dbUser?.onboardingCompleted || false
       }
       return session
     },

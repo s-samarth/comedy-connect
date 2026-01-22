@@ -16,8 +16,8 @@ function SignInPage() {
 
   useEffect(() => {
     if (status === 'authenticated') {
-      // If user just signed up and is new, redirect to onboarding
-      if (isSignUp && (session.user as any).isNewUser) {
+      // If user hasn't completed onboarding, redirect to onboarding
+      if (!(session.user as any).onboardingCompleted) {
         router.push('/onboarding')
       } else if (isSignUp) {
         router.push('/profile')

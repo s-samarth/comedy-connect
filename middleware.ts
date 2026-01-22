@@ -18,6 +18,28 @@ export async function middleware(request: NextRequest) {
   })
   const { pathname } = request.nextUrl
 
+  // Check if user needs onboarding (authenticated but hasn't completed onboarding)
+  if (token && !pathname.startsWith('/onboarding') && !pathname.startsWith('/api') && !pathname.startsWith('/auth')) {
+    try {
+      // Fetch fresh user data to check onboarding status
+      const response = await fetch(`${request.nextUrl.origin}/api/user/onboarding-status`, {
+        headers: {
+          'Cookie': request.headers.get('cookie') || '',
+        },
+      })
+      
+      if (response.ok) {
+        const { needsOnboarding } = await response.json()
+        if (needsOnboarding) {
+          return NextResponse.redirect(new URL("/onboarding", request.url))
+        }
+      }
+    } catch (error) {
+      // If we can't check onboarding status, allow request to proceed
+      console.error('Error checking onboarding status:', error)
+    }
+  }
+
   // Special handling for admin-hidden - allow access for password prompt
   if (pathname.startsWith("/admin-hidden")) {
     // Allow access to the main admin-hidden page for password setup/verification
@@ -89,5 +111,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/admin-hidden/:path*", "/organizer/:path*"],
+  matcher: ["/admin/:path*", "/admin-hidden/:path*", "/organizer/:path*", "/((?!api|_next/static|_next/image|favicon.ico).*)"],
 }

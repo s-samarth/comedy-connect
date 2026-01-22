@@ -185,7 +185,7 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
         <div className="bg-white rounded-lg shadow p-12 text-center">
           <h3 className="text-xl font-semibold mb-2">No Shows Found</h3>
           <p className="text-zinc-600">
-            {shows.length === 0 
+            {shows.length === 0
               ? "No comedy shows scheduled yet. Check back soon!"
               : "Try adjusting your filters to see more shows."
             }
@@ -194,17 +194,18 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredShows.map((show) => (
-            <div
+            <Link
               key={show.id}
-              className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow"
+              href={`/shows/${show.id}`}
+              className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow block group"
             >
               {/* Poster or placeholder */}
-              <div className="h-48 bg-zinc-200 flex items-center justify-center">
+              <div className="h-48 bg-zinc-200 flex items-center justify-center overflow-hidden">
                 {show.posterImageUrl ? (
-                  <img 
-                    src={show.posterImageUrl} 
+                  <img
+                    src={show.posterImageUrl}
                     alt={show.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
                   <div className="text-zinc-400 text-center">
@@ -215,8 +216,10 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
               </div>
 
               <div className="p-6">
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2">{show.title}</h3>
-                
+                <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-zinc-900 group-hover:text-blue-600 transition-colors">
+                  {show.title}
+                </h3>
+
                 {show.description && (
                   <p className="text-zinc-600 text-sm mb-3 line-clamp-2">{show.description}</p>
                 )}
@@ -235,21 +238,15 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                       <span className="font-medium">🎫</span>
                       <span className="ml-2">{formatPrice(show.ticketPrice)}</span>
                     </div>
-                    <div className="text-xs">
-                      {show.ticketInventory?.available || 0} of {show.totalTickets} left
-                    </div>
                   </div>
                 </div>
 
                 {/* Comedians */}
                 {show.showComedians && show.showComedians.length > 0 && (
-                  <div className="mb-4">
-                    <p className="text-sm font-medium text-zinc-700 mb-2">
-                      Featuring {show.showComedians.length} comedian{show.showComedians.length > 1 ? 's' : ''}
-                    </p>
+                  <div>
                     <div className="flex flex-wrap gap-2">
                       {show.showComedians.slice(0, 3).map((showComedian) => (
-                        <span 
+                        <span
                           key={showComedian.comedian.id}
                           className="inline-block px-2 py-1 bg-zinc-100 text-zinc-700 text-xs rounded"
                         >
@@ -264,32 +261,8 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                     </div>
                   </div>
                 )}
-
-                {/* Book Tickets Button */}
-                {user ? (
-                  <Link 
-                    href={`/shows/${show.id}/book`}
-                    className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 block"
-                  >
-                    Book Tickets
-                  </Link>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-sm text-amber-800">
-                        <span className="font-medium">Sign in required</span> to book tickets
-                      </p>
-                    </div>
-                    <Link 
-                      href={`/auth/signin?callback=/shows/${show.id}/book`}
-                      className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 block"
-                    >
-                      Sign In to Book
-                    </Link>
-                  </div>
-                )}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       )}

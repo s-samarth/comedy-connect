@@ -1,14 +1,17 @@
 import { notFound } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import ShowBooking from "@/components/shows/ShowBooking"
+import { getCurrentUser } from "@/lib/auth"
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 export default async function ShowPage({ params }: PageProps) {
+  const { id } = await params
+  const user = await getCurrentUser()
   const show = await prisma.show.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       ticketInventory: true,
       showComedians: {
@@ -37,8 +40,8 @@ export default async function ShowPage({ params }: PageProps) {
           {/* Show Header */}
           <div className="relative h-64 bg-gradient-to-r from-blue-600 to-purple-600">
             {show.posterImageUrl && (
-              <img 
-                src={show.posterImageUrl} 
+              <img
+                src={show.posterImageUrl}
                 alt={show.title}
                 className="absolute inset-0 w-full h-full object-cover opacity-30"
               />
@@ -74,7 +77,7 @@ export default async function ShowPage({ params }: PageProps) {
                     {show.showComedians.map((showComedian) => (
                       <div key={showComedian.comedian.id} className="text-center">
                         {showComedian.comedian.profileImageUrl && (
-                          <img 
+                          <img
                             src={showComedian.comedian.profileImageUrl}
                             alt={showComedian.comedian.name}
                             className="w-20 h-20 rounded-full mx-auto mb-2 object-cover"
@@ -113,9 +116,8 @@ export default async function ShowPage({ params }: PageProps) {
                       </div>
                       <div>
                         <span className="text-gray-600">Status:</span>
-                        <span className={`ml-2 font-medium ${
-                          (show.ticketInventory[0]?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
+                        <span className={`ml-2 font-medium ${(show.ticketInventory[0]?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
                           {(show.ticketInventory[0]?.available || 0) > 0 ? 'Available' : 'Sold Out'}
                         </span>
                       </div>
@@ -142,7 +144,7 @@ export default async function ShowPage({ params }: PageProps) {
 
               {/* Booking Section */}
               <div className="md:col-span-1">
-                <ShowBooking show={show} />
+                <ShowBooking show={show} user={user} />
               </div>
             </div>
           </div>

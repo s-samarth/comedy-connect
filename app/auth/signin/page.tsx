@@ -2,32 +2,77 @@
 
 import { signIn, useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 
-export default function SignIn() {
+function SignInPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
   const isSignUp = searchParams.get('signup') === 'true'
   const error = searchParams.get('error')
   const [isLoading, setIsLoading] = useState(false)
+  const [checkingUser, setCheckingUser] = useState(false)
+  const [userExists, setUserExists] = useState<boolean | null>(null)
 
   useEffect(() => {
     if (status === 'authenticated') {
-      router.push('/')
+      // If user just signed up and is new, redirect to onboarding
+      if (isSignUp && (session.user as any).isNewUser) {
+        router.push('/onboarding')
+      } else if (isSignUp) {
+        router.push('/profile')
+      } else {
+        router.push('/')
+      }
     }
-  }, [status, router])
+  }, [status, router, isSignUp, session])
+
+  useEffect(() => {
+    const email = searchParams.get('email')
+    if (email && isSignUp) {
+      checkUserExists(email)
+    }
+  }, [searchParams, isSignUp])
+
+  const checkUserExists = async (email: string) => {
+    setCheckingUser(true)
+    try {
+      const response = await fetch('/api/auth/check-user', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        setUserExists(data.exists)
+      }
+    } catch (error) {
+      console.error('Error checking user:', error)
+    } finally {
+      setCheckingUser(false)
+    }
+  }
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true)
     try {
       await signIn('google', { 
-        callbackUrl: '/',
+        callbackUrl: isSignUp ? '/profile' : '/',
         prompt: 'consent'
       })
     } catch (error) {
       console.error('Sign in error:', error)
       setIsLoading(false)
+    }
+  }
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const email = e.target.value
+    if (email && isSignUp) {
+      checkUserExists(email)
     }
   }
 
@@ -48,10 +93,31 @@ export default function SignIn() {
           </h2>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             {isSignUp 
-              ? 'Create your account to get started with Comedy Connect'
-              : 'Welcome back! Please sign in to your account'
+              ? 'Create your account to book tickets and manage your comedy experience'
+              : 'Welcome back! Sign in to access your bookings and profile'
             }
           </p>
+        </div>
+
+        {/* User Type Explanation */}
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <h3 className="font-medium text-gray-900 mb-2">What's the difference?</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex items-start">
+              <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
+              <div>
+                <span className="font-medium text-gray-900">Signed-in users:</span>
+                <span className="text-gray-600 ml-1">Book tickets, save favorites, manage profile</span>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="w-2 h-2 bg-purple-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
+              <div>
+                <span className="font-medium text-gray-900">Guest users:</span>
+                <span className="text-gray-600 ml-1">Browse shows, view details, no account needed</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {error && (
@@ -64,12 +130,46 @@ export default function SignIn() {
             </p>
           </div>
         )}
+
+        {!isSignUp && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded">
+            <p className="text-sm">
+              New to Comedy Connect? <a href="/auth/signin?signup=true" className="font-medium underline">Sign up first</a> to create your account.
+            </p>
+          </div>
+        )}
         
         <div className="mt-8 space-y-6">
           <div className="space-y-4">
+            {isSignUp && (
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Email Address
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  onChange={handleEmailChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+                  placeholder="Enter your email"
+                />
+                {checkingUser && (
+                  <p className="mt-1 text-sm text-gray-500">Checking if account exists...</p>
+                )}
+                {userExists === true && (
+                  <p className="mt-1 text-sm text-red-600">An account with this email already exists. Please sign in instead.</p>
+                )}
+                {userExists === false && (
+                  <p className="mt-1 text-sm text-green-600">This email is available for sign up!</p>
+                )}
+              </div>
+            )}
+
             <button
               onClick={handleGoogleSignIn}
-              disabled={isLoading}
+              disabled={isLoading || (isSignUp && userExists === true)}
               className="w-full flex items-center justify-center px-4 py-3 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700"
             >
               {isLoading ? (
@@ -116,17 +216,31 @@ export default function SignIn() {
           </div>
 
           {!isSignUp && (
-            <div className="text-center">
+            <div className="text-center mt-6">
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                Just browsing? No problem!
+              </p>
               <a 
                 href="/shows"
-                className="font-medium text-purple-600 hover:text-purple-500 text-sm"
+                className="inline-flex items-center px-4 py-2 border border-purple-300 text-purple-700 bg-purple-50 rounded-md hover:bg-purple-100 text-sm font-medium"
               >
-                Browse Shows as Guest
+                Continue as Guest
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
               </a>
             </div>
           )}
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><div className="text-center">Loading...</div></div>}>
+      <SignInPage />
+    </Suspense>
   )
 }

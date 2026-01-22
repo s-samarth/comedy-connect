@@ -34,7 +34,7 @@ export async function acquireTicketLock(
     include: { ticketInventory: true }
   })
 
-  if (!show || show.ticketInventory.available < quantity) {
+  if (!show || (show.ticketInventory[0]?.available || 0) < quantity) {
     return false
   }
 
@@ -77,7 +77,7 @@ export async function withRetry<T>(
   maxRetries: number = 3,
   delay: number = 1000
 ): Promise<T> {
-  let lastError: Error
+  let lastError: Error | undefined
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -94,7 +94,11 @@ export async function withRetry<T>(
     }
   }
 
-  throw lastError
+  if (lastError) {
+    throw lastError
+  } else {
+    throw new Error('Operation failed after retries')
+  }
 }
 
 // Validate booking constraints

@@ -68,8 +68,8 @@ export async function POST(request: Request) {
       await prisma.ticketInventory.update({
         where: { showId: booking.showId },
         data: {
-          available: show.ticketInventory.available - booking.quantity,
-          locked: show.ticketInventory.locked - booking.quantity
+          available: show.ticketInventory[0].available - booking.quantity,
+          locked: show.ticketInventory[0].locked - booking.quantity
         }
       })
 
@@ -104,8 +104,8 @@ export async function POST(request: Request) {
           await prisma.ticketInventory.update({
             where: { showId: booking.showId },
             data: {
-              available: show.ticketInventory.available + booking.quantity,
-              locked: show.ticketInventory.locked - booking.quantity
+              available: show.ticketInventory[0].available + booking.quantity,
+              locked: show.ticketInventory[0].locked - booking.quantity
             }
           })
         }

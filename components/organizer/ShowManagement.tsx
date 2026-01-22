@@ -117,7 +117,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           venue: "",
           ticketPrice: "",
           totalTickets: "",
-          comedianIds: []
+          comedianIds: [],
+          posterImageUrl: ""
         })
       } else {
         const error = await response.json()

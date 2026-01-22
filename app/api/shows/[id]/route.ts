@@ -4,16 +4,17 @@ import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await getCurrentUser()
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const show = await prisma.show.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         creator: {
           select: { email: true }
@@ -50,9 +51,10 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await requireOrganizer()
     const { 
       title, 
@@ -66,7 +68,7 @@ export async function PUT(
 
     // Check if show exists and belongs to this organizer
     const existingShow = await prisma.show.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         ticketInventory: true,
         _count: {
@@ -115,7 +117,7 @@ export async function PUT(
     // Update show and related records in a transaction
     const result = await prisma.$transaction(async (tx) => {
       const show = await tx.show.update({
-        where: { id: params.id },
+        where: { id: resolvedParams.id },
         data: {
           ...(title && { title }),
           ...(description !== undefined && { description }),
@@ -128,13 +130,13 @@ export async function PUT(
 
       // Update ticket inventory if total tickets changed
       if (totalTickets && existingShow.ticketInventory) {
-        const currentBooked = existingShow.totalTickets - existingShow.ticketInventory.available
+        const currentBooked = existingShow.totalTickets - existingShow.ticketInventory[0].available
         if (totalTickets < currentBooked) {
           throw new Error("Cannot reduce total tickets below already booked amount")
         }
 
         await tx.ticketInventory.update({
-          where: { showId: params.id },
+          where: { showId: resolvedParams.id },
           data: { available: totalTickets - currentBooked }
         })
       }
@@ -143,7 +145,7 @@ export async function PUT(
       if (comedianIds !== undefined) {
         // Remove existing associations
         await tx.showComedian.deleteMany({
-          where: { showId: params.id }
+          where: { showId: resolvedParams.id }
         })
 
         // Add new associations
@@ -160,7 +162,7 @@ export async function PUT(
           }
 
           const showComedians = comedianIds.map((comedianId: string, index: number) => ({
-            showId: params.id,
+            showId: resolvedParams.id,
             comedianId,
             order: index
           }))
@@ -185,14 +187,15 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await requireOrganizer()
 
     // Check if show exists and belongs to this organizer
     const existingShow = await prisma.show.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         ticketInventory: true,
         _count: {
@@ -217,7 +220,7 @@ export async function DELETE(
     }
 
     await prisma.show.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({ message: "Show deleted successfully" })

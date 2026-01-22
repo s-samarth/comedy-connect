@@ -274,12 +274,19 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                     Book Tickets
                   </Link>
                 ) : (
-                  <Link 
-                    href={`/auth/signin?callback=/shows/${show.id}/book`}
-                    className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 block"
-                  >
-                    Sign In to Book
-                  </Link>
+                  <div className="space-y-2">
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                      <p className="text-sm text-amber-800">
+                        <span className="font-medium">Sign in required</span> to book tickets
+                      </p>
+                    </div>
+                    <Link 
+                      href={`/auth/signin?callback=/shows/${show.id}/book`}
+                      className="w-full bg-blue-600 text-white text-center py-2 px-4 rounded-lg hover:bg-blue-700 block"
+                    >
+                      Sign In to Book
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>

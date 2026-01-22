@@ -14,7 +14,8 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 - **Ticket Booking**: Book tickets for upcoming shows (payment integration coming soon)
 - **Show Management**: Organizers can create and manage their comedy shows
 - **Comedian Management**: Add and manage comedian profiles
-- **Admin Dashboard**: Administrative oversight and user management
+- **Admin Dashboard**: Secure administrative oversight with password protection
+- **Admin Security**: Additional password layer for admin access control
 - **Mock Data**: Pre-populated with sample comedy shows for demonstration
 
 ## 🏗️ Architecture
@@ -39,18 +40,29 @@ comedy-connect/
 │   │   ├── admin/                # Admin endpoints
 │   │   ├── shows/                # Shows CRUD operations
 │   │   └── organizers/           # Organizer management
-│   ├── admin/                    # Admin dashboard pages
+│   ├── admin/                    # Admin dashboard with password protection
+│   │   ├── organizers/          # Organizer management pages
+│   │   ├── shows/                # Show management pages
+│   │   └── fees/                 # Platform configuration pages
 │   ├── organizer/                # Organizer dashboard pages
 │   ├── shows/                    # Show discovery and booking
 │   └── api/auth/signin/          # Custom sign-in page
 ├── components/                   # Reusable React components
 │   ├── admin/                    # Admin-specific components
+│   │   ├── AdminPasswordPrompt.tsx    # Admin authentication
+│   │   ├── AdminPasswordReset.tsx     # Password reset functionality
+│   │   ├── DatabaseCleanup.tsx        # Database management tools
+│   │   ├── OrganizerManagement.tsx    # Organizer approval system
+│   │   ├── ShowManagement.tsx         # Show moderation tools
+│   │   └── FeeManagement.tsx          # Platform fee configuration
 │   ├── organizer/                # Organizer-specific components
 │   ├── shows/                    # Show-related components
 │   ├── ui/                       # Shared UI components
 │   └── providers/                # Context providers
 ├── lib/                          # Utility libraries
 │   ├── auth.ts                   # Authentication helpers
+│   ├── admin-security.ts         # Admin password protection
+│   ├── admin-password.ts         # Admin password utilities
 │   ├── prisma.ts                 # Prisma client
 │   ├── cloudinary.ts             # Image upload utilities
 │   └── concurrency.ts            # Database concurrency handling
@@ -58,6 +70,10 @@ comedy-connect/
 │   ├── schema.prisma             # Prisma schema definition
 │   └── migrations/               # Database migration files
 ├── types/                        # TypeScript type definitions
+├── scripts/                      # Utility scripts
+│   ├── cleanup-database.js       # Database cleanup utility
+│   ├── seedMockData.ts          # Mock data seeding
+│   └── setup-admin.sh            # Admin setup script
 └── public/                       # Static assets
 ```
 
@@ -292,6 +308,10 @@ npm run test-all
 - `DELETE /api/shows/[id]` - Delete show (owner only)
 
 ### Admin Endpoints
+- `GET /api/admin/check-session` - Check admin authentication session
+- `POST /api/admin/login` - Admin password authentication
+- `POST /api/admin/logout` - Admin session logout
+- `POST /api/admin/setup-password` - Initial admin password setup
 - `GET /api/admin/organizers` - List organizers
 - `POST /api/admin/organizers/[id]/approve` - Approve organizer
 - `GET /api/admin/users` - List all users
@@ -309,6 +329,8 @@ npm run test-all
 - Verify Google OAuth credentials
 - Check NEXTAUTH_URL matches deployment URL
 - Ensure NEXTAUTH_SECRET is set
+- For admin access: Check admin password is set up and email is whitelisted
+- Verify admin session is active when accessing admin panel
 
 **Image Upload Issues**
 - Verify Cloudinary credentials

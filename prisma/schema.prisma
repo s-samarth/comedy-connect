@@ -30,8 +30,15 @@ model User {
   email             String   @unique
   role              UserRole @default(AUDIENCE)
   name              String?
+  phone             String?
+  age               Int?
+  city              String?
+  language          String?
+  bio               String?
+  interests         Json?     // Array of comedy interests
   emailVerified     DateTime?
   image             String?
+  adminPasswordHash String?   // Additional admin password (hashed)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   

@@ -223,7 +223,7 @@ export async function GET() {
     const user = await getCurrentUser()
     
     // Try to get real shows from database
-    let shows = []
+    let shows: any[] = []
     try {
       shows = await prisma.show.findMany({
         where: {

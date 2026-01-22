@@ -4,16 +4,17 @@ import { NextResponse } from "next/server"
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await getCurrentUser()
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     const comedian = await prisma.comedian.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         creator: {
           select: { email: true }
@@ -40,15 +41,16 @@ export async function GET(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await requireOrganizer()
     const { name, bio, socialLinks, promoVideoUrl } = await request.json()
 
     // Check if comedian exists and belongs to this organizer
     const existingComedian = await prisma.comedian.findUnique({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     if (!existingComedian) {
@@ -60,7 +62,7 @@ export async function PUT(
     }
 
     const comedian = await prisma.comedian.update({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       data: {
         name,
         bio,
@@ -77,14 +79,15 @@ export async function PUT(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const resolvedParams = await params
     const user = await requireOrganizer()
 
     // Check if comedian exists and belongs to this organizer
     const existingComedian = await prisma.comedian.findUnique({
-      where: { id: params.id },
+      where: { id: resolvedParams.id },
       include: {
         showComedians: true
       }
@@ -106,7 +109,7 @@ export async function DELETE(
     }
 
     await prisma.comedian.delete({
-      where: { id: params.id }
+      where: { id: resolvedParams.id }
     })
 
     return NextResponse.json({ message: "Comedian deleted successfully" })

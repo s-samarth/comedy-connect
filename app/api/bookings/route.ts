@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     }
 
     // Check available tickets
-    if (show.ticketInventory.available < quantity) {
+    if (show.ticketInventory[0]?.available < quantity) {
       return NextResponse.json({ 
         error: "Not enough tickets available" 
       }, { status: 400 })
@@ -77,8 +77,8 @@ export async function POST(request: Request) {
     await prisma.ticketInventory.update({
       where: { showId },
       data: {
-        available: show.ticketInventory.available - quantity,
-        locked: show.ticketInventory.locked + quantity
+        available: show.ticketInventory[0].available - quantity,
+        locked: show.ticketInventory[0].locked + quantity
       }
     })
 

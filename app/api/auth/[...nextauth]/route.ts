@@ -33,10 +33,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role
+        token.id = (user as any).id
+      }
+      return token
+    },
     async session({ session, user }) {
       if (session.user && user) {
         ;(session.user as any).id = user.id
         ;(session.user as any).role = (user as any).role
+        
+        // Check if user has completed onboarding
+        const isNewUser = !(user as any).name && !(user as any).phone && !(user as any).age
+        ;(session.user as any).isNewUser = isNewUser
       }
       return session
     },

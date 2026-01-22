@@ -1,14 +1,61 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
+import { checkAdminPasswordSession } from "@/lib/admin-password"
+
+// Whitelist of admin emails - only you can access admin panel
+const ADMIN_WHITELIST = [
+  // Add your email here
+  process.env.ADMIN_EMAIL || 'your-email@example.com'
+]
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
   const { pathname } = request.nextUrl
 
+  // Special handling for admin-hidden - allow access for password prompt
+  if (pathname.startsWith("/admin-hidden")) {
+    // Allow access to the main admin-hidden page for password setup/verification
+    if (pathname === "/admin-hidden") {
+      // Only check if user is authenticated (any role)
+      if (!token) {
+        return NextResponse.redirect(new URL("/auth/signin", request.url))
+      }
+      
+      // Check email whitelist for security
+      if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
+        return NextResponse.redirect(new URL("/", request.url))
+      }
+      
+      // Allow access - page component will handle password verification and role checking
+      return NextResponse.next()
+    }
+    
+    // For other admin-hidden subroutes, require full admin access
+    if (!token || (token as any).role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+    
+    // Additional email whitelist check for extra security
+    if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+    
+    // Require password verification for subroutes
+    const hasValidPasswordSession = await checkAdminPasswordSession(request)
+    if (!hasValidPasswordSession) {
+      return NextResponse.redirect(new URL("/admin-hidden", request.url))
+    }
+  }
+
   // Protect admin routes
   if (pathname.startsWith("/admin")) {
     if (!token || (token as any).role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+    
+    // Additional email whitelist check for extra security
+    if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
       return NextResponse.redirect(new URL("/", request.url))
     }
   }
@@ -25,5 +72,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/organizer/:path*"],
+  matcher: ["/admin/:path*", "/admin-hidden/:path*", "/organizer/:path*"],
 }

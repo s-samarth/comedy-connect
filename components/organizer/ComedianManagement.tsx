@@ -81,7 +81,8 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
           name: "",
           bio: "",
           socialLinks: { instagram: "", twitter: "", youtube: "" },
-          promoVideoUrl: ""
+          promoVideoUrl: "",
+          profileImageUrl: ""
         })
       } else {
         const error = await response.json()

@@ -6,13 +6,24 @@ import PaymentComingSoon from "@/components/ui/PaymentComingSoon"
 interface Show {
   id: string
   title: string
-  date: string
+  date: Date | string
   venue: string
   ticketPrice: number
-  ticketInventory: {
-    total: number
+  totalTickets: number
+  ticketInventory: Array<{
+    id: string
+    createdAt: Date
+    updatedAt: Date
+    showId: string
     available: number
+    locked: number
+  }>
+  creator: {
+    id: string
+    name: string | null
+    email: string
   }
+  showComedians: any[]
 }
 
 interface ShowBookingProps {
@@ -23,9 +34,9 @@ export default function ShowBooking({ show }: ShowBookingProps) {
   const [quantity, setQuantity] = useState(1)
   const totalAmount = show.ticketPrice * quantity
 
-  const isSoldOut = show.ticketInventory.available === 0
+  const isSoldOut = (show.ticketInventory[0]?.available || 0) === 0
   const isPastShow = new Date(show.date) <= new Date()
-  const maxQuantity = Math.min(show.ticketInventory.available, 10)
+  const maxQuantity = Math.min(show.ticketInventory[0]?.available || 0, 10)
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 sticky top-4">
@@ -69,7 +80,7 @@ export default function ShowBooking({ show }: ShowBookingProps) {
               ))}
             </select>
             <p className="text-xs text-gray-500 mt-1">
-              {show.ticketInventory.available} tickets available
+              {(show.ticketInventory[0]?.available || 0)} tickets available
             </p>
           </div>
 

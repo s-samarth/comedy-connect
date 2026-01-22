@@ -98,12 +98,13 @@ export default async function ShowPage({ params }: PageProps) {
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div>
                         <span className="text-gray-600">Total Tickets:</span>
-                        <span className="ml-2 font-medium">{show.ticketInventory.total}</span>
+                        <span className="ml-2 font-medium">{show.totalTickets}</span>
                       </div>
                       <div>
                         <span className="text-gray-600">Available:</span>
+                        <span className="ml-2 font-medium">{show.ticketInventory[0]?.available || 0}</span>
                         <span className="ml-2 font-medium text-green-600">
-                          {show.ticketInventory.available}
+                          ({show.ticketInventory[0]?.available || 0} available)
                         </span>
                       </div>
                       <div>
@@ -113,9 +114,9 @@ export default async function ShowPage({ params }: PageProps) {
                       <div>
                         <span className="text-gray-600">Status:</span>
                         <span className={`ml-2 font-medium ${
-                          show.ticketInventory.available > 0 ? 'text-green-600' : 'text-red-600'
+                          (show.ticketInventory[0]?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
                         }`}>
-                          {show.ticketInventory.available > 0 ? 'Available' : 'Sold Out'}
+                          {(show.ticketInventory[0]?.available || 0) > 0 ? 'Available' : 'Sold Out'}
                         </span>
                       </div>
                     </div>
@@ -128,11 +129,11 @@ export default async function ShowPage({ params }: PageProps) {
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-600 font-semibold">
-                        {show.creator.name.charAt(0).toUpperCase()}
+                        {show.creator.name?.charAt(0).toUpperCase() || 'O'}
                       </span>
                     </div>
                     <div>
-                      <p className="font-medium">{show.creator.name}</p>
+                      <p className="font-medium">{show.creator.name || 'Organizer'}</p>
                       <p className="text-sm text-gray-600">{show.creator.email}</p>
                     </div>
                   </div>

@@ -14,12 +14,12 @@ export default async function ShowsPage() {
             <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-white">
               Comedy Connect
             </Link>
-            
+
             <nav className="flex items-center space-x-6">
               <Link href="/shows" className="text-zinc-900 dark:text-white font-medium">
                 Shows
               </Link>
-              
+
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -29,7 +29,7 @@ export default async function ShowsPage() {
                     Profile
                   </Link>
                   {user.role === "ADMIN" && (
-                    <Link href="/admin" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                    <Link href="/admin-secure/login" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                       Admin
                     </Link>
                   )}
@@ -70,9 +70,9 @@ export default async function ShowsPage() {
               Browse upcoming comedy shows in Hyderabad
             </p>
           </div>
-          
+
           {user && user.role.startsWith("ORGANIZER") && (
-            <Link 
+            <Link
               href="/organizer/shows"
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
             >
@@ -80,7 +80,7 @@ export default async function ShowsPage() {
             </Link>
           )}
         </div>
-        
+
         <ShowDiscovery user={user} />
       </main>
     </div>

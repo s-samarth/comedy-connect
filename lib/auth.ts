@@ -1,10 +1,46 @@
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import { UserRole } from "@prisma/client"
+import { cookies } from "next/headers"
+import { validateAdminSession } from "@/lib/admin-password"
 
 export async function getCurrentUser() {
+  // 1. Try NextAuth session first
   const session = await getServerSession(authOptions)
-  return (session as any)?.user || null
+  if ((session as any)?.user) {
+    return (session as any).user
+  }
+
+  // 2. Try Admin Password Session
+  try {
+    const cookieStore = await cookies()
+    const adminCookie = cookieStore.get('admin-secure-session')
+
+    if (adminCookie) {
+      const { valid, email } = validateAdminSession(adminCookie.value)
+      if (valid && email) {
+        // Fetch user from DB to ensure we have ID and role
+        const { prisma } = await import('@/lib/prisma')
+        const user = await prisma.user.findUnique({
+          where: { email }
+        })
+
+        if (user && user.role === 'ADMIN') {
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            role: user.role
+          }
+        }
+      }
+    }
+  } catch (e) {
+    // Ignore errors (e.g. if cookies() is not available in certain contexts)
+  }
+
+  return null
 }
 
 export async function requireAuth() {

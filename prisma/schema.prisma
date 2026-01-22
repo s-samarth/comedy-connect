@@ -39,6 +39,8 @@ model User {
   emailVerified     DateTime?
   image             String?
   adminPasswordHash String?   // Additional admin password (hashed)
+  adminResetCode    String?   // OTP code for password reset
+  adminResetExpires DateTime? // Expiration time for reset code
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
   

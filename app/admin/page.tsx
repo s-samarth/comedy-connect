@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { AdminPasswordPrompt } from "@/components/admin/AdminPasswordPrompt"
 import OrganizerManagement from "@/components/admin/OrganizerManagement"
+import ComedianManagement from "@/components/admin/ComedianManagement"
 import { ShowManagement } from "@/components/admin/ShowManagement"
 import FeeManagement from "@/components/admin/FeeManagement"
 import Link from "next/link"
@@ -19,7 +20,7 @@ export default function AdminPage() {
       try {
         const response = await fetch('/api/admin/check-session')
         const data = await response.json()
-        
+
         if (data.needsPasswordSetup) {
           setNeedsPasswordSetup(true)
           setIsLoading(false)
@@ -66,7 +67,7 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <AdminPasswordPrompt 
+      <AdminPasswordPrompt
         onVerified={() => setIsAuthenticated(true)}
         needsSetup={needsPasswordSetup}
       />
@@ -86,20 +87,26 @@ export default function AdminPage() {
           </a>
         </div>
         <p className="text-zinc-600 mb-8">Internal administration interface - authorized access only</p>
-        
+
         <div className="space-y-8">
           {/* Organizer Management Section */}
           <section>
             <h2 className="text-2xl font-semibold mb-6">Organizer Management</h2>
             <OrganizerManagement />
           </section>
-          
+
+          {/* Comedian Management Section */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-6">Comedian Management</h2>
+            <ComedianManagement />
+          </section>
+
           {/* Show Management Section */}
           <section>
             <h2 className="text-2xl font-semibold mb-6">Show Management</h2>
             <ShowManagement />
           </section>
-          
+
           {/* Platform Configuration Section */}
           <section>
             <h2 className="text-2xl font-semibold mb-6">Platform Configuration</h2>

@@ -42,7 +42,7 @@ async function getUserProfile(userId: string) {
 
 export default async function ProfilePage() {
   const user = await getCurrentUser()
-  
+
   if (!user?.id) {
     redirect("/auth/signin")
   }
@@ -69,12 +69,12 @@ export default async function ProfilePage() {
             <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-white">
               Comedy Connect
             </Link>
-            
+
             <nav className="flex items-center space-x-6">
               <Link href="/shows" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                 Shows
               </Link>
-              
+
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-zinc-600 dark:text-zinc-400">
                   {user.email}
@@ -83,7 +83,7 @@ export default async function ProfilePage() {
                   Profile
                 </Link>
                 {user.role === "ADMIN" && (
-                  <Link href="/admin" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                  <Link href="/admin-secure/login" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                     Admin
                   </Link>
                 )}

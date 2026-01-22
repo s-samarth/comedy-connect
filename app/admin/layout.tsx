@@ -1,5 +1,6 @@
 import { ReactNode } from "react"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { getCurrentUser } from "@/lib/auth"
 
 const navItems = [
@@ -9,8 +10,23 @@ const navItems = [
   { href: "/admin/fees", label: "Platform Settings" },
 ]
 
+// Whitelist of admin emails
+const ADMIN_WHITELIST = [
+  process.env.ADMIN_EMAIL || 'your-email@example.com'
+]
+
 export default async function AdminLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser()
+
+  // Server-side admin access control
+  if (!user || user.role !== "ADMIN") {
+    redirect("/")
+  }
+
+  // Additional email whitelist check for extra security
+  if (!user.email || !ADMIN_WHITELIST.includes(user.email)) {
+    redirect("/")
+  }
 
   return (
     <div className="min-h-screen bg-slate-100">

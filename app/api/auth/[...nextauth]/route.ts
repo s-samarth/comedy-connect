@@ -37,17 +37,27 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role
         token.id = (user as any).id
+      } else if (token.id) {
+        // Fetch fresh role from database when token is validated
+        // This ensures middleware always has the latest role
+        const dbUser = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { role: true }
+        })
+        if (dbUser) {
+          token.role = dbUser.role
+        }
       }
       return token
     },
     async session({ session, user }) {
       if (session.user && user) {
-        ;(session.user as any).id = user.id
-        ;(session.user as any).role = (user as any).role
-        
+        ; (session.user as any).id = user.id
+          ; (session.user as any).role = (user as any).role
+
         // Check if user has completed onboarding
         const isNewUser = !(user as any).name && !(user as any).phone && !(user as any).age
-        ;(session.user as any).isNewUser = isNewUser
+          ; (session.user as any).isNewUser = isNewUser
       }
       return session
     },

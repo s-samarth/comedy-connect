@@ -15,7 +15,7 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 - **Show Management**: Organizers can create and manage their comedy shows
 - **Comedian Management**: Add and manage comedian profiles
 - **Admin Dashboard**: Secure administrative oversight with password protection
-- **Admin Security**: Additional password layer for admin access control
+- **Admin Security**: Enhanced security with password hashing and reset capabilities
 - **Mock Data**: Pre-populated with sample comedy shows for demonstration
 
 ## 🏗️ Architecture
@@ -40,8 +40,10 @@ comedy-connect/
 │   │   ├── admin/                # Admin endpoints
 │   │   ├── shows/                # Shows CRUD operations
 │   │   └── organizers/           # Organizer management
+│   │   ├── organizers/           # Organizer management
 │   ├── admin/                    # Admin dashboard with password protection
-│   │   ├── organizers/          # Organizer management pages
+│   │   ├── admin-secure/         # Secure admin routes
+│   │   ├── organizers/           # Organizer management pages
 │   │   ├── shows/                # Show management pages
 │   │   └── fees/                 # Platform configuration pages
 │   ├── organizer/                # Organizer dashboard pages
@@ -61,6 +63,7 @@ comedy-connect/
 │   └── providers/                # Context providers
 ├── lib/                          # Utility libraries
 │   ├── auth.ts                   # Authentication helpers
+│   ├── email.ts                  # Email functionality
 │   ├── admin-security.ts         # Admin password protection
 │   ├── admin-password.ts         # Admin password utilities
 │   ├── prisma.ts                 # Prisma client
@@ -71,8 +74,11 @@ comedy-connect/
 │   └── migrations/               # Database migration files
 ├── types/                        # TypeScript type definitions
 ├── scripts/                      # Utility scripts
+│   ├── check-admin-status.js     # Check admin status
+│   ├── get-reset-code.js         # Get admin reset code
+│   ├── reset-admin-hash.js       # Reset admin password hash
 │   ├── cleanup-database.js       # Database cleanup utility
-│   ├── seedMockData.ts          # Mock data seeding
+│   ├── seedMockData.ts           # Mock data seeding
 │   └── setup-admin.sh            # Admin setup script
 └── public/                       # Static assets
 ```
@@ -246,6 +252,16 @@ npm run test-image-upload
 # Test organizer verification
 npm run test-organizer-verification
 
+# Comprehensive verification scripts
+./test-auth.sh
+./test-comedian-management.sh
+./test-cp4-cp8-verification.sh
+./test-final-verification.sh
+./test-image-upload.sh
+./test-media-handling.sh
+./test-organizer-verification.sh
+./test-show-management.sh
+
 # Run all tests
 npm run test-all
 ```
@@ -314,6 +330,7 @@ npm run test-all
 - `POST /api/admin/setup-password` - Initial admin password setup
 - `GET /api/admin/organizers` - List organizers
 - `POST /api/admin/organizers/[id]/approve` - Approve organizer
+- `GET /api/admin/comedians` - List comedians with creator info
 - `GET /api/admin/users` - List all users
 
 ## 🔍 Troubleshooting

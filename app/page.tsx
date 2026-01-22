@@ -14,12 +14,12 @@ export default async function Home() {
             <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-white">
               Comedy Connect
             </Link>
-            
+
             <nav className="flex items-center space-x-6">
               <Link href="/shows" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                 Shows
               </Link>
-              
+
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-zinc-600 dark:text-zinc-400">
@@ -29,7 +29,7 @@ export default async function Home() {
                     Profile
                   </Link>
                   {user.role === "ADMIN" && (
-                    <Link href="/admin-hidden" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                    <Link href="/admin-secure/login" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                       Admin
                     </Link>
                   )}
@@ -69,7 +69,7 @@ export default async function Home() {
           <p className="text-lg text-zinc-600 dark:text-zinc-400 mb-8">
             Find and book tickets for the best comedy shows in the city
           </p>
-          
+
           {!user && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
               <p className="text-blue-800 text-sm">
@@ -85,14 +85,14 @@ export default async function Home() {
             <h2 className="text-2xl font-semibold text-zinc-900 dark:text-white">
               Upcoming Shows
             </h2>
-            <Link 
-              href="/shows" 
+            <Link
+              href="/shows"
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               View All Shows →
             </Link>
           </div>
-          
+
           <ShowDiscovery user={user} />
         </section>
       </main>

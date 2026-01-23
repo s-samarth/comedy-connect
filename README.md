@@ -41,48 +41,32 @@ comedy-connect/
 │   ├── api/                      # API routes
 │   │   ├── auth/                 # NextAuth.js authentication
 │   │   ├── admin/                # Admin endpoints
-│   │   ├── shows/                # Shows CRUD operations
-│   │   └── organizers/           # Organizer management
+│   │   ├── admin-secure/         # Secure admin endpoints
+│   │   ├── bookings/             # Booking operations
+│   │   ├── comedians/            # Comedian management
 │   │   ├── organizers/           # Organizer management
-│   ├── admin/                    # Admin dashboard with password protection
-│   │   ├── admin-secure/         # Secure admin routes
-│   │   ├── organizers/           # Organizer management pages
-│   │   ├── shows/                # Show management pages
-│   │   └── fees/                 # Platform configuration pages
+│   │   ├── shows/                # Shows CRUD operations
+│   │   ├── upload/               # Image upload
+│   │   ├── user/                 # User management
+│   │   └── webhooks/             # External integration webhooks
+│   ├── admin/                    # Admin dashboard pages
+│   ├── bookings/                 # Booking history pages
+│   ├── onbarding/                # User onboarding
 │   ├── organizer/                # Organizer dashboard pages
-│   ├── shows/                    # Show discovery and booking
-│   └── api/auth/signin/          # Custom sign-in page
+│   └── shows/                    # Show discovery and booking pages
 ├── components/                   # Reusable React components
 │   ├── admin/                    # Admin-specific components
-│   │   ├── AdminPasswordPrompt.tsx    # Admin authentication
-│   │   ├── AdminPasswordReset.tsx     # Password reset functionality
-│   │   ├── DatabaseCleanup.tsx        # Database management tools
-│   │   ├── OrganizerManagement.tsx    # Organizer approval system
-│   │   ├── ShowManagement.tsx         # Show moderation tools
-│   │   └── FeeManagement.tsx          # Platform fee configuration
 │   ├── organizer/                # Organizer-specific components
+│   ├── profile/                  # User profile components
+│   ├── providers/                # Context providers
 │   ├── shows/                    # Show-related components
-│   ├── ui/                       # Shared UI components
-│   └── providers/                # Context providers
+│   └── ui/                       # Shared UI components
 ├── lib/                          # Utility libraries
 │   ├── auth.ts                   # Authentication helpers
-│   ├── email.ts                  # Email functionality
-│   ├── admin-security.ts         # Admin password protection
-│   ├── admin-password.ts         # Admin password utilities
 │   ├── prisma.ts                 # Prisma client
-│   ├── cloudinary.ts             # Image upload utilities
-│   └── concurrency.ts            # Database concurrency handling
+│   └── cloudinary.ts             # Image upload utilities
 ├── prisma/                       # Database schema and migrations
-│   ├── schema.prisma             # Prisma schema definition
-│   └── migrations/               # Database migration files
-├── types/                        # TypeScript type definitions
-├── scripts/                      # Utility scripts
-│   ├── check-admin-status.js     # Check admin status
-│   ├── get-reset-code.js         # Get admin reset code
-│   ├── reset-admin-hash.js       # Reset admin password hash
-│   ├── cleanup-database.js       # Database cleanup utility
-│   ├── seedMockData.ts           # Mock data seeding
-│   └── setup-admin.sh            # Admin setup script
+│   └── schema.prisma             # Prisma schema definition
 └── public/                       # Static assets
 ```
 
@@ -321,37 +305,14 @@ npm run test-all
 - [ ] Documentation is updated
 - [ ] No console.log statements in production code
 
-## 📝 API Documentation
+## 📚 Documentation
 
-### Authentication Endpoints
-- `GET /api/auth/signin` - Custom sign-in page
-- `POST /api/auth/signout` - Sign out user
-- `GET /api/auth/session` - Get current session
+Detailed documentation for different aspects of the project can be found in the `docs/` directory:
 
-### Shows Endpoints
-- `GET /api/shows` - List all shows (public)
-- `POST /api/shows` - Create new show (organizer only)
-- `GET /api/shows/[id]` - Get show details (Public)
-- `PUT /api/shows/[id]` - Update show (Owner/Admin only)
-- `DELETE /api/shows/[id]` - Delete show (Owner/Admin only)
-- `POST /api/bookings` - Create booking (Direct, payment-free)
-- `GET /api/bookings` - List user's personal bookings
-
-### Admin Endpoints
-### Admin Endpoints (Secure)
-- `POST /api/admin-secure/login` - Admin secure login (password)
-- `POST /api/admin-secure/logout` - Secure logout
-- `POST /api/admin-secure/setup` - Initial password setup
-- `GET /api/admin/organizers` - List organizers
-- `GET /api/admin/shows` - List all shows
-- `POST /api/admin/shows/[id]/disable` - Moderation: Disable a show
-- `GET /api/admin/comedians` - List all comedians
-
-### User & Auth Endpoints
-- `GET /api/auth/me` - Get current user details
-- `POST /api/auth/check-user` - Check if email exists
-- `POST /api/user/onboarding` - Complete user onboarding
-- `GET /api/user/onboarding-status` - Check onboarding status
+- [**API Documentation**](docs/API.md): Detailed endpoints for Auth, Shows, Bookings, and Admin.
+- [**Database Schema**](docs/DATABASE.md): Data models, relationships, and roles.
+- [**Authentication & Security**](docs/AUTHENTICATION.md): OAuth flow, RBAC, and middleware.
+- [**Components & Architecture**](docs/COMPONENTS.md): Frontend structure and design system.
 
 ## 🔍 Troubleshooting
 

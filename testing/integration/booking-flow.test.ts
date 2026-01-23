@@ -17,7 +17,7 @@ import {
 // Mock the auth module
 jest.mock('@/lib/auth', () => ({
     getCurrentUser: jest.fn(),
-    isVerifiedOrganizer: jest.fn(),
+    isVerifiedShowCreator: jest.fn(),
 }));
 
 import * as authModule from '@/lib/auth';
@@ -25,7 +25,7 @@ import { GET as getShows } from '@/app/api/shows/route';
 import { GET as getBookings, POST as createBooking } from '@/app/api/bookings/route';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
-const mockIsVerifiedOrganizer = authModule.isVerifiedOrganizer as jest.MockedFunction<typeof authModule.isVerifiedOrganizer>;
+const mockIsVerifiedShowCreator = authModule.isVerifiedShowCreator as jest.MockedFunction<typeof authModule.isVerifiedShowCreator>;
 
 describe('Integration: Booking Flow', () => {
     let organizer: { id: string; email: string; role: UserRole };
@@ -232,8 +232,7 @@ describe('Integration: Booking Flow', () => {
 
             expect(response.status).toBe(400);
             const data = await response.json();
-            expect(data.error.toLowerCase()).toContain('not enough') ||
-                expect(data.error.toLowerCase()).toContain('maximum');
+            expect(data.error.toLowerCase()).toMatch(/not enough|maximum/);
         });
     });
 

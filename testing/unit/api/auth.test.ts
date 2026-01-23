@@ -53,9 +53,9 @@ describe('Auth API - /api/auth/*', () => {
 
             const response = await GET();
 
-            expect(response.status).toBe(401);
+            expect(response.status).toBe(200);
             const data = await response.json();
-            expect(data.error).toBe('Unauthorized');
+            expect(data.user).toBeNull();
         });
 
         it('should return user data for authenticated user', async () => {

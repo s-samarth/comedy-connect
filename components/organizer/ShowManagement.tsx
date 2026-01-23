@@ -12,6 +12,8 @@ interface Show {
   ticketPrice: number
   totalTickets: number
   posterImageUrl?: string
+  youtubeUrls?: string[]
+  instagramUrls?: string[]
   createdAt: string
   creator: {
     email: string
@@ -56,7 +58,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     ticketPrice: "",
     totalTickets: "",
     comedianIds: [] as string[],
-    posterImageUrl: ""
+    posterImageUrl: "",
+    youtubeUrls: [] as string[],
+    instagramUrls: [] as string[]
   })
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all")
 
@@ -129,7 +133,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           ticketPrice: "",
           totalTickets: "",
           comedianIds: [],
-          posterImageUrl: ""
+          posterImageUrl: "",
+          youtubeUrls: [],
+          instagramUrls: []
         })
       } else {
         const error = await response.json()
@@ -152,7 +158,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
       ticketPrice: show.ticketPrice.toString(),
       totalTickets: show.totalTickets.toString(),
       comedianIds: show.showComedians.map(sc => sc.comedian.id),
-      posterImageUrl: show.posterImageUrl || ""
+      posterImageUrl: show.posterImageUrl || "",
+      youtubeUrls: show.youtubeUrls || [],
+      instagramUrls: show.instagramUrls || []
     })
     setShowForm(true)
   }
@@ -357,6 +365,106 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
               </div>
             </div>
 
+            {/* Social Media Links */}
+            <div className="border-t pt-4 mt-4">
+              <h4 className="font-medium text-zinc-900 mb-4">Show Social Media (Optional)</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
+                    YouTube Video URL
+                  </label>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="url"
+                      id="newYoutubeUrl"
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const input = document.getElementById('newYoutubeUrl') as HTMLInputElement;
+                        if (input.value.trim()) {
+                          setFormData(prev => ({
+                            ...prev,
+                            youtubeUrls: [...prev.youtubeUrls, input.value.trim()]
+                          }));
+                          input.value = "";
+                        }
+                      }}
+                      className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {formData.youtubeUrls.map((url, index) => (
+                      <div key={index} className="flex items-center justify-between bg-zinc-50 p-2 rounded text-xs">
+                        <span className="truncate flex-1">{url}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            youtubeUrls: prev.youtubeUrls.filter((_, i) => i !== index)
+                          }))}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-zinc-700 mb-2">
+                    Instagram Reel URL
+                  </label>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="url"
+                      id="newInstagramUrl"
+                      placeholder="https://instagram.com/reel/..."
+                      className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const input = document.getElementById('newInstagramUrl') as HTMLInputElement;
+                        if (input.value.trim()) {
+                          setFormData(prev => ({
+                            ...prev,
+                            instagramUrls: [...prev.instagramUrls, input.value.trim()]
+                          }));
+                          input.value = "";
+                        }
+                      }}
+                      className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="space-y-1">
+                    {formData.instagramUrls.map((url, index) => (
+                      <div key={index} className="flex items-center justify-between bg-zinc-50 p-2 rounded text-xs">
+                        <span className="truncate flex-1">{url}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({
+                            ...prev,
+                            instagramUrls: prev.instagramUrls.filter((_, i) => i !== index)
+                          }))}
+                          className="text-red-500 hover:text-red-700 ml-2"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -377,7 +485,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                     ticketPrice: "",
                     totalTickets: "",
                     comedianIds: [],
-                    posterImageUrl: ""
+                    posterImageUrl: "",
+                    youtubeUrls: [],
+                    instagramUrls: []
                   })
                 }}
                 className="px-4 py-2 bg-zinc-300 text-zinc-700 rounded hover:bg-zinc-400"
@@ -440,6 +550,16 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                   <div>
                     🎟️ {show.ticketInventory.available} of {show.totalTickets} tickets available
                   </div>
+                  {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
+                    <div className="flex gap-3 pt-2 text-xs font-medium">
+                      {show.youtubeUrls && show.youtubeUrls.length > 0 && (
+                        <span className="text-red-600">📹 {show.youtubeUrls.length} Video{show.youtubeUrls.length > 1 ? 's' : ''}</span>
+                      )}
+                      {show.instagramUrls && show.instagramUrls.length > 0 && (
+                        <span className="text-pink-600">📱 {show.instagramUrls.length} Reel{show.instagramUrls.length > 1 ? 's' : ''}</span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {show.showComedians.length > 0 && (
@@ -500,7 +620,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
             ))}
           </div>
         </>
-      )}
-    </div>
+      )
+      }
+    </div >
   )
 }

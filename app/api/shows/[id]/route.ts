@@ -34,7 +34,7 @@ export async function GET(
     }
 
     // Visibility check: unpublished shows only visible to creator and admin
-    if (!show.isPublished) {
+    if (!(show as any).isPublished) {
       if (!user || (show.createdBy !== user.id && user.role !== 'ADMIN')) {
         return NextResponse.json({ error: "Show not found" }, { status: 404 })
       }
@@ -83,7 +83,7 @@ export async function PUT(
     // If show is published with bookings, enforce immutability rules
     const hasBookings = show._count.bookings > 0
 
-    if (show.isPublished && hasBookings) {
+    if ((show as any).isPublished && hasBookings) {
       // Block price changes
       if (updates.ticketPrice !== undefined && updates.ticketPrice !== show.ticketPrice) {
         return NextResponse.json({
@@ -118,9 +118,11 @@ export async function PUT(
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.venue) updateData.venue = updates.venue
     if (updates.posterImageUrl !== undefined) updateData.posterImageUrl = updates.posterImageUrl
+    if (updates.youtubeUrls !== undefined) updateData.youtubeUrls = updates.youtubeUrls
+    if (updates.instagramUrls !== undefined) updateData.instagramUrls = updates.instagramUrls
 
     // Only allow these if not published with bookings
-    if (!show.isPublished || !hasBookings) {
+    if (!(show as any).isPublished || !hasBookings) {
       if (updates.date) updateData.date = new Date(updates.date)
       if (updates.ticketPrice !== undefined) updateData.ticketPrice = updates.ticketPrice
       if (updates.totalTickets !== undefined) updateData.totalTickets = updates.totalTickets

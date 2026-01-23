@@ -102,17 +102,33 @@ export async function middleware(request: NextRequest) {
   // Protect organizer routes - allow existing session to pass, 
   // page-level auth will verify fresh role from DB
   if (pathname.startsWith("/organizer")) {
+    console.log("🎭 Organizer route accessed:", pathname)
+    console.log("🎭 Token:", token ? {
+      email: token.email,
+      role: (token as any).role,
+      id: (token as any).id
+    } : "NO TOKEN")
     if (!token) {
+      console.log("❌ Organizer access denied: No token")
       return NextResponse.redirect(new URL("/", request.url))
     }
+    console.log("✅ Organizer token check passed")
   }
 
   // Protect comedian routes - allow existing session to pass,
   // page-level auth will verify fresh role from DB
   if (pathname.startsWith("/comedian")) {
+    console.log("🎤 Comedian route accessed:", pathname)
+    console.log("🎤 Token:", token ? {
+      email: token.email,
+      role: (token as any).role,
+      id: (token as any).id
+    } : "NO TOKEN")
     if (!token) {
+      console.log("❌ Comedian access denied: No token")
       return NextResponse.redirect(new URL("/", request.url))
     }
+    console.log("✅ Comedian token check passed")
   }
 
   return NextResponse.next()

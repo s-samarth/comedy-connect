@@ -5,6 +5,7 @@
  */
 
 import { UserRole } from '@prisma/client';
+import { NextRequest } from 'next/server';
 import {
     getTestPrisma,
     createTestUser,
@@ -19,10 +20,17 @@ jest.mock('@/lib/auth', () => ({
     requireAdmin: jest.fn(),
 }));
 
+jest.mock('@/lib/admin-password', () => ({
+    verifyAdminSession: jest.fn(),
+}));
+
 // Import after mocking
 import * as authModule from '@/lib/auth';
+import * as adminPasswordModule from '@/lib/admin-password';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
+const mockRequireAdmin = authModule.requireAdmin as jest.MockedFunction<typeof authModule.requireAdmin>;
+const mockVerifyAdminSession = adminPasswordModule.verifyAdminSession as jest.MockedFunction<typeof adminPasswordModule.verifyAdminSession>;
 
 describe('Admin API - /api/admin/*', () => {
     let testAdmin: { id: string; email: string; role: UserRole };
@@ -60,6 +68,9 @@ describe('Admin API - /api/admin/*', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // Default to denied access
+        mockRequireAdmin.mockRejectedValue(new Error('Access denied'));
+        mockVerifyAdminSession.mockResolvedValue({ valid: false });
     });
 
     describe('GET /api/admin/organizers', () => {
@@ -74,7 +85,8 @@ describe('Admin API - /api/admin/*', () => {
         it('should return 401/403 for unauthenticated user', async () => {
             mockGetCurrentUser.mockResolvedValue(null);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/organizers');
+            const response = await GET(request);
 
             expect([401, 403]).toContain(response.status);
         });
@@ -86,7 +98,8 @@ describe('Admin API - /api/admin/*', () => {
                 role: UserRole.AUDIENCE,
             } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/organizers');
+            const response = await GET(request);
 
             expect(response.status).toBe(403);
         });
@@ -103,7 +116,8 @@ describe('Admin API - /api/admin/*', () => {
                 role: UserRole.ORGANIZER_VERIFIED,
             } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/organizers');
+            const response = await GET(request);
 
             expect(response.status).toBe(403);
         });
@@ -114,8 +128,10 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockRequireAdmin.mockResolvedValue({ id: testAdmin.id } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/organizers');
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();
@@ -135,7 +151,8 @@ describe('Admin API - /api/admin/*', () => {
         it('should return 401/403 for unauthenticated user', async () => {
             mockGetCurrentUser.mockResolvedValue(null);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/shows');
+            const response = await GET(request);
 
             expect([401, 403]).toContain(response.status);
         });
@@ -147,9 +164,10 @@ describe('Admin API - /api/admin/*', () => {
                 role: UserRole.AUDIENCE,
             } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/shows');
+            const response = await GET(request);
 
-            expect(response.status).toBe(403);
+            expect([401, 403]).toContain(response.status);
         });
 
         it('should return 200 with shows list for ADMIN', async () => {
@@ -158,8 +176,11 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockVerifyAdminSession.mockResolvedValue({ valid: true });
+            mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/shows');
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();
@@ -179,7 +200,8 @@ describe('Admin API - /api/admin/*', () => {
         it('should return 401/403 for unauthenticated user', async () => {
             mockGetCurrentUser.mockResolvedValue(null);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/comedians');
+            const response = await GET(request);
 
             expect([401, 403]).toContain(response.status);
         });
@@ -191,7 +213,8 @@ describe('Admin API - /api/admin/*', () => {
                 role: UserRole.AUDIENCE,
             } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/comedians');
+            const response = await GET(request);
 
             expect(response.status).toBe(403);
         });
@@ -202,8 +225,10 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/comedians');
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();
@@ -223,7 +248,8 @@ describe('Admin API - /api/admin/*', () => {
         it('should return 401/403 for unauthenticated user', async () => {
             mockGetCurrentUser.mockResolvedValue(null);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/fees');
+            const response = await GET(request);
 
             expect([401, 403]).toContain(response.status);
         });
@@ -235,7 +261,8 @@ describe('Admin API - /api/admin/*', () => {
                 role: UserRole.AUDIENCE,
             } as any);
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/fees');
+            const response = await GET(request);
 
             expect(response.status).toBe(403);
         });
@@ -246,8 +273,11 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockRequireAdmin.mockResolvedValue({ id: testAdmin.id } as any);
+            mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/fees');
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();

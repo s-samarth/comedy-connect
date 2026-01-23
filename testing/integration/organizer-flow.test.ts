@@ -16,13 +16,17 @@ import {
 // Mock the auth module
 jest.mock('@/lib/auth', () => ({
     getCurrentUser: jest.fn(),
-    isVerifiedOrganizer: jest.fn(),
+    requireShowCreator: jest.fn(),
+    isVerifiedShowCreator: jest.fn(),
+    requireAdmin: jest.fn(),
 }));
 
 import * as authModule from '@/lib/auth';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
-const mockIsVerifiedOrganizer = authModule.isVerifiedOrganizer as jest.MockedFunction<typeof authModule.isVerifiedOrganizer>;
+const mockRequireShowCreator = authModule.requireShowCreator as jest.MockedFunction<typeof authModule.requireShowCreator>;
+const mockRequireAdmin = authModule.requireAdmin as jest.MockedFunction<typeof authModule.requireAdmin>;
+const mockIsVerifiedShowCreator = authModule.isVerifiedShowCreator as jest.MockedFunction<typeof authModule.isVerifiedShowCreator>;
 
 describe('Integration: Organizer Verification Flow', () => {
     const prisma = getTestPrisma();
@@ -106,7 +110,12 @@ describe('Integration: Organizer Verification Flow', () => {
                 email: newUser.email,
                 role: UserRole.ORGANIZER_UNVERIFIED,
             } as any);
-            mockIsVerifiedOrganizer.mockReturnValue(false);
+            mockRequireShowCreator.mockResolvedValue({
+                id: newUser.id,
+                email: newUser.email,
+                role: UserRole.ORGANIZER_UNVERIFIED,
+            } as any);
+            mockIsVerifiedShowCreator.mockReturnValue(false);
 
             const request = new Request('http://localhost:3000/api/shows', {
                 method: 'POST',
@@ -128,6 +137,11 @@ describe('Integration: Organizer Verification Flow', () => {
             const { GET } = await import('@/app/api/admin/organizers/route');
 
             mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+            mockRequireAdmin.mockResolvedValue({
                 id: admin.id,
                 email: admin.email,
                 role: UserRole.ADMIN,
@@ -163,7 +177,12 @@ describe('Integration: Organizer Verification Flow', () => {
                 email: newUser.email,
                 role: UserRole.ORGANIZER_VERIFIED,
             } as any);
-            mockIsVerifiedOrganizer.mockReturnValue(true);
+            mockRequireShowCreator.mockResolvedValue({
+                id: newUser.id,
+                email: newUser.email,
+                role: UserRole.ORGANIZER_VERIFIED,
+            } as any);
+            mockIsVerifiedShowCreator.mockReturnValue(true);
 
             const request = new Request('http://localhost:3000/api/shows', {
                 method: 'POST',
@@ -204,7 +223,12 @@ describe('Integration: Organizer Verification Flow', () => {
                 email: rejectedUser.email,
                 role: UserRole.ORGANIZER_UNVERIFIED,
             } as any);
-            mockIsVerifiedOrganizer.mockReturnValue(false);
+            mockRequireShowCreator.mockResolvedValue({
+                id: rejectedUser.id,
+                email: rejectedUser.email,
+                role: UserRole.ORGANIZER_UNVERIFIED,
+            } as any);
+            mockIsVerifiedShowCreator.mockReturnValue(false);
 
             const request = new Request('http://localhost:3000/api/shows', {
                 method: 'POST',

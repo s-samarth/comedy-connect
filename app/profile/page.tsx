@@ -16,6 +16,8 @@ async function getUserProfile(userId: string) {
             providerAccountId: true,
           }
         },
+        organizerProfile: true,
+        comedianProfile: true,
         bookings: {
           include: {
             show: {
@@ -30,10 +32,10 @@ async function getUserProfile(userId: string) {
           },
           orderBy: { createdAt: 'desc' },
           take: 10
-        }
-      }
+        } as any
+      } as any
     })
-    return user
+    return user as any
   } catch (error) {
     console.error("Error fetching user profile:", error)
     return null

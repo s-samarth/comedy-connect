@@ -36,9 +36,14 @@ export default async function Home() {
                       Admin
                     </Link>
                   )}
+                  {user.role.startsWith("COMEDIAN") && (
+                    <Link href="/comedian" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                      Dashboard
+                    </Link>
+                  )}
                   {user.role.startsWith("ORGANIZER") && (
                     <Link href="/organizer" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
-                      Organizer
+                      Dashboard
                     </Link>
                   )}
                   <form action="/api/auth/signout" method="POST">

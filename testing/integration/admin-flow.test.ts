@@ -5,6 +5,7 @@
  */
 
 import { UserRole } from '@prisma/client';
+import { NextRequest } from 'next/server';
 import {
     getTestPrisma,
     createTestUser,
@@ -18,11 +19,19 @@ import {
 // Mock the auth module
 jest.mock('@/lib/auth', () => ({
     getCurrentUser: jest.fn(),
+    requireAdmin: jest.fn(),
+}));
+
+jest.mock('@/lib/admin-password', () => ({
+    verifyAdminSession: jest.fn(),
 }));
 
 import * as authModule from '@/lib/auth';
+import * as adminPasswordModule from '@/lib/admin-password';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
+const mockRequireAdmin = authModule.requireAdmin as jest.MockedFunction<typeof authModule.requireAdmin>;
+const mockVerifyAdminSession = adminPasswordModule.verifyAdminSession as jest.MockedFunction<typeof adminPasswordModule.verifyAdminSession>;
 
 describe('Integration: Admin Management Flow', () => {
     const prisma = getTestPrisma();
@@ -48,6 +57,8 @@ describe('Integration: Admin Management Flow', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockRequireAdmin.mockRejectedValue(new Error('Access denied'));
+        mockVerifyAdminSession.mockResolvedValue({ valid: false });
     });
 
     describe('Admin Dashboard Access', () => {
@@ -69,7 +80,13 @@ describe('Integration: Admin Management Flow', () => {
                 email: admin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockRequireAdmin.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
 
+            const request = new NextRequest('http://localhost:3000/api/admin/organizers');
             const response = await GET();
             expect(response.status).toBe(200);
 
@@ -91,8 +108,10 @@ describe('Integration: Admin Management Flow', () => {
                 email: admin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
-            const response = await GET();
+            const request = new NextRequest('http://localhost:3000/api/admin/shows');
+            const response = await GET(request);
             expect(response.status).toBe(200);
 
             const data = await response.json();
@@ -112,7 +131,13 @@ describe('Integration: Admin Management Flow', () => {
                 email: admin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockRequireAdmin.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
 
+            const request = new NextRequest('http://localhost:3000/api/admin/comedians');
             const response = await GET();
             expect(response.status).toBe(200);
 
@@ -130,7 +155,13 @@ describe('Integration: Admin Management Flow', () => {
                 email: admin.email,
                 role: UserRole.ADMIN,
             } as any);
+            mockRequireAdmin.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
 
+            const request = new NextRequest('http://localhost:3000/api/admin/fees');
             const response = await GET();
             expect(response.status).toBe(200);
         });
@@ -143,7 +174,9 @@ describe('Integration: Admin Management Flow', () => {
                 email: organizer.email,
                 role: UserRole.ORGANIZER_VERIFIED,
             } as any);
+            mockRequireAdmin.mockRejectedValue(new Error('Access denied: Admin role required'));
 
+            const request = new NextRequest('http://localhost:3000/api/admin/fees');
             const response = await GET();
             expect(response.status).toBe(403);
         });
@@ -172,7 +205,8 @@ describe('Integration: Admin Management Flow', () => {
                     role: UserRole.AUDIENCE,
                 } as any);
 
-                const response = await GET();
+                const request = new NextRequest(`http://localhost:3000${endpoint.replace('@/app', '')}`);
+                const response = await (GET as any)(request);
                 expect([401, 403]).toContain(response.status);
             }
         });

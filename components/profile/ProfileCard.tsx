@@ -19,6 +19,8 @@ interface ProfileCardProps {
       provider: string
       providerAccountId: string
     }>
+    organizerProfile?: any
+    comedianProfile?: any
   }
 }
 
@@ -88,11 +90,11 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         <h2 className="text-xl font-semibold text-gray-900 mb-2">
           {user.name || 'Anonymous User'}
         </h2>
-        
+
         <p className="text-sm text-gray-600 mb-4">
           {user.email}
         </p>
-        
+
         {/* Profile Completion Status */}
         <div className="mb-4">
           {isProfileComplete ? (
@@ -163,7 +165,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
               <p className="text-sm text-gray-500 mb-2">Comedy Interests</p>
               <div className="flex flex-wrap gap-1">
                 {(user.interests as string[]).map((interest, index) => (
-                  <span 
+                  <span
                     key={index}
                     className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800"
                   >
@@ -180,6 +182,24 @@ export default function ProfileCard({ user }: ProfileCardProps) {
               {formatDate(user.createdAt)}
             </p>
           </div>
+
+          {(user.organizerProfile || user.comedianProfile) && (
+            <div className="border-t pt-3">
+              <p className="text-sm text-gray-500 mb-2">Social Media & Clips</p>
+              <div className="flex flex-wrap gap-2">
+                {((user.organizerProfile?.youtubeUrls || user.comedianProfile?.youtubeUrls || []) as string[]).map((url, i) => (
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-1 rounded bg-red-50 text-red-700 text-xs hover:bg-red-100">
+                    📹 YouTube
+                  </a>
+                ))}
+                {((user.organizerProfile?.instagramUrls || user.comedianProfile?.instagramUrls || []) as string[]).map((url, i) => (
+                  <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-1 rounded bg-pink-50 text-pink-700 text-xs hover:bg-pink-100">
+                    📱 Instagram
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           {user.accounts && user.accounts.length > 0 && (
             <div>
@@ -217,14 +237,14 @@ export default function ProfileCard({ user }: ProfileCardProps) {
         {/* Action Buttons */}
         <div className="mt-6 space-y-2">
           {!isProfileComplete && (
-            <button 
+            <button
               onClick={() => router.push('/onboarding')}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
             >
               Complete Your Profile
             </button>
           )}
-          
+
           {user.role === 'ORGANIZER_UNVERIFIED' && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
               <p className="text-sm text-yellow-800">
@@ -232,7 +252,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
               </p>
             </div>
           )}
-          
+
           {user.role === 'AUDIENCE' && isProfileComplete && (
             <button className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium">
               Become an Organizer

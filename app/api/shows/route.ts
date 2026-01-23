@@ -1,4 +1,4 @@
-import { getCurrentUser, requireOrganizer, isVerifiedOrganizer } from "@/lib/auth"
+import { getCurrentUser, requireShowCreator, isVerifiedShowCreator } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { UserRole } from "@prisma/client"
@@ -309,10 +309,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const user = await requireOrganizer()
+    const user = await requireShowCreator()
 
     // Allow both verified organizers and verified comedians to create shows
-    const isVerified = (user.role as string) === "ORGANIZER_VERIFIED" || (user.role as string) === "COMEDIAN_VERIFIED"
+    const isVerified = isVerifiedShowCreator(user.role)
 
     if (!isVerified) {
       return NextResponse.json({
@@ -327,7 +327,10 @@ export async function POST(request: Request) {
       venue,
       ticketPrice,
       totalTickets,
-      comedianIds
+      comedianIds,
+      posterImageUrl,
+      youtubeUrls,
+      instagramUrls
     } = await request.json()
 
     // Validation
@@ -357,24 +360,24 @@ export async function POST(request: Request) {
       }, { status: 400 })
     }
 
-    // Validate comedians if provided
-    if (comedianIds && comedianIds.length > 0) {
-      const comedians = await prisma.comedian.findMany({
-        where: {
-          id: { in: comedianIds },
-          createdBy: user.id
-        }
-      })
-
-      if (comedians.length !== comedianIds.length) {
-        return NextResponse.json({
-          error: "Some comedians not found or not owned by you"
-        }, { status: 400 })
-      }
-    }
+    // Comedians are optional - validate only if provided
+    // Note: Validation removed to allow organizers to create shows without comedians
 
     // Create show and related records in a transaction
     const result = await prisma.$transaction(async (tx) => {
+      // Auto-add comedian to their own show
+      let finalComedianIds = comedianIds || []
+      if (user.role.startsWith('COMEDIAN')) {
+        const comedianProfile = await tx.comedian.findFirst({
+          where: { createdBy: user.id }
+        })
+
+        if (comedianProfile && !finalComedianIds.includes(comedianProfile.id)) {
+          // Add comedian to beginning of list
+          finalComedianIds = [comedianProfile.id, ...finalComedianIds]
+        }
+      }
+
       const show = await tx.show.create({
         data: {
           title,
@@ -383,7 +386,11 @@ export async function POST(request: Request) {
           venue,
           ticketPrice,
           totalTickets,
-          isPublished: false, // Shows start as drafts
+          posterImageUrl,
+          youtubeUrls: youtubeUrls || [],
+          instagramUrls: instagramUrls || [],
+          isPublished: true, // Shows are published by default and visible to everyone
+          createdBy: user.id, // FIX: Add createdBy field
         } as any
       })
 
@@ -396,8 +403,8 @@ export async function POST(request: Request) {
       })
 
       // Associate comedians if provided
-      if (comedianIds && comedianIds.length > 0) {
-        const showComedians = comedianIds.map((comedianId: string, index: number) => ({
+      if (finalComedianIds && finalComedianIds.length > 0) {
+        const showComedians = finalComedianIds.map((comedianId: string, index: number) => ({
           showId: show.id,
           comedianId,
           order: index
@@ -413,6 +420,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ show: result })
   } catch (error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    console.error('Error creating show:', error)
+    return NextResponse.json({
+      error: "Failed to create show. Please try again."
+    }, { status: 500 })
   }
 }

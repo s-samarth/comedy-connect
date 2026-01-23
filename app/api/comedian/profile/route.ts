@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         const body = await request.json()
         console.log("POST /api/comedian/profile: Body received", { ...body, stageName: body.stageName ? "present" : "missing" })
 
-        const { stageName, bio, contact, socialLinks } = body
+        const { stageName, bio, contact, socialLinks, youtubeUrls, instagramUrls } = body
 
         if (!stageName) {
             return NextResponse.json({ error: "Stage name is required" }, { status: 400 })
@@ -64,13 +64,15 @@ export async function POST(request: Request) {
         // Create or update comedian profile
         const profile = await (prisma as any).comedianProfile.upsert({
             where: { userId: user.id },
-            update: { stageName, bio, contact, socialLinks },
+            update: { stageName, bio, contact, socialLinks, youtubeUrls, instagramUrls },
             create: {
                 userId: user.id,
                 stageName,
                 bio,
                 contact,
-                socialLinks
+                socialLinks,
+                youtubeUrls,
+                instagramUrls
             }
         })
 

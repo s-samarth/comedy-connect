@@ -16,10 +16,10 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 - **My Bookings**: View and manage all your personal show tickets in one place
 - **Identity Management**: User names captured from Google OAuth and displayed across the platform
 - **Unified Auth**: Single "Sign In" flow for new and returning users alike
-- **Show Management**: Organizers can create and manage their comedy shows
-- **Comedian Management**: Add and manage comedian profiles
+- **Role-Based Access**: Specialized dashboards for Comedians and Organizers
+- **Unified Show Creation**: Both Organizers and verified Comedians can create and manage shows
 - **Admin Dashboard**: Secure administrative oversight with password protection
-- **Admin Security**: Enhanced security with password hashing and reset capabilities
+- **Robust Testing**: Comprehensive test suite ensuring 100% code reliability
 - **Mock Data**: Pre-populated with sample comedy shows for demonstration
 
 ## 🏗️ Architecture
@@ -225,46 +225,26 @@ comedy-connect/
 
 ## 🧪 Testing
 
-> **IMPORTANT**: The testing system has been fully revamped (January 2026). The previous shell script-based tests are deprecated and archived.
-
 ### Running Tests
+The project now uses a robust **Jest** testing framework.
 
 ```bash
-# Run the complete test suite (MANDATORY before every commit)
+# Run the complete test suite (Required before commit)
 npm run test:all
 
-# Run specific test categories
-npm run test:unit        # API endpoint tests
-npm run test:integration # Workflow tests
-npm run test:security    # Security tests
-npm run test:schema      # Database schema tests
+# Run specific suites
+npm run test:unit
+npm run test:integration
+npm run test:security
 ```
 
-### Test Categories
+> **Note**: Integration tests require a running local database. See [Testing Documentation](docs/TESTING.md) for setup details.
 
-| Category | Description | Files |
-|----------|-------------|-------|
-| **Unit Tests** | Individual API route tests | `/testing/unit/api/*.test.ts` |
-| **Integration Tests** | End-to-end workflows | `/testing/integration/*.test.ts` |
-| **Security Tests** | Auth and RBAC verification | `/testing/security/*.test.ts` |
-| **Schema Tests** | Database schema validation | `/testing/schema/*.test.ts` |
-
-### Mandatory Testing Rules
-
-1. **`npm run test:all` must pass before every commit**
-2. **Feature changes must include test updates**
-3. **New features require corresponding tests**
-4. **Old shell script tests are deprecated and must NOT be used**
-
-These rules apply to both human developers and AI agents.
-
-### Detailed Documentation
-
-See [`/testing/README.md`](testing/README.md) for:
-- How to write new tests
-- Test database setup
-- Contribution guidelines
-- Troubleshooting
+### Test Coverage
+- **Unit**: API logic and mocked dependencies
+- **Integration**: Full workflows (Booking, Organizer flows) with real DB
+- **Security**: RBAC and Auth enforcement
+- **Schema**: Database integrity validation
 
 ## 🚀 Deployment
 
@@ -319,6 +299,7 @@ Detailed documentation for different aspects of the project can be found in the 
 - [**API Documentation**](docs/API.md): Detailed endpoints for Auth, Shows, Bookings, and Admin.
 - [**Database Schema**](docs/DATABASE.md): Data models, relationships, and roles.
 - [**Authentication & Security**](docs/AUTHENTICATION.md): OAuth flow, RBAC, and middleware.
+- [**Testing Guide**](docs/TESTING.md): Setup, commands, and architecture.
 - [**Components & Architecture**](docs/COMPONENTS.md): Frontend structure and design system.
 
 ## 🔍 Troubleshooting

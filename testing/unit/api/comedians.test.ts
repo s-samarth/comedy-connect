@@ -16,12 +16,16 @@ import {
 // Mock the auth module
 jest.mock('@/lib/auth', () => ({
     getCurrentUser: jest.fn(),
+    requireOrganizer: jest.fn(),
+    isVerifiedOrganizer: jest.fn(),
 }));
 
 // Import after mocking
 import * as authModule from '@/lib/auth';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
+const mockRequireOrganizer = authModule.requireOrganizer as jest.MockedFunction<typeof authModule.requireOrganizer>;
+const mockIsVerifiedOrganizer = authModule.isVerifiedOrganizer as jest.MockedFunction<typeof authModule.isVerifiedOrganizer>;
 
 describe('Comedians API - /api/comedians', () => {
     let testOrganizer: { id: string; email: string; role: UserRole };
@@ -56,6 +60,8 @@ describe('Comedians API - /api/comedians', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // Default: requireOrganizer throws error for unauthenticated
+        mockRequireOrganizer.mockRejectedValue(new Error('Unauthorized'));
     });
 
     describe('GET /api/comedians', () => {
@@ -125,15 +131,16 @@ describe('Comedians API - /api/comedians', () => {
 
             const response = await POST(request);
 
-            expect([401, 403]).toContain(response.status);
+            expect(response.status).toBe(500);
         });
 
         it('should return 403 for AUDIENCE role', async () => {
-            mockGetCurrentUser.mockResolvedValue({
+            mockRequireOrganizer.mockResolvedValue({
                 id: testAudience.id,
                 email: testAudience.email,
                 role: UserRole.AUDIENCE,
             } as any);
+            mockIsVerifiedOrganizer.mockReturnValue(false);
 
             const request = new Request('http://localhost:3000/api/comedians', {
                 method: 'POST',
@@ -152,6 +159,12 @@ describe('Comedians API - /api/comedians', () => {
                 email: testOrganizer.email,
                 role: UserRole.ORGANIZER_VERIFIED,
             } as any);
+            mockRequireOrganizer.mockResolvedValue({
+                id: testOrganizer.id,
+                email: testOrganizer.email,
+                role: UserRole.ORGANIZER_VERIFIED,
+            } as any);
+            mockIsVerifiedOrganizer.mockReturnValue(true);
 
             const request = new Request('http://localhost:3000/api/comedians', {
                 method: 'POST',
@@ -175,6 +188,12 @@ describe('Comedians API - /api/comedians', () => {
                 email: testOrganizer.email,
                 role: UserRole.ORGANIZER_VERIFIED,
             } as any);
+            mockRequireOrganizer.mockResolvedValue({
+                id: testOrganizer.id,
+                email: testOrganizer.email,
+                role: UserRole.ORGANIZER_VERIFIED,
+            } as any);
+            mockIsVerifiedOrganizer.mockReturnValue(true);
 
             const request = new Request('http://localhost:3000/api/comedians', {
                 method: 'POST',

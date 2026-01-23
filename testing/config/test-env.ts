@@ -5,6 +5,11 @@
  * It sets up the test environment and global configurations.
  */
 
+import { loadEnvConfig } from '@next/env';
+
+// Load environment variables from .env* files
+loadEnvConfig(process.cwd());
+
 // Load environment variables for testing
 // Note: NODE_ENV is set by Jest automatically
 if (!process.env.NEXTAUTH_SECRET) {

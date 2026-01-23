@@ -20,7 +20,7 @@
   - Query Params: `date`, `venue`, `price`.
 - **`POST /api/shows`**
   - Creates a new comedy show.
-  - Role Required: `ORGANIZER_VERIFIED` or `COMEDIAN_VERIFIED`.
+  - Role Required: `ORGANIZER_VERIFIED`, `COMEDIAN_VERIFIED`, or `ADMIN`.
 - **`GET /api/shows/[id]`**
   - Retrieves details for a specific show.
 - **`PUT /api/shows/[id]`**

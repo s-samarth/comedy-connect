@@ -52,8 +52,22 @@ export default async function ShowPage({ params }: PageProps) {
                 <span>📅 {new Date(show.date).toLocaleDateString()}</span>
                 <span>🕐 {new Date(show.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
               </div>
-              <div className="mt-2">
+              <div className="mt-2 flex items-center gap-4">
                 <span>📍 {show.venue}</span>
+                {((show as any).youtubeUrls && (show as any).youtubeUrls.length > 0) || ((show as any).instagramUrls && (show as any).instagramUrls.length > 0) ? (
+                  <div className="flex gap-3">
+                    {(show as any).youtubeUrls?.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-white hover:text-red-400 transition-colors" title="YouTube Video">
+                        📹
+                      </a>
+                    ))}
+                    {(show as any).instagramUrls?.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-white hover:text-pink-400 transition-colors" title="Instagram Reel">
+                        📱
+                      </a>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
           </div>
@@ -89,6 +103,18 @@ export default async function ShowPage({ params }: PageProps) {
                             {showComedian.comedian.bio}
                           </p>
                         )}
+                        <div className="flex justify-center gap-2 mt-2">
+                          {(showComedian.comedian as any).youtubeUrls?.map((url: string, i: number) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-red-600 hover:scale-110 transition-transform" title="YouTube Video">
+                              📹
+                            </a>
+                          ))}
+                          {(showComedian.comedian as any).instagramUrls?.map((url: string, i: number) => (
+                            <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="text-pink-600 hover:scale-110 transition-transform" title="Instagram Reel">
+                              📱
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

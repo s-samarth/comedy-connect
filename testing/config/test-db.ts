@@ -32,42 +32,60 @@ export async function cleanupTestData(): Promise<void> {
     const prisma = getTestPrisma();
 
     try {
-        // First get all test show IDs to also clean related bookings
-        const testShows = await prisma.show.findMany({
-            where: { id: { startsWith: 'test-' } },
-            select: { id: true },
-        });
-        const testShowIds = testShows.map(s => s.id);
+        // Delete in order respecting foreign key constraints
 
-        // Delete bookings first (both test-prefixed and those referencing test shows)
-        if (testShowIds.length > 0) {
-            await prisma.booking.deleteMany({
-                where: {
-                    OR: [
-                        { id: { startsWith: 'test-' } },
-                        { showId: { in: testShowIds } },
-                    ],
-                },
-            });
-        } else {
-            await prisma.booking.deleteMany({
-                where: { id: { startsWith: 'test-' } },
-            });
-        }
-
-        // Now delete in order respecting remaining foreign key constraints
-        await prisma.ticketInventory.deleteMany({
-            where: { id: { startsWith: 'test-' } },
-        });
+        // 1. Delete ShowComedian (references Show and Comedian)
         await prisma.showComedian.deleteMany({
-            where: { id: { startsWith: 'test-' } },
+            where: {
+                OR: [
+                    { id: { startsWith: 'test-' } },
+                    { show: { createdBy: { startsWith: 'test-' } } },
+                ],
+            },
         });
+
+        // 2. Delete TicketInventory (references Show)
+        await prisma.ticketInventory.deleteMany({
+            where: {
+                OR: [
+                    { id: { startsWith: 'test-' } },
+                    { show: { createdBy: { startsWith: 'test-' } } },
+                ],
+            },
+        });
+
+        // 3. Delete Booking (references Show and User)
+        await prisma.booking.deleteMany({
+            where: {
+                OR: [
+                    { id: { startsWith: 'test-' } },
+                    { show: { createdBy: { startsWith: 'test-' } } },
+                    { userId: { startsWith: 'test-' } },
+                ],
+            },
+        });
+
+        // 4. Delete Show (references User via createdBy)
         await prisma.show.deleteMany({
-            where: { id: { startsWith: 'test-' } },
+            where: {
+                OR: [
+                    { id: { startsWith: 'test-' } },
+                    { createdBy: { startsWith: 'test-' } },
+                ],
+            },
         });
+
+        // 5. Delete Comedian (references User via createdBy)
         await prisma.comedian.deleteMany({
-            where: { id: { startsWith: 'test-' } },
+            where: {
+                OR: [
+                    { id: { startsWith: 'test-' } },
+                    { createdBy: { startsWith: 'test-' } },
+                ],
+            },
         });
+
+        // 6. Delete other profiles and data
         await prisma.comedianApproval.deleteMany({
             where: { id: { startsWith: 'test-' } },
         });
@@ -86,6 +104,8 @@ export async function cleanupTestData(): Promise<void> {
         await prisma.account.deleteMany({
             where: { id: { startsWith: 'test-' } },
         });
+
+        // 7. Delete User (final step)
         await prisma.user.deleteMany({
             where: { id: { startsWith: 'test-' } },
         });

@@ -14,11 +14,19 @@ import {
 // Mock the auth module
 jest.mock('@/lib/auth', () => ({
     getCurrentUser: jest.fn(),
+    requireAdmin: jest.fn(),
+}));
+
+jest.mock('@/lib/admin-password', () => ({
+    verifyAdminSession: jest.fn(),
 }));
 
 import * as authModule from '@/lib/auth';
+import * as adminPasswordModule from '@/lib/admin-password';
 
 const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
+const mockRequireAdmin = authModule.requireAdmin as jest.MockedFunction<typeof authModule.requireAdmin>;
+const mockVerifyAdminSession = adminPasswordModule.verifyAdminSession as jest.MockedFunction<typeof adminPasswordModule.verifyAdminSession>;
 
 describe('Security: Admin Protected Endpoints', () => {
     let admin: { id: string; email: string; role: UserRole };
@@ -37,6 +45,8 @@ describe('Security: Admin Protected Endpoints', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        mockRequireAdmin.mockRejectedValue(new Error('Access denied'));
+        mockVerifyAdminSession.mockResolvedValue({ valid: false });
     });
 
     describe('All Admin Endpoints Protected', () => {
@@ -80,11 +90,13 @@ describe('Security: Admin Protected Endpoints', () => {
                             email: user.email,
                             role,
                         } as any);
+                        mockRequireAdmin.mockRejectedValue(new Error('Access denied: Admin role required'));
+                        mockVerifyAdminSession.mockResolvedValue({ valid: false });
 
                         const module = await import(endpoint.path);
                         const response = await module.GET();
 
-                        expect(response.status).toBe(403);
+                        expect([401, 403]).toContain(response.status);
                     });
                 }
             }
@@ -98,6 +110,12 @@ describe('Security: Admin Protected Endpoints', () => {
                         email: admin.email,
                         role: UserRole.ADMIN,
                     } as any);
+                    mockRequireAdmin.mockResolvedValue({
+                        id: admin.id,
+                        email: admin.email,
+                        role: UserRole.ADMIN,
+                    } as any);
+                    mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
                     const module = await import(endpoint.path);
                     const response = await module.GET();

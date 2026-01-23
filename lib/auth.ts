@@ -89,3 +89,15 @@ export function isVerifiedOrganizer(role: UserRole): boolean {
 export function isVerifiedComedian(role: UserRole): boolean {
   return (role as string) === "COMEDIAN_VERIFIED"
 }
+
+export async function requireShowCreator() {
+  const user = await requireAuth()
+  if (!user.role.startsWith("COMEDIAN") && !user.role.startsWith("ORGANIZER")) {
+    throw new Error("Access denied. Comedian or Organizer role required")
+  }
+  return user
+}
+
+export function isVerifiedShowCreator(role: UserRole): boolean {
+  return isVerifiedComedian(role) || isVerifiedOrganizer(role)
+}

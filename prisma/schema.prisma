@@ -112,7 +112,9 @@ model ComedianProfile {
   bio         String?
   contact     String?
   socialLinks Json?
-  createdAt   DateTime           @default(now())
+  youtubeUrls   String[]            @default([])
+  instagramUrls String[]            @default([])
+  createdAt     DateTime            @default(now())
   updatedAt   DateTime           @updatedAt
   approvals   ComedianApproval[]
   user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -157,6 +159,8 @@ model Show {
   totalTickets    Int
   posterImageUrl  String?
   isPublished     Boolean          @default(false)
+  youtubeUrls     String[]         @default([])
+  instagramUrls   String[]         @default([])
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   createdBy       String

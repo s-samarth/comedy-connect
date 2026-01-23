@@ -261,7 +261,14 @@ export async function GET() {
           showComedians: {
             include: {
               comedian: {
-                select: { id: true, name: true, bio: true, profileImageUrl: true }
+                select: {
+                  id: true,
+                  name: true,
+                  bio: true,
+                  profileImageUrl: true,
+                  youtubeUrls: true,
+                  instagramUrls: true
+                }
               }
             },
             orderBy: { order: 'asc' }

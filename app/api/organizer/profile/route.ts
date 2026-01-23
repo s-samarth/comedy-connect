@@ -2,6 +2,7 @@ import { getCurrentUser, requireOrganizer } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { UserRole } from "@prisma/client"
+import { validateMediaUrls, sanitizeMediaUrls } from "@/lib/media-validation"
 
 export async function GET() {
   try {
@@ -36,10 +37,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, contact, description, venue } = await request.json()
+    const {
+      name,
+      contact,
+      description,
+      venue,
+      youtubeUrls,
+      instagramUrls
+    } = await request.json()
 
     if (!name) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 })
+    }
+
+    // Sanitize and validate media URLs
+    const sanitizedYouTube = sanitizeMediaUrls(youtubeUrls || [])
+    const sanitizedInstagram = sanitizeMediaUrls(instagramUrls || [])
+
+    const validation = validateMediaUrls(sanitizedYouTube, sanitizedInstagram)
+    if (!validation.valid) {
+      return NextResponse.json(
+        { error: "Invalid media URLs", details: validation.errors },
+        { status: 400 }
+      )
     }
 
     // Update user role to organizer if not already
@@ -51,18 +71,29 @@ export async function POST(request: Request) {
     // Create or update organizer profile
     const profile = await prisma.organizerProfile.upsert({
       where: { userId: user.id },
-      update: { name, contact, description, venue },
+      update: {
+        name,
+        contact,
+        description,
+        venue,
+        youtubeUrls: sanitizedYouTube,
+        instagramUrls: sanitizedInstagram
+      },
       create: {
         userId: user.id,
         name,
         contact,
         description,
-        venue
+        venue,
+        youtubeUrls: sanitizedYouTube,
+        instagramUrls: sanitizedInstagram
       }
     })
 
     return NextResponse.json({ profile })
   } catch (error) {
+    console.error("Profile update error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+

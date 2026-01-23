@@ -78,16 +78,18 @@ model VerificationToken {
 }
 
 model OrganizerProfile {
-  id          String              @id @default(uuid())
-  userId      String              @unique
-  name        String
-  contact     String?
-  description String?
-  venue       String?
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  approvals   OrganizerApproval[]
-  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String              @id @default(uuid())
+  userId        String              @unique
+  name          String
+  contact       String?
+  description   String?
+  venue         String?
+  youtubeUrls   String[]            @default([])
+  instagramUrls String[]            @default([])
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  approvals     OrganizerApproval[]
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model OrganizerApproval {
@@ -136,6 +138,8 @@ model Comedian {
   profileImageUrl String?
   socialLinks     Json?
   promoVideoUrl   String?
+  youtubeUrls     String[]       @default([])
+  instagramUrls   String[]       @default([])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   createdBy       String

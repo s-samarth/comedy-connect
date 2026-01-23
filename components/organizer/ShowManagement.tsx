@@ -20,6 +20,8 @@ interface Show {
     comedian: {
       id: string
       name: string
+      youtubeUrls?: string[]
+      instagramUrls?: string[]
     }
   }>
   ticketInventory: {
@@ -55,6 +57,15 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     totalTickets: "",
     comedianIds: [] as string[],
     posterImageUrl: ""
+  })
+  const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all")
+
+  const filteredShows = shows.filter(show => {
+    const showDate = new Date(show.date)
+    const now = new Date()
+    if (filter === "upcoming") return showDate >= now
+    if (filter === "past") return showDate < now
+    return true
   })
 
   useEffect(() => {
@@ -94,7 +105,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     try {
       const url = editingShow ? `/api/shows/${editingShow.id}` : "/api/shows"
       const method = editingShow ? "PUT" : "POST"
-      
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -385,62 +396,110 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {shows.map((show) => (
-            <div key={show.id} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="font-semibold text-lg flex-1">{show.title}</h3>
-                {show._count.bookings > 0 && (
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                    {show._count.bookings} booking{show._count.bookings > 1 ? 's' : ''}
-                  </span>
+        <>
+          <div className="mb-4 flex space-x-2">
+            <button
+              onClick={() => setFilter("all")}
+              className={`px-3 py-1 text-sm rounded-full ${filter === "all" ? "bg-blue-600 text-white" : "bg-zinc-200 text-zinc-700"
+                }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setFilter("upcoming")}
+              className={`px-3 py-1 text-sm rounded-full ${filter === "upcoming" ? "bg-blue-600 text-white" : "bg-zinc-200 text-zinc-700"
+                }`}
+            >
+              Upcoming
+            </button>
+            <button
+              onClick={() => setFilter("past")}
+              className={`px-3 py-1 text-sm rounded-full ${filter === "past" ? "bg-blue-600 text-white" : "bg-zinc-200 text-zinc-700"
+                }`}
+            >
+              Past
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredShows.map((show) => (
+              <div key={show.id} className="bg-white rounded-lg shadow p-6">
+                <div className="flex justify-between items-start mb-4">
+                  <h3 className="font-semibold text-lg flex-1">{show.title}</h3>
+                  {show._count.bookings > 0 && (
+                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                      {show._count.bookings} booking{show._count.bookings > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-2 text-sm text-zinc-600 mb-4">
+                  <div>📅 {formatDate(show.date)}</div>
+                  <div>📍 {show.venue}</div>
+                  <div>🎫 {formatPrice(show.ticketPrice)}</div>
+                  <div>
+                    🎟️ {show.ticketInventory.available} of {show.totalTickets} tickets available
+                  </div>
+                </div>
+
+                {show.showComedians.length > 0 && (
+                  <div className="mb-4 border-t pt-2">
+                    <p className="text-sm font-medium text-zinc-700 mb-2">Comedian Lineup:</p>
+                    <div className="space-y-2">
+                      {show.showComedians.map(sc => (
+                        <div key={sc.comedian.id} className="bg-zinc-50 p-2 rounded">
+                          <p className="font-medium text-sm">{sc.comedian.name}</p>
+                          {((sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0) ||
+                            (sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0)) && (
+                              <div className="mt-1 flex gap-2 text-xs">
+                                {sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0 && (
+                                  <span className="text-red-600 flex items-center gap-1">
+                                    📹 {sc.comedian.youtubeUrls.length} Video{sc.comedian.youtubeUrls.length > 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                {sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0 && (
+                                  <span className="text-pink-600 flex items-center gap-1">
+                                    📱 {sc.comedian.instagramUrls.length} Reel{sc.comedian.instagramUrls.length > 1 ? 's' : ''}
+                                  </span>
+                                )}
+                                <a href={`/comedians/${sc.comedian.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue-600 hover:underline">
+                                  View Profile
+                                </a>
+                              </div>
+                            )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {isVerified && (
+                  <div className="flex gap-2 mt-4 pt-4 border-t">
+                    <button
+                      onClick={() => handleEdit(show)}
+                      disabled={show._count.bookings > 0}
+                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(show.id)}
+                      disabled={show._count.bookings > 0}
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Delete
+                    </button>
+                    {show._count.bookings > 0 && (
+                      <span className="ml-auto text-xs text-zinc-500 self-center">
+                        Locked (has bookings)
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
-              
-              <div className="space-y-2 text-sm text-zinc-600 mb-4">
-                <div>{formatDate(show.date)}</div>
-                <div>📍 {show.venue}</div>
-                <div>🎫 {formatPrice(show.ticketPrice)}</div>
-                <div>
-                  {show.ticketInventory.available} of {show.totalTickets} tickets available
-                </div>
-              </div>
-
-              {show.showComedians.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-sm font-medium text-zinc-700 mb-1">
-                    Featuring: {show.showComedians.map(sc => sc.comedian.name).join(", ")}
-                  </p>
-                </div>
-              )}
-
-              {isVerified && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(show)}
-                    disabled={show._count.bookings > 0}
-                    className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(show.id)}
-                    disabled={show._count.bookings > 0}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Delete
-                  </button>
-                </div>
-              )}
-
-              {show._count.bookings > 0 && (
-                <p className="text-xs text-zinc-500 mt-2">
-                  Cannot edit/delete shows with bookings
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   )

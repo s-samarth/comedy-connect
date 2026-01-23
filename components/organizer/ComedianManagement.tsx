@@ -10,6 +10,8 @@ interface Comedian {
   profileImageUrl?: string
   socialLinks?: any
   promoVideoUrl?: string
+  youtubeUrls?: string[]
+  instagramUrls?: string[]
   createdAt: string
   creator: {
     email: string
@@ -38,8 +40,13 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
     bio: "",
     socialLinks: { instagram: "", twitter: "", youtube: "" },
     promoVideoUrl: "",
-    profileImageUrl: ""
+    profileImageUrl: "",
+    youtubeUrls: [] as string[],
+    instagramUrls: [] as string[]
   })
+
+  const [newYoutubeUrl, setNewYoutubeUrl] = useState("")
+  const [newInstagramUrl, setNewInstagramUrl] = useState("")
 
   useEffect(() => {
     fetchComedians()
@@ -66,7 +73,7 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
     try {
       const url = editingComedian ? `/api/comedians/${editingComedian.id}` : "/api/comedians"
       const method = editingComedian ? "PUT" : "POST"
-      
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -82,8 +89,12 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
           bio: "",
           socialLinks: { instagram: "", twitter: "", youtube: "" },
           promoVideoUrl: "",
-          profileImageUrl: ""
+          profileImageUrl: "",
+          youtubeUrls: [],
+          instagramUrls: []
         })
+        setNewYoutubeUrl("")
+        setNewInstagramUrl("")
       } else {
         const error = await response.json()
         alert(error.error || "Failed to save comedian")
@@ -102,7 +113,9 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
       bio: comedian.bio || "",
       socialLinks: comedian.socialLinks || { instagram: "", twitter: "", youtube: "" },
       promoVideoUrl: comedian.promoVideoUrl || "",
-      profileImageUrl: comedian.profileImageUrl || ""
+      profileImageUrl: comedian.profileImageUrl || "",
+      youtubeUrls: comedian.youtubeUrls || [],
+      instagramUrls: comedian.instagramUrls || []
     })
     setShowForm(true)
   }
@@ -250,6 +263,116 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
               />
             </div>
 
+            {/* Media Library Section */}
+            <div className="border-t pt-4">
+              <h4 className="text-md font-semibold text-zinc-900 mb-3">Performance Videos (Optional)</h4>
+              <p className="text-sm text-zinc-600 mb-3">Add clips of this comedian's performances</p>
+
+              {/* YouTube URLs */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  YouTube Videos
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="url"
+                    value={newYoutubeUrl}
+                    onChange={(e) => setNewYoutubeUrl(e.target.value)}
+                    placeholder="https://youtube.com/watch?v=..."
+                    className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newYoutubeUrl.trim()) {
+                        setFormData(prev => ({
+                          ...prev,
+                          youtubeUrls: [...prev.youtubeUrls, newYoutubeUrl.trim()]
+                        }))
+                        setNewYoutubeUrl("")
+                      }
+                    }}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    Add
+                  </button>
+                </div>
+                {formData.youtubeUrls.length > 0 && (
+                  <div className="space-y-1">
+                    {formData.youtubeUrls.map((url: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2 bg-zinc-50 p-2 rounded text-sm">
+                        <span className="flex-1 text-zinc-700 truncate">{url}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              youtubeUrls: prev.youtubeUrls.filter((_: string, i: number) => i !== index)
+                            }))
+                          }}
+                          className="px-2 py-1 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Instagram URLs */}
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Instagram Reels
+                </label>
+                <div className="flex gap-2 mb-2">
+                  <input
+                    type="url"
+                    value={newInstagramUrl}
+                    onChange={(e) => setNewInstagramUrl(e.target.value)}
+                    placeholder="https://instagram.com/p/... or /reel/..."
+                    className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (newInstagramUrl.trim()) {
+                        setFormData(prev => ({
+                          ...prev,
+                          instagramUrls: [...prev.instagramUrls, newInstagramUrl.trim()]
+                        }))
+                        setNewInstagramUrl("")
+                      }
+                    }}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  >
+                    Add
+                  </button>
+                </div>
+                {formData.instagramUrls.length > 0 && (
+                  <div className="space-y-1">
+                    {formData.instagramUrls.map((url: string, index: number) => (
+                      <div key={index} className="flex items-center gap-2 bg-zinc-50 p-2 rounded text-sm">
+                        <span className="flex-1 text-zinc-700 truncate">{url}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({
+                              ...prev,
+                              instagramUrls: prev.instagramUrls.filter((_: string, i: number) => i !== index)
+                            }))
+                          }}
+                          className="px-2 py-1 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -267,8 +390,12 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
                     bio: "",
                     socialLinks: { instagram: "", twitter: "", youtube: "" },
                     promoVideoUrl: "",
-                    profileImageUrl: ""
+                    profileImageUrl: "",
+                    youtubeUrls: [],
+                    instagramUrls: []
                   })
+                  setNewYoutubeUrl("")
+                  setNewInstagramUrl("")
                 }}
                 className="px-4 py-2 bg-zinc-300 text-zinc-700 rounded hover:bg-zinc-400"
               >
@@ -293,7 +420,7 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
               {comedian.bio && (
                 <p className="text-zinc-600 text-sm mb-4 line-clamp-3">{comedian.bio}</p>
               )}
-              
+
               {comedian.showComedians && comedian.showComedians.length > 0 && (
                 <p className="text-xs text-zinc-500 mb-4">
                   Featured in {comedian.showComedians.length} show{comedian.showComedians.length > 1 ? 's' : ''}

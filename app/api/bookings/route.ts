@@ -50,9 +50,11 @@ export async function POST(request: Request) {
         throw new Error("Cannot book past shows")
       }
 
-      // Check available tickets
-      const inventory = show.ticketInventory
-      if (!inventory || inventory.available < quantity) {
+      // Check available tickets - handled as potentially single or array from types
+      const inventory = (show as any).ticketInventory
+      const available = Array.isArray(inventory) ? inventory[0]?.available : inventory?.available
+
+      if (!available || available < quantity) {
         throw new Error("Not enough tickets available")
       }
 

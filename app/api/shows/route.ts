@@ -268,7 +268,7 @@ export async function GET() {
                   profileImageUrl: true,
                   youtubeUrls: true,
                   instagramUrls: true
-                }
+                } as any
               }
             },
             orderBy: { order: 'asc' }
@@ -312,7 +312,7 @@ export async function POST(request: Request) {
     const user = await requireOrganizer()
 
     // Allow both verified organizers and verified comedians to create shows
-    const isVerified = user.role === UserRole.ORGANIZER_VERIFIED || user.role === UserRole.COMEDIAN_VERIFIED
+    const isVerified = (user.role as string) === "ORGANIZER_VERIFIED" || (user.role as string) === "COMEDIAN_VERIFIED"
 
     if (!isVerified) {
       return NextResponse.json({
@@ -384,8 +384,7 @@ export async function POST(request: Request) {
           ticketPrice,
           totalTickets,
           isPublished: false, // Shows start as drafts
-          createdBy: user.id
-        }
+        } as any
       })
 
       // Create ticket inventory

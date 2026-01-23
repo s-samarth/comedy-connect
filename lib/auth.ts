@@ -7,10 +7,10 @@ import { validateAdminSession } from "@/lib/admin-password"
 export async function getCurrentUser() {
   // 1. Try NextAuth session first
   const session = await getServerSession(authOptions)
-  if ((session as any)?.user?.email) {
+  if ((session as any)?.user?.id) {
     const { prisma } = await import('@/lib/prisma')
     return await prisma.user.findUnique({
-      where: { email: (session as any).user.email }
+      where: { id: (session as any).user.id }
     })
   }
 
@@ -70,10 +70,22 @@ export async function requireOrganizer() {
   return user
 }
 
+export async function requireComedian() {
+  const user = await requireAuth()
+  if (!user.role.startsWith("COMEDIAN")) {
+    throw new Error("Access denied. Comedian role required")
+  }
+  return user
+}
+
 export async function requireAdmin() {
   return requireRole("ADMIN")
 }
 
 export function isVerifiedOrganizer(role: UserRole): boolean {
   return role === "ORGANIZER_VERIFIED"
+}
+
+export function isVerifiedComedian(role: UserRole): boolean {
+  return (role as string) === "COMEDIAN_VERIFIED"
 }

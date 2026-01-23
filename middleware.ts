@@ -99,10 +99,18 @@ export async function middleware(request: NextRequest) {
     console.log("✅ Admin access granted")
   }
 
-  // Protect organizer routes
+  // Protect organizer routes - allow existing session to pass, 
+  // page-level auth will verify fresh role from DB
   if (pathname.startsWith("/organizer")) {
-    const role = (token as any)?.role as string | undefined
-    if (!role || !role.startsWith("ORGANIZER")) {
+    if (!token) {
+      return NextResponse.redirect(new URL("/", request.url))
+    }
+  }
+
+  // Protect comedian routes - allow existing session to pass,
+  // page-level auth will verify fresh role from DB
+  if (pathname.startsWith("/comedian")) {
+    if (!token) {
       return NextResponse.redirect(new URL("/", request.url))
     }
   }

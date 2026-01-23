@@ -10,7 +10,7 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
-        const profile = await prisma.comedianProfile.findUnique({
+        const profile = await (prisma as any).comedianProfile.findUnique({
             where: { userId: user.id },
             include: {
                 approvals: {
@@ -51,15 +51,18 @@ export async function POST(request: Request) {
         }
 
         console.log("POST /api/comedian/profile: Updating user role for", user.id)
-        // Update user role to comedian if not already
-        await prisma.user.update({
+        // Update user role and mark onboarding as completed
+        await (prisma as any).user.update({
             where: { id: user.id },
-            data: { role: UserRole.COMEDIAN_UNVERIFIED }
+            data: {
+                role: "COMEDIAN_UNVERIFIED",
+                onboardingCompleted: true
+            }
         })
 
         console.log("POST /api/comedian/profile: Upserting comedian profile for", user.id)
         // Create or update comedian profile
-        const profile = await prisma.comedianProfile.upsert({
+        const profile = await (prisma as any).comedianProfile.upsert({
             where: { userId: user.id },
             update: { stageName, bio, contact, socialLinks },
             create: {

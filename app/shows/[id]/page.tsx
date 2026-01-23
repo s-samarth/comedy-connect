@@ -98,30 +98,39 @@ export default async function ShowPage({ params }: PageProps) {
                 <div>
                   <h2 className="text-xl font-semibold mb-3">Ticket Information</h2>
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span className="text-gray-600">Total Tickets:</span>
-                        <span className="ml-2 font-medium">{show.totalTickets}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Available:</span>
-                        <span className="ml-2 font-medium">{show.ticketInventory?.available || 0}</span>
-                        <span className="ml-2 font-medium text-green-600">
-                          ({show.ticketInventory?.available || 0} available)
-                        </span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Price per Ticket:</span>
-                        <span className="ml-2 font-medium">₹{show.ticketPrice}</span>
-                      </div>
-                      <div>
-                        <span className="text-gray-600">Status:</span>
-                        <span className={`ml-2 font-medium ${(show.ticketInventory?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                          {(show.ticketInventory?.available || 0) > 0 ? 'Available' : 'Sold Out'}
-                        </span>
-                      </div>
-                    </div>
+                    {(() => {
+                      const inventory = (show as any).ticketInventory
+                      const available = Array.isArray(inventory) ? inventory[0]?.available : inventory?.available
+                      const isAvailable = (available || 0) > 0
+
+                      return (
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-gray-600">Total Tickets:</span>
+                            <span className="ml-2 font-medium">{show.totalTickets}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Available:</span>
+                            <span className="ml-2 font-medium">
+                              {available || 0}
+                            </span>
+                            <span className="ml-2 font-medium text-green-600">
+                              ({available || 0} available)
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Price per Ticket:</span>
+                            <span className="ml-2 font-medium">₹{show.ticketPrice}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">Status:</span>
+                            <span className={`ml-2 font-medium ${isAvailable ? 'text-green-600' : 'text-red-600'}`}>
+                              {isAvailable ? 'Available' : 'Sold Out'}
+                            </span>
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
 
@@ -144,7 +153,7 @@ export default async function ShowPage({ params }: PageProps) {
 
               {/* Booking Section */}
               <div className="md:col-span-1">
-                <ShowBooking show={show} user={user} />
+                <ShowBooking show={show as any} user={user} />
               </div>
             </div>
           </div>

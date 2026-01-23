@@ -43,11 +43,12 @@ export const authOptions: NextAuthOptions = {
         // Fetch fresh data from database when token is validated
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { role: true, name: true }
+          select: { role: true, name: true, onboardingCompleted: true }
         })
         if (dbUser) {
           token.role = dbUser.role
           token.name = dbUser.name
+          token.onboardingCompleted = dbUser.onboardingCompleted
         }
       }
       return token

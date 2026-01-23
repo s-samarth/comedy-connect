@@ -62,14 +62,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Update user role to organizer if not already
+    // Update user role and mark onboarding as completed
     await prisma.user.update({
       where: { id: user.id },
-      data: { role: UserRole.ORGANIZER_UNVERIFIED }
+      data: {
+        role: UserRole.ORGANIZER_UNVERIFIED,
+        onboardingCompleted: true
+      }
     })
 
     // Create or update organizer profile
-    const profile = await prisma.organizerProfile.upsert({
+    const profile = await (prisma as any).organizerProfile.upsert({
       where: { userId: user.id },
       update: {
         name,

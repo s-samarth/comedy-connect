@@ -225,43 +225,46 @@ comedy-connect/
 
 ## 🧪 Testing
 
-### Available Test Scripts
+> **IMPORTANT**: The testing system has been fully revamped (January 2026). The previous shell script-based tests are deprecated and archived.
+
+### Running Tests
+
 ```bash
-# Test authentication flow
-npm run test-auth
+# Run the complete test suite (MANDATORY before every commit)
+npm run test:all
 
-# Test comedian management
-npm run test-comedian-management
-
-# Test show management
-npm run test-show-management
-
-# Test image uploads
-npm run test-image-upload
-
-# Test organizer verification
-npm run test-organizer-verification
-
-# Comprehensive verification scripts
-./test-auth.sh
-./test-comedian-management.sh
-./test-cp4-cp8-verification.sh
-./test-final-verification.sh
-./test-image-upload.sh
-./test-media-handling.sh
-./test-organizer-verification.sh
-./test-show-management.sh
-
-# Run all tests
-npm run test-all
+# Run specific test categories
+npm run test:unit        # API endpoint tests
+npm run test:integration # Workflow tests
+npm run test:security    # Security tests
+npm run test:schema      # Database schema tests
 ```
 
-### Test Coverage
-- Authentication flows
-- CRUD operations
-- File uploads
-- Role-based access control
-- API endpoint testing
+### Test Categories
+
+| Category | Description | Files |
+|----------|-------------|-------|
+| **Unit Tests** | Individual API route tests | `/testing/unit/api/*.test.ts` |
+| **Integration Tests** | End-to-end workflows | `/testing/integration/*.test.ts` |
+| **Security Tests** | Auth and RBAC verification | `/testing/security/*.test.ts` |
+| **Schema Tests** | Database schema validation | `/testing/schema/*.test.ts` |
+
+### Mandatory Testing Rules
+
+1. **`npm run test:all` must pass before every commit**
+2. **Feature changes must include test updates**
+3. **New features require corresponding tests**
+4. **Old shell script tests are deprecated and must NOT be used**
+
+These rules apply to both human developers and AI agents.
+
+### Detailed Documentation
+
+See [`/testing/README.md`](testing/README.md) for:
+- How to write new tests
+- Test database setup
+- Contribution guidelines
+- Troubleshooting
 
 ## 🚀 Deployment
 

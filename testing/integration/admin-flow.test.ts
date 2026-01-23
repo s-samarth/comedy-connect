@@ -1,0 +1,180 @@
+/**
+ * Integration Tests: Admin Management Flow
+ * 
+ * End-to-end tests for admin management capabilities
+ */
+
+import { UserRole } from '@prisma/client';
+import {
+    getTestPrisma,
+    createTestUser,
+    createTestShow,
+    createTestComedian,
+    createOrganizerProfile,
+    cleanupTestData,
+    disconnectTestDb
+} from '../config/test-db';
+
+// Mock the auth module
+jest.mock('@/lib/auth', () => ({
+    getCurrentUser: jest.fn(),
+}));
+
+import * as authModule from '@/lib/auth';
+
+const mockGetCurrentUser = authModule.getCurrentUser as jest.MockedFunction<typeof authModule.getCurrentUser>;
+
+describe('Integration: Admin Management Flow', () => {
+    const prisma = getTestPrisma();
+    let admin: { id: string; email: string; role: UserRole };
+    let organizer: { id: string; email: string; role: UserRole };
+
+    beforeAll(async () => {
+        admin = await createTestUser(UserRole.ADMIN, {
+            id: 'test-int-admin-mgmt',
+            email: 'admin-mgmt@test.com',
+        });
+
+        organizer = await createTestUser(UserRole.ORGANIZER_VERIFIED, {
+            id: 'test-int-admin-org',
+            email: 'admin-org@test.com',
+        });
+    });
+
+    afterAll(async () => {
+        await cleanupTestData();
+        await disconnectTestDb();
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    describe('Admin Dashboard Access', () => {
+        it('Admin can view all organizers', async () => {
+            // Create some test organizers
+            const unverified = await createTestUser(UserRole.ORGANIZER_UNVERIFIED, {
+                id: 'test-admin-view-org-1',
+                email: 'admin-view-org1@test.com',
+            });
+            await createOrganizerProfile(unverified.id, {
+                id: 'test-admin-view-profile-1',
+                name: 'Viewable Org 1',
+            });
+
+            const { GET } = await import('@/app/api/admin/organizers/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+
+            const response = await GET();
+            expect(response.status).toBe(200);
+
+            const data = await response.json();
+            expect(data.organizers.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Admin can view all shows', async () => {
+            // Create test shows
+            await createTestShow(organizer.id, {
+                id: 'test-admin-view-show',
+                title: 'Admin Viewable Show',
+            });
+
+            const { GET } = await import('@/app/api/admin/shows/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+
+            const response = await GET();
+            expect(response.status).toBe(200);
+
+            const data = await response.json();
+            expect(data.shows.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Admin can view all comedians', async () => {
+            await createTestComedian(organizer.id, {
+                id: 'test-admin-view-comedian',
+                name: 'Admin Viewable Comedian',
+            });
+
+            const { GET } = await import('@/app/api/admin/comedians/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+
+            const response = await GET();
+            expect(response.status).toBe(200);
+
+            const data = await response.json();
+            expect(data.comedians.length).toBeGreaterThanOrEqual(1);
+        });
+    });
+
+    describe('Admin Fee Configuration', () => {
+        it('Admin can view fee configuration', async () => {
+            const { GET } = await import('@/app/api/admin/fees/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+
+            const response = await GET();
+            expect(response.status).toBe(200);
+        });
+
+        it('Non-admin cannot view fee configuration', async () => {
+            const { GET } = await import('@/app/api/admin/fees/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: organizer.id,
+                email: organizer.email,
+                role: UserRole.ORGANIZER_VERIFIED,
+            } as any);
+
+            const response = await GET();
+            expect(response.status).toBe(403);
+        });
+    });
+
+    describe('Admin Security', () => {
+        it('Non-admin users are blocked from all admin endpoints', async () => {
+            const regularUser = await createTestUser(UserRole.AUDIENCE, {
+                id: 'test-blocked-user-' + Date.now(),
+                email: `blocked-${Date.now()}@test.com`,
+            });
+
+            const endpoints = [
+                '@/app/api/admin/organizers/route',
+                '@/app/api/admin/shows/route',
+                '@/app/api/admin/comedians/route',
+                '@/app/api/admin/fees/route',
+            ];
+
+            for (const endpoint of endpoints) {
+                const { GET } = await import(endpoint);
+
+                mockGetCurrentUser.mockResolvedValue({
+                    id: regularUser.id,
+                    email: regularUser.email,
+                    role: UserRole.AUDIENCE,
+                } as any);
+
+                const response = await GET();
+                expect([401, 403]).toContain(response.status);
+            }
+        });
+    });
+});

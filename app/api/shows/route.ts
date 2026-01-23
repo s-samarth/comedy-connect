@@ -1,6 +1,7 @@
 import { getCurrentUser, requireOrganizer, isVerifiedOrganizer } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { UserRole } from "@prisma/client"
 
 // Mock comedy shows data
 const mockShows = [
@@ -28,7 +29,7 @@ const mockShows = [
       },
       {
         comedian: {
-          id: "comedian-2", 
+          id: "comedian-2",
           name: "Priya Sharma",
           bio: "Rising star in the comedy scene",
           profileImageUrl: null
@@ -44,7 +45,7 @@ const mockShows = [
   },
   {
     id: "mock-2",
-    title: "Comedy Central Presents", 
+    title: "Comedy Central Presents",
     description: "An exclusive night of premium comedy featuring top performers from across the country.",
     date: new Date("2024-02-15T20:00:00Z").toISOString(),
     venue: "Phoenix Arena, Hitech City",
@@ -67,7 +68,7 @@ const mockShows = [
       {
         comedian: {
           id: "comedian-4",
-          name: "Sneha Reddy", 
+          name: "Sneha Reddy",
           bio: "Known for her sharp wit and observational humor",
           profileImageUrl: null
         }
@@ -76,7 +77,7 @@ const mockShows = [
         comedian: {
           id: "comedian-5",
           name: "Karan Singh",
-          bio: "Master of improvisation and crowd work", 
+          bio: "Master of improvisation and crowd work",
           profileImageUrl: null
         }
       }
@@ -221,19 +222,41 @@ const mockShows = [
 export async function GET() {
   try {
     const user = await getCurrentUser()
-    
+
     // Try to get real shows from database
     let shows: any[] = []
     try {
+      // Build visibility filter based on user role
+      let visibilityFilter: any = {
+        date: {
+          gte: new Date()
+        }
+      }
+
+      if (!user || user.role === 'AUDIENCE') {
+        // Guests and audience see only published shows
+        visibilityFilter.isPublished = true
+      } else if (user.role.startsWith('ORGANIZER') || user.role.startsWith('COMEDIAN')) {
+        // Organizers and comedians see published shows + their own drafts
+        visibilityFilter = {
+          AND: [
+            { date: { gte: new Date() } },
+            {
+              OR: [
+                { isPublished: true },
+                { createdBy: user.id }
+              ]
+            }
+          ]
+        }
+      }
+      // Admin sees all shows (no additional filter)
+
       shows = await prisma.show.findMany({
-        where: {
-          date: {
-            gte: new Date()
-          }
-        },
+        where: user?.role === 'ADMIN' ? { date: { gte: new Date() } } : visibilityFilter,
         include: {
           creator: {
-            select: { email: true }
+            select: { email: true, role: true }
           },
           showComedians: {
             include: {
@@ -256,30 +279,23 @@ export async function GET() {
 
     // If no shows in database, return mock data
     if (shows.length === 0) {
-      return NextResponse.json({ 
+      return NextResponse.json({
         shows: mockShows,
-        isMockData: true 
+        isMockData: true
       })
     }
 
-    // Filter based on user role
-    let filteredShows = shows
-    if (user?.role.startsWith("ORGANIZER")) {
-      // Organizers see only their shows
-      filteredShows = shows.filter((show: any) => show.createdBy === user.id)
-    }
-
-    return NextResponse.json({ 
-      shows: filteredShows,
-      isMockData: false 
+    return NextResponse.json({
+      shows,
+      isMockData: false
     })
   } catch (error) {
     console.error('Error in shows API:', error)
-    
+
     // Return mock data as fallback
-    return NextResponse.json({ 
+    return NextResponse.json({
       shows: mockShows,
-      isMockData: true 
+      isMockData: true
     })
   }
 }
@@ -287,25 +303,30 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const user = await requireOrganizer()
-    
-    if (!isVerifiedOrganizer(user.role)) {
-      return NextResponse.json({ error: "Account not verified" }, { status: 403 })
+
+    // Allow both verified organizers and verified comedians to create shows
+    const isVerified = user.role === UserRole.ORGANIZER_VERIFIED || user.role === UserRole.COMEDIAN_VERIFIED
+
+    if (!isVerified) {
+      return NextResponse.json({
+        error: "Account not verified. Please wait for admin approval before creating shows."
+      }, { status: 403 })
     }
 
-    const { 
-      title, 
-      description, 
-      date, 
-      venue, 
-      ticketPrice, 
+    const {
+      title,
+      description,
+      date,
+      venue,
+      ticketPrice,
       totalTickets,
-      comedianIds 
+      comedianIds
     } = await request.json()
 
     // Validation
     if (!title || !date || !venue || !ticketPrice || !totalTickets) {
-      return NextResponse.json({ 
-        error: "Title, date, venue, ticket price, and total tickets are required" 
+      return NextResponse.json({
+        error: "Title, date, venue, ticket price, and total tickets are required"
       }, { status: 400 })
     }
 
@@ -324,23 +345,23 @@ export async function POST(request: Request) {
 
     // Validate venue is in Hyderabad (basic check)
     if (!venue.toLowerCase().includes("hyderabad")) {
-      return NextResponse.json({ 
-        error: "Currently only Hyderabad venues are supported" 
+      return NextResponse.json({
+        error: "Currently only Hyderabad venues are supported"
       }, { status: 400 })
     }
 
     // Validate comedians if provided
     if (comedianIds && comedianIds.length > 0) {
       const comedians = await prisma.comedian.findMany({
-        where: { 
+        where: {
           id: { in: comedianIds },
-          createdBy: user.id 
+          createdBy: user.id
         }
       })
 
       if (comedians.length !== comedianIds.length) {
-        return NextResponse.json({ 
-          error: "Some comedians not found or not owned by you" 
+        return NextResponse.json({
+          error: "Some comedians not found or not owned by you"
         }, { status: 400 })
       }
     }
@@ -355,6 +376,7 @@ export async function POST(request: Request) {
           venue,
           ticketPrice,
           totalTickets,
+          isPublished: false, // Shows start as drafts
           createdBy: user.id
         }
       })

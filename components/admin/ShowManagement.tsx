@@ -12,7 +12,7 @@ interface Show {
   totalTickets: number
   posterImageUrl?: string
   createdAt: string
-  status?: 'ACTIVE' | 'DISABLED' // Optional since not in DB schema
+  isPublished: boolean
   creator: {
     email: string
     organizerProfile?: {
@@ -38,7 +38,7 @@ export function ShowManagement() {
     try {
       const response = await fetch('/api/admin/shows')
       if (!response.ok) throw new Error('Failed to fetch shows')
-      
+
       const data = await response.json()
       setShows(data.shows || [])
     } catch (error) {
@@ -48,19 +48,19 @@ export function ShowManagement() {
     }
   }
 
-  const handleToggleStatus = async (showId: string, currentStatus?: string) => {
+  const handleToggleStatus = async (showId: string, currentStatus: boolean) => {
     setActionLoading(showId)
-    
+
     try {
-      const newStatus = currentStatus === 'DISABLED' ? 'ACTIVE' : 'DISABLED'
+      const newStatus = !currentStatus
       const response = await fetch('/api/admin/shows', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId, action: newStatus })
+        body: JSON.stringify({ showId, action: newStatus ? 'PUBLISH' : 'UNPUBLISH' })
       })
 
       if (!response.ok) throw new Error('Failed to update show status')
-      
+
       await fetchShows() // Refresh list
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Failed to update show status')
@@ -130,29 +130,27 @@ export function ShowManagement() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                      show.status !== 'DISABLED' 
+                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${show.isPublished
                         ? 'bg-green-100 text-green-800'
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {show.status === 'DISABLED' ? 'Disabled' : 'Active'}
+                        : 'bg-zinc-100 text-zinc-800'
+                      }`}>
+                      {show.isPublished ? 'Published' : 'Draft'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button
-                      onClick={() => handleToggleStatus(show.id, show.status)}
+                      onClick={() => handleToggleStatus(show.id, show.isPublished)}
                       disabled={actionLoading === show.id}
-                      className={`px-3 py-1 rounded text-white text-sm ${
-                        show.status !== 'DISABLED'
+                      className={`px-3 py-1 rounded text-white text-sm ${show.isPublished
                           ? 'bg-red-600 hover:bg-red-700'
                           : 'bg-green-600 hover:bg-green-700'
-                      } disabled:opacity-50`}
+                        } disabled:opacity-50`}
                     >
-                      {actionLoading === show.id 
-                        ? 'Processing...' 
-                        : show.status !== 'DISABLED' 
-                          ? 'Disable' 
-                          : 'Enable'
+                      {actionLoading === show.id
+                        ? 'Processing...'
+                        : show.isPublished
+                          ? 'Unpublish'
+                          : 'Publish'
                       }
                     </button>
                   </td>

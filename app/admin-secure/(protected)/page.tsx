@@ -10,6 +10,17 @@ export default function AdminDashboard() {
             </div>
 
             <div className="grid md:grid-cols-3 gap-6">
+                {/* Comedian Management Card */}
+                <Link href="/admin-secure/comedians" className="group block p-6 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                    <div className="w-12 h-12 bg-pink-50 rounded-lg flex items-center justify-center mb-4 group-hover:bg-pink-100 transition-colors">
+                        <svg className="w-6 h-6 text-pink-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">Comedian Management</h3>
+                    <p className="text-slate-500 text-sm">Verify and manage comedian profiles.</p>
+                </Link>
+
                 {/* Organizers Card */}
                 <Link href="/admin-secure/organizers" className="group block p-6 bg-white rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
                     <div className="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mb-4 group-hover:bg-blue-100 transition-colors">

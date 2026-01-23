@@ -7,8 +7,11 @@ import { validateAdminSession } from "@/lib/admin-password"
 export async function getCurrentUser() {
   // 1. Try NextAuth session first
   const session = await getServerSession(authOptions)
-  if ((session as any)?.user) {
-    return (session as any).user
+  if ((session as any)?.user?.email) {
+    const { prisma } = await import('@/lib/prisma')
+    return await prisma.user.findUnique({
+      where: { email: (session as any).user.email }
+    })
   }
 
   // 2. Try Admin Password Session

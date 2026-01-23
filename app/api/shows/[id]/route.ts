@@ -1,4 +1,4 @@
-import { getCurrentUser, requireOrganizer } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
@@ -7,19 +7,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params
+    const user = await getCurrentUser()
+    const { id: showId } = await params
 
     const show = await prisma.show.findUnique({
-      where: { id: resolvedParams.id },
+      where: { id: showId },
       include: {
         creator: {
-          select: { email: true, name: true }
+          select: { email: true, role: true }
         },
         showComedians: {
           include: {
-            comedian: {
-              select: { id: true, name: true, bio: true, profileImageUrl: true }
-            }
+            comedian: true
           },
           orderBy: { order: 'asc' }
         },
@@ -34,6 +33,13 @@ export async function GET(
       return NextResponse.json({ error: "Show not found" }, { status: 404 })
     }
 
+    // Visibility check: unpublished shows only visible to creator and admin
+    if (!show.isPublished) {
+      if (!user || (show.createdBy !== user.id && user.role !== 'ADMIN')) {
+        return NextResponse.json({ error: "Show not found" }, { status: 404 })
+      }
+    }
+
     return NextResponse.json({ show })
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -45,133 +51,107 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params
-    const user = await requireOrganizer()
-    const {
-      title,
-      description,
-      date,
-      venue,
-      ticketPrice,
-      totalTickets,
-      comedianIds
-    } = await request.json()
+    const user = await getCurrentUser()
 
-    // Check if show exists and belongs to this organizer
-    const existingShow = await prisma.show.findUnique({
-      where: { id: resolvedParams.id },
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id: showId } = await params
+    const updates = await request.json()
+
+    // Fetch the show
+    const show = await prisma.show.findUnique({
+      where: { id: showId },
       include: {
-        ticketInventory: true,
+        showComedians: true,
         _count: {
           select: { bookings: true }
         }
       }
     })
 
-    if (!existingShow) {
+    if (!show) {
       return NextResponse.json({ error: "Show not found" }, { status: 404 })
     }
 
-    if (existingShow.createdBy !== user.id) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 })
+    // Verify ownership or admin
+    if (show.createdBy !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Permission denied" }, { status: 403 })
     }
 
-    // Prevent editing if tickets have been sold
-    if (existingShow._count.bookings > 0) {
-      return NextResponse.json({
-        error: "Cannot edit show with existing bookings"
-      }, { status: 400 })
-    }
+    // If show is published with bookings, enforce immutability rules
+    const hasBookings = show._count.bookings > 0
 
-    // Validation
-    if (date) {
-      const showDate = new Date(date)
-      if (showDate <= new Date()) {
-        return NextResponse.json({ error: "Show date must be in the future" }, { status: 400 })
+    if (show.isPublished && hasBookings) {
+      // Block price changes
+      if (updates.ticketPrice !== undefined && updates.ticketPrice !== show.ticketPrice) {
+        return NextResponse.json({
+          error: "Cannot change ticket price for a published show with bookings"
+        }, { status: 400 })
+      }
+
+      // Block capacity increases
+      if (updates.totalTickets !== undefined && updates.totalTickets > show.totalTickets) {
+        return NextResponse.json({
+          error: "Cannot increase capacity for a published show with bookings"
+        }, { status: 400 })
+      }
+
+      // Block comedian removal
+      if (updates.comedianIds !== undefined) {
+        const currentComedianIds = show.showComedians.map(sc => sc.comedianId)
+        const removedComedians = currentComedianIds.filter(id => !updates.comedianIds.includes(id))
+
+        if (removedComedians.length > 0) {
+          return NextResponse.json({
+            error: "Cannot remove comedians from a published show with bookings"
+          }, { status: 400 })
+        }
       }
     }
 
-    if (totalTickets && totalTickets <= 0) {
-      return NextResponse.json({ error: "Total tickets must be greater than 0" }, { status: 400 })
+    // Prepare update data
+    const updateData: any = {}
+
+    if (updates.title) updateData.title = updates.title
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.venue) updateData.venue = updates.venue
+    if (updates.posterImageUrl !== undefined) updateData.posterImageUrl = updates.posterImageUrl
+
+    // Only allow these if not published with bookings
+    if (!show.isPublished || !hasBookings) {
+      if (updates.date) updateData.date = new Date(updates.date)
+      if (updates.ticketPrice !== undefined) updateData.ticketPrice = updates.ticketPrice
+      if (updates.totalTickets !== undefined) updateData.totalTickets = updates.totalTickets
     }
 
-    if (ticketPrice && ticketPrice <= 0) {
-      return NextResponse.json({ error: "Ticket price must be greater than 0" }, { status: 400 })
-    }
+    // Update the show
+    const updatedShow = await prisma.show.update({
+      where: { id: showId },
+      data: updateData
+    })
 
-    if (venue && !venue.toLowerCase().includes("hyderabad")) {
-      return NextResponse.json({
-        error: "Currently only Hyderabad venues are supported"
-      }, { status: 400 })
-    }
-
-    // Update show and related records in a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      const show = await tx.show.update({
-        where: { id: resolvedParams.id },
-        data: {
-          ...(title && { title }),
-          ...(description !== undefined && { description }),
-          ...(date && { date: new Date(date) }),
-          ...(venue && { venue }),
-          ...(ticketPrice && { ticketPrice }),
-          ...(totalTickets && { totalTickets })
-        }
+    // Handle comedian updates if provided
+    if (updates.comedianIds !== undefined) {
+      await prisma.showComedian.deleteMany({
+        where: { showId }
       })
 
-      // Update ticket inventory if total tickets changed
-      if (totalTickets && existingShow.ticketInventory) {
-        const currentBooked = existingShow.totalTickets - existingShow.ticketInventory[0].available
-        if (totalTickets < currentBooked) {
-          throw new Error("Cannot reduce total tickets below already booked amount")
-        }
-
-        await tx.ticketInventory.update({
-          where: { showId: resolvedParams.id },
-          data: { available: totalTickets - currentBooked }
-        })
-      }
-
-      // Update comedian associations if provided
-      if (comedianIds !== undefined) {
-        // Remove existing associations
-        await tx.showComedian.deleteMany({
-          where: { showId: resolvedParams.id }
-        })
-
-        // Add new associations
-        if (comedianIds.length > 0) {
-          const comedians = await tx.comedian.findMany({
-            where: {
-              id: { in: comedianIds },
-              createdBy: user.id
-            }
-          })
-
-          if (comedians.length !== comedianIds.length) {
-            throw new Error("Some comedians not found or not owned by you")
-          }
-
-          const showComedians = comedianIds.map((comedianId: string, index: number) => ({
-            showId: resolvedParams.id,
+      if (updates.comedianIds.length > 0) {
+        await prisma.showComedian.createMany({
+          data: updates.comedianIds.map((comedianId: string, index: number) => ({
+            showId,
             comedianId,
             order: index
           }))
-
-          await tx.showComedian.createMany({
-            data: showComedians
-          })
-        }
+        })
       }
-
-      return show
-    })
-
-    return NextResponse.json({ show: result })
-  } catch (error) {
-    if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 })
     }
+
+    return NextResponse.json({ show: updatedShow })
+  } catch (error) {
+    console.error("Error updating show:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -181,41 +161,44 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await params
-    const user = await requireOrganizer()
+    const user = await getCurrentUser()
 
-    // Check if show exists and belongs to this organizer
-    const existingShow = await prisma.show.findUnique({
-      where: { id: resolvedParams.id },
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { id: showId } = await params
+
+    const show = await prisma.show.findUnique({
+      where: { id: showId },
       include: {
-        ticketInventory: true,
         _count: {
           select: { bookings: true }
         }
       }
     })
 
-    if (!existingShow) {
+    if (!show) {
       return NextResponse.json({ error: "Show not found" }, { status: 404 })
     }
 
-    if (existingShow.createdBy !== user.id) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 })
+    if (show.createdBy !== user.id && user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Permission denied" }, { status: 403 })
     }
 
-    // Prevent deletion if tickets have been sold
-    if (existingShow._count.bookings > 0) {
+    if (show._count.bookings > 0) {
       return NextResponse.json({
-        error: "Cannot delete show with existing bookings"
+        error: `Cannot delete show with ${show._count.bookings} existing booking(s)`
       }, { status: 400 })
     }
 
     await prisma.show.delete({
-      where: { id: resolvedParams.id }
+      where: { id: showId }
     })
 
     return NextResponse.json({ message: "Show deleted successfully" })
   } catch (error) {
+    console.error("Error deleting show:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

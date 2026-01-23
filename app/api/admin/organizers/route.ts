@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Organizer ID and action are required" }, { status: 400 })
     }
 
-    if (!['APPROVE', 'REJECT'].includes(action)) {
+    if (!['APPROVE', 'REJECT', 'REVOKE'].includes(action)) {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 })
     }
 
@@ -61,24 +61,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Organizer not found" }, { status: 404 })
     }
 
+    // Determine new role and approval status based on action
+    let newRole: UserRole
+    let approvalStatus: ApprovalStatus
+
+    if (action === 'APPROVE') {
+      newRole = UserRole.ORGANIZER_VERIFIED
+      approvalStatus = ApprovalStatus.APPROVED
+    } else if (action === 'REVOKE') {
+      newRole = UserRole.ORGANIZER_UNVERIFIED
+      approvalStatus = ApprovalStatus.REJECTED
+    } else { // REJECT
+      newRole = UserRole.ORGANIZER_UNVERIFIED
+      approvalStatus = ApprovalStatus.REJECTED
+    }
+
     // Create approval record
     await prisma.organizerApproval.create({
       data: {
         organizerId: organizer.organizerProfile.id,
         adminId: admin.id,
-        status: action === 'APPROVE' ? ApprovalStatus.APPROVED : ApprovalStatus.REJECTED
+        status: approvalStatus
       }
     })
 
-    // Update user role based on action
-    const newRole = action === 'APPROVE' ? UserRole.ORGANIZER_VERIFIED : UserRole.ORGANIZER_UNVERIFIED
-    
+    // Update user role
     await prisma.user.update({
       where: { id: organizerId },
       data: { role: newRole }
     })
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: `Organizer ${action.toLowerCase()}d successfully`,
       organizer: {
         id: organizer.id,

@@ -70,6 +70,15 @@ export default async function Home() {
             Find and book tickets for the best comedy shows in the city
           </p>
 
+          {user && (
+            <Link
+              href="/onboarding/role-selection"
+              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:from-purple-700 hover:to-pink-700 transition-all shadow-lg hover:shadow-xl mb-8"
+            >
+              🎭 List a Show
+            </Link>
+          )}
+
           {!user && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
               <p className="text-blue-800 text-sm">

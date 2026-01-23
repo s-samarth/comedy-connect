@@ -22,14 +22,17 @@ export default async function Home() {
 
               {user ? (
                 <div className="flex items-center space-x-4">
-                  <span className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {user.email}
+                  <span className="text-sm border border-zinc-200 dark:border-zinc-800 px-3 py-1 rounded-full bg-zinc-50 dark:bg-zinc-900 font-medium text-zinc-900 dark:text-white">
+                    {user.name || user.email}
                   </span>
+                  <Link href="/bookings" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                    My Bookings
+                  </Link>
                   <Link href="/profile" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                     Profile
                   </Link>
                   {user.role === "ADMIN" && (
-                    <Link href="/admin-secure/login" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                    <Link href="/admin-secure" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                       Admin
                     </Link>
                   )}
@@ -46,11 +49,8 @@ export default async function Home() {
                 </div>
               ) : (
                 <div className="flex items-center space-x-4">
-                  <Link href="/auth/signin" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                  <Link href="/auth/signin" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 font-medium font-sans">
                     Sign In
-                  </Link>
-                  <Link href="/auth/signin?signup=true" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
-                    Sign Up
                   </Link>
                 </div>
               )}
@@ -73,7 +73,7 @@ export default async function Home() {
           {!user && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto mb-8">
               <p className="text-blue-800 text-sm">
-                <span className="font-medium">New here?</span> You can browse shows as a guest, or sign up to book tickets and manage your bookings.
+                <span className="font-medium">New here?</span> You can browse shows as a guest, or sign in to book tickets and manage your bookings.
               </p>
             </div>
           )}

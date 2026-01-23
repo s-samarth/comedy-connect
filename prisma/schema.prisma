@@ -220,6 +220,7 @@ model Booking {
 enum BookingStatus {
   PENDING
   CONFIRMED
+  CONFIRMED_UNPAID
   CANCELLED
   FAILED
 }

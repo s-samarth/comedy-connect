@@ -8,16 +8,12 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params
-    const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
 
     const show = await prisma.show.findUnique({
       where: { id: resolvedParams.id },
       include: {
         creator: {
-          select: { email: true }
+          select: { email: true, name: true }
         },
         showComedians: {
           include: {
@@ -38,11 +34,6 @@ export async function GET(
       return NextResponse.json({ error: "Show not found" }, { status: 404 })
     }
 
-    // Check access permissions
-    if (user.role.startsWith("ORGANIZER") && show.createdBy !== user.id) {
-      return NextResponse.json({ error: "Access denied" }, { status: 403 })
-    }
-
     return NextResponse.json({ show })
   } catch (error) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -56,14 +47,14 @@ export async function PUT(
   try {
     const resolvedParams = await params
     const user = await requireOrganizer()
-    const { 
-      title, 
-      description, 
-      date, 
-      venue, 
-      ticketPrice, 
+    const {
+      title,
+      description,
+      date,
+      venue,
+      ticketPrice,
       totalTickets,
-      comedianIds 
+      comedianIds
     } = await request.json()
 
     // Check if show exists and belongs to this organizer
@@ -87,8 +78,8 @@ export async function PUT(
 
     // Prevent editing if tickets have been sold
     if (existingShow._count.bookings > 0) {
-      return NextResponse.json({ 
-        error: "Cannot edit show with existing bookings" 
+      return NextResponse.json({
+        error: "Cannot edit show with existing bookings"
       }, { status: 400 })
     }
 
@@ -109,8 +100,8 @@ export async function PUT(
     }
 
     if (venue && !venue.toLowerCase().includes("hyderabad")) {
-      return NextResponse.json({ 
-        error: "Currently only Hyderabad venues are supported" 
+      return NextResponse.json({
+        error: "Currently only Hyderabad venues are supported"
       }, { status: 400 })
     }
 
@@ -151,9 +142,9 @@ export async function PUT(
         // Add new associations
         if (comedianIds.length > 0) {
           const comedians = await tx.comedian.findMany({
-            where: { 
+            where: {
               id: { in: comedianIds },
-              createdBy: user.id 
+              createdBy: user.id
             }
           })
 
@@ -214,8 +205,8 @@ export async function DELETE(
 
     // Prevent deletion if tickets have been sold
     if (existingShow._count.bookings > 0) {
-      return NextResponse.json({ 
-        error: "Cannot delete show with existing bookings" 
+      return NextResponse.json({
+        error: "Cannot delete show with existing bookings"
       }, { status: 400 })
     }
 

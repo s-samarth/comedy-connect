@@ -11,7 +11,10 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 - **Guest Browsing**: Browse comedy shows without authentication (Sign in required only to book)
 - **User Authentication**: Sign up/sign in with Google OAuth
 - **Show Discovery**: Filter and search comedy events by date, price, and venue
-- **Ticket Booking**: Secure booking flow with ticket quantity selection (payment integration coming soon)
+- **Ticket Booking**: Secure direct booking flow with atomic inventory management (payment-free in current phase)
+- **My Bookings**: View and manage all your personal show tickets in one place
+- **Identity Management**: User names captured from Google OAuth and displayed across the platform
+- **Unified Auth**: Single "Sign In" flow for new and returning users alike
 - **Show Management**: Organizers can create and manage their comedy shows
 - **Comedian Management**: Add and manage comedian profiles
 - **Admin Dashboard**: Secure administrative oversight with password protection
@@ -186,9 +189,9 @@ comedy-connect/
 - Limited functionality (view-only mode)
 
 ### Sign Up / Sign In
-- Google OAuth integration
-- Custom sign-in page with sign-up option
-- Automatic role assignment (AUDIENCE by default)
+- Google OAuth integration with existing account linking support
+- Single "Sign In" entry point (handles both registration and login)
+- Automatic user name synchronization from OAuth profiles
 
 ### Role-Based Access
 - Middleware protects routes based on user roles
@@ -319,9 +322,11 @@ npm run test-all
 ### Shows Endpoints
 - `GET /api/shows` - List all shows (public)
 - `POST /api/shows` - Create new show (organizer only)
-- `GET /api/shows/[id]` - Get show details
-- `PUT /api/shows/[id]` - Update show (owner only)
-- `DELETE /api/shows/[id]` - Delete show (owner only)
+- `GET /api/shows/[id]` - Get show details (Public)
+- `PUT /api/shows/[id]` - Update show (Owner/Admin only)
+- `DELETE /api/shows/[id]` - Delete show (Owner/Admin only)
+- `POST /api/bookings` - Create booking (Direct, payment-free)
+- `GET /api/bookings` - List user's personal bookings
 
 ### Admin Endpoints
 - `GET /api/admin/check-session` - Check admin authentication session

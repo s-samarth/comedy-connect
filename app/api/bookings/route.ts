@@ -1,6 +1,5 @@
 import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { createRazorpayOrder } from "@/lib/razorpay"
 import { NextResponse } from "next/server"
 import { BookingStatus } from "@prisma/client"
 
@@ -15,92 +14,124 @@ export async function POST(request: Request) {
 
     // Validation
     if (!showId || !quantity || quantity <= 0) {
-      return NextResponse.json({ 
-        error: "Show ID and quantity are required" 
+      return NextResponse.json({
+        error: "Show ID and quantity are required"
       }, { status: 400 })
     }
 
-    // Get show details
-    const show = await prisma.show.findUnique({
-      where: { id: showId },
-      include: {
-        ticketInventory: true,
-        _count: {
-          select: { bookings: true }
+    if (quantity > 10) {
+      return NextResponse.json({
+        error: "Maximum 10 tickets per booking"
+      }, { status: 400 })
+    }
+
+    // Use transaction to ensure atomic inventory update
+    const result = await prisma.$transaction(async (tx) => {
+      // Get show with ticket inventory using pessimistic locking
+      const show = await tx.show.findUnique({
+        where: { id: showId },
+        include: {
+          ticketInventory: true,
+          showComedians: true
         }
+      })
+
+      if (!show) {
+        throw new Error("Show not found")
       }
-    })
 
-    if (!show) {
-      return NextResponse.json({ error: "Show not found" }, { status: 404 })
-    }
-
-    // Check if show is in the future
-    if (new Date(show.date) <= new Date()) {
-      return NextResponse.json({ 
-        error: "Cannot book past shows" 
-      }, { status: 400 })
-    }
-
-    // Check available tickets
-    if (show.ticketInventory[0]?.available < quantity) {
-      return NextResponse.json({ 
-        error: "Not enough tickets available" 
-      }, { status: 400 })
-    }
-
-    // Calculate total amount
-    const totalAmount = show.ticketPrice * quantity
-
-    // Create Razorpay order
-    const order = await createRazorpayOrder(
-      totalAmount,
-      showId,
-      user.id,
-      quantity
-    )
-
-    // Create pending booking
-    const booking = await prisma.booking.create({
-      data: {
-        showId,
-        userId: user.id,
-        quantity,
-        totalAmount,
-        platformFee: totalAmount * 0.08, // Will be updated after payment
-        status: BookingStatus.PENDING,
-        paymentId: order.id
+      // Check if show has comedians
+      if (show.showComedians.length === 0) {
+        throw new Error("This show is not yet available for booking")
       }
-    })
 
-    // Lock tickets (reduce available count)
-    await prisma.ticketInventory.update({
-      where: { showId },
-      data: {
-        available: show.ticketInventory[0].available - quantity,
-        locked: show.ticketInventory[0].locked + quantity
+      // Check if show is in the future
+      if (new Date(show.date) <= new Date()) {
+        throw new Error("Cannot book past shows")
       }
+
+      // Check available tickets
+      const inventory = show.ticketInventory[0]
+      if (!inventory || inventory.available < quantity) {
+        throw new Error("Not enough tickets available")
+      }
+
+      // Check for existing pending/confirmed booking from same user for this show
+      const existingBooking = await tx.booking.findFirst({
+        where: {
+          userId: user.id,
+          showId,
+          status: {
+            in: [BookingStatus.CONFIRMED_UNPAID, BookingStatus.CONFIRMED, BookingStatus.PENDING]
+          }
+        }
+      })
+
+      if (existingBooking) {
+        throw new Error("You already have a booking for this show")
+      }
+
+      // Calculate total amount
+      const totalAmount = show.ticketPrice * quantity
+      const platformFee = totalAmount * 0.08
+
+      // Atomically update inventory
+      const updatedInventory = await tx.ticketInventory.update({
+        where: {
+          showId,
+          available: { gte: quantity } // Optimistic concurrency check
+        },
+        data: {
+          available: { decrement: quantity }
+        }
+      })
+
+      if (!updatedInventory) {
+        throw new Error("Failed to reserve tickets - please try again")
+      }
+
+      // Create confirmed booking (without payment)
+      const booking = await tx.booking.create({
+        data: {
+          showId,
+          userId: user.id,
+          quantity,
+          totalAmount,
+          platformFee,
+          status: BookingStatus.CONFIRMED_UNPAID
+        },
+        include: {
+          show: {
+            select: {
+              id: true,
+              title: true,
+              date: true,
+              venue: true,
+              ticketPrice: true
+            }
+          }
+        }
+      })
+
+      return booking
     })
 
     return NextResponse.json({
+      success: true,
       booking: {
-        id: booking.id,
-        show: {
-          id: show.id,
-          title: show.title,
-          date: show.date,
-          venue: show.venue
-        },
-        quantity,
-        totalAmount,
-        razorpayOrder: order
+        id: result.id,
+        show: result.show,
+        quantity: result.quantity,
+        totalAmount: result.totalAmount,
+        status: result.status
       }
     })
   } catch (error) {
     console.error('Booking creation failed:', error)
-    return NextResponse.json({ 
-      error: "Failed to create booking" 
-    }, { status: 500 })
+    const message = error instanceof Error ? error.message : "Failed to create booking"
+    return NextResponse.json({
+      error: message
+    }, { status: 400 })
   }
 }
 
@@ -114,22 +145,22 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const showId = searchParams.get('showId')
 
-    if (!showId) {
-      return NextResponse.json({ error: "Show ID required" }, { status: 400 })
-    }
+    // If showId is provided, filter by showId; otherwise return all user bookings
+    const whereClause = showId
+      ? { userId: user.id, showId }
+      : { userId: user.id }
 
     const bookings = await prisma.booking.findMany({
-      where: {
-        userId: user.id,
-        showId
-      },
+      where: whereClause,
       include: {
         show: {
           select: {
             id: true,
             title: true,
             date: true,
-            venue: true
+            venue: true,
+            ticketPrice: true,
+            posterImageUrl: true
           }
         }
       },
@@ -138,8 +169,8 @@ export async function GET(request: Request) {
 
     return NextResponse.json({ bookings })
   } catch (error) {
-    return NextResponse.json({ 
-      error: "Failed to fetch bookings" 
+    return NextResponse.json({
+      error: "Failed to fetch bookings"
     }, { status: 500 })
   }
 }

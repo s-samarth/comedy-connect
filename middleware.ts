@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
           'Cookie': request.headers.get('cookie') || '',
         },
       })
-      
+
       if (response.ok) {
         const { needsOnboarding } = await response.json()
         if (needsOnboarding) {
@@ -75,8 +75,8 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Protect admin routes
-  if (pathname.startsWith("/admin")) {
+  // Protect admin routes (except the admin portal which handles its own password-based auth)
+  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin-secure")) {
     console.log("🔍 Admin route accessed:", pathname)
     console.log("🔍 Token:", token ? {
       email: token.email,

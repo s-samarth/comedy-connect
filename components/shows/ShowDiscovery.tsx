@@ -200,7 +200,7 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
               className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow block group"
             >
               {/* Poster or placeholder */}
-              <div className="h-48 bg-zinc-200 flex items-center justify-center overflow-hidden">
+              <div className="h-48 bg-zinc-200 flex items-center justify-center overflow-hidden relative">
                 {show.posterImageUrl ? (
                   <img
                     src={show.posterImageUrl}
@@ -211,6 +211,12 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                   <div className="text-zinc-400 text-center">
                     <div className="text-4xl mb-2">🎭</div>
                     <p>No Poster</p>
+                  </div>
+                )}
+                {/* Sold Out Badge */}
+                {(show.ticketInventory?.available === 0 || (Array.isArray(show.ticketInventory) && show.ticketInventory[0]?.available === 0)) && (
+                  <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
+                    Sold Out
                   </div>
                 )}
               </div>

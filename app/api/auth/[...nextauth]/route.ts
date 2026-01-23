@@ -11,6 +11,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      allowDangerousEmailAccountLinking: true,
       authorization: {
         params: {
           prompt: "consent",
@@ -37,31 +38,40 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = (user as any).role
         token.id = (user as any).id
+        token.name = user.name
       } else if (token.id) {
-        // Fetch fresh role from database when token is validated
-        // This ensures middleware always has the latest role
+        // Fetch fresh data from database when token is validated
         const dbUser = await prisma.user.findUnique({
           where: { id: token.id as string },
-          select: { role: true }
+          select: { role: true, name: true }
         })
         if (dbUser) {
           token.role = dbUser.role
+          token.name = dbUser.name
         }
       }
       return token
     },
-    async session({ session, user }) {
-      if (session.user && user) {
-        ; (session.user as any).id = user.id
-          ; (session.user as any).role = (user as any).role
+    async session({ session, user, token }) {
+      if (session.user) {
+        // user is available when using database sessions, token is available when using JWT sessions
+        const userId = user?.id || (token?.sub as string)
+        const userRole = (user as any)?.role || (token?.role as string)
+        const userName = user?.name || (token?.name as string)
 
-        // Check if user has completed onboarding using the database flag
+          ; (session.user as any).id = userId
+          ; (session.user as any).role = userRole
+        session.user.name = userName
+
+        // Check if user has completed onboarding
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: userId },
           select: { onboardingCompleted: true }
         })
-        
-        ; (session.user as any).onboardingCompleted = dbUser?.onboardingCompleted || false
+
+        if (dbUser) {
+          ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted
+        }
       }
       return session
     },

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import PaymentComingSoon from "@/components/ui/PaymentComingSoon"
+import { useRouter } from "next/navigation"
 
 interface Show {
   id: string
@@ -28,16 +28,58 @@ interface Show {
 
 interface ShowBookingProps {
   show: Show
-  user: any // Typed as needed based on auth return
+  user: any
 }
 
 export default function ShowBooking({ show, user }: ShowBookingProps) {
+  const router = useRouter()
   const [quantity, setQuantity] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const totalAmount = show.ticketPrice * quantity
 
   const isSoldOut = (show.ticketInventory[0]?.available || 0) === 0
   const isPastShow = new Date(show.date) <= new Date()
+  const hasNoComedians = !show.showComedians || show.showComedians.length === 0
   const maxQuantity = Math.min(show.ticketInventory[0]?.available || 0, 10)
+  const isBookable = !isSoldOut && !isPastShow && !hasNoComedians
+
+  const handleBooking = async () => {
+    if (!user) {
+      // Redirect to sign in with callback to this page
+      router.push(`/auth/signin?callback=/shows/${show.id}`)
+      return
+    }
+
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          showId: show.id,
+          quantity
+        })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Booking failed')
+      }
+
+      // Redirect to success page
+      router.push(`/shows/${show.id}/success?bookingId=${data.booking.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create booking')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6 sticky top-4">
@@ -58,11 +100,24 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
 
       {isSoldOut && !isPastShow && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800 text-sm">This show is sold out</p>
+          <p className="text-red-800 text-sm font-semibold">🎫 Sold Out</p>
+          <p className="text-red-700 text-xs mt-1">All tickets have been booked for this show</p>
         </div>
       )}
 
-      {!isSoldOut && !isPastShow && (
+      {hasNoComedians && !isPastShow && !isSoldOut && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800 text-sm">This show is not yet available for booking</p>
+        </div>
+      )}
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
+
+      {isBookable && (
         <>
           {user ? (
             <>
@@ -75,6 +130,7 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
                   value={quantity}
                   onChange={(e) => setQuantity(parseInt(e.target.value))}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  disabled={isLoading}
                 >
                   {Array.from({ length: maxQuantity }, (_, i) => i + 1).map(num => (
                     <option key={num} value={num}>
@@ -95,13 +151,24 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
                 </div>
               </div>
 
-              {/* Payment Button */}
-              <PaymentComingSoon
-                showTitle={show.title}
-                ticketPrice={show.ticketPrice}
-                quantity={quantity}
-                totalAmount={totalAmount}
-              />
+              {/* Book Now Button */}
+              <button
+                onClick={handleBooking}
+                disabled={isLoading}
+                className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Booking...
+                  </>
+                ) : (
+                  'Confirm Booking'
+                )}
+              </button>
             </>
           ) : (
             /* Guest View */
@@ -111,16 +178,16 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
                   <span className="font-semibold">Login Required</span>
                 </p>
                 <p className="text-sm text-blue-700">
-                  Please sign in to select seats and book tickets for this show.
+                  Please sign in to book tickets for this show.
                 </p>
               </div>
 
-              <a
-                href={`/auth/signin?callback=/shows/${show.id}`}
-                className="w-full block text-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              <button
+                onClick={handleBooking}
+                className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
                 Sign In to Book
-              </a>
+              </button>
             </div>
           )}
 
@@ -128,7 +195,7 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
           <div className="mt-4 text-xs text-gray-500">
             <p>• Maximum 10 tickets per person</p>
             <p>• Booking closes 1 hour before show time</p>
-            <p>• All sales are final</p>
+            <p>• Payment to be collected at venue</p>
           </div>
         </>
       )}

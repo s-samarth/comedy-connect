@@ -12,6 +12,7 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 - **User Authentication**: Sign up/sign in with Google OAuth
 - **Show Discovery**: Filter and search comedy events by date, price, and venue
 - **Ticket Booking**: Secure direct booking flow with atomic inventory management (payment-free in current phase)
+- **Show Details**: Dedicated page for each show with rich details, comedian lineup, and booking controls
 - **My Bookings**: View and manage all your personal show tickets in one place
 - **Identity Management**: User names captured from Google OAuth and displayed across the platform
 - **Unified Auth**: Single "Sign In" flow for new and returning users alike
@@ -164,6 +165,8 @@ comedy-connect/
 - **AUDIENCE**: Can browse shows and book tickets
 - **ORGANIZER_UNVERIFIED**: Can create profile, pending admin approval
 - **ORGANIZER_VERIFIED**: Can create and manage shows
+- **COMEDIAN_UNVERIFIED**: Registered as comic, pending verification
+- **COMEDIAN_VERIFIED**: Can create/manage own shows and profile
 - **ADMIN**: Full administrative access
 
 ## 🔐 Authentication Flow

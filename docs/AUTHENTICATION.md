@@ -25,6 +25,8 @@ Permissions are enforced at both the API and Page levels.
 | **AUDIENCE** | Browse shows, Book tickets, View own bookings. |
 | **ORGANIZER_UNVERIFIED** | Create organizer profile, Wait for approval. |
 | **ORGANIZER_VERIFIED** | Create/Edit shows, Manage comedians, View sales. |
+| **COMEDIAN_UNVERIFIED** | Create profile, Wait for verification. |
+| **COMEDIAN_VERIFIED** | Create/Edit own shows, Manage profile. |
 | **ADMIN** | Manage all users, Approve organizers, Moderate shows, System config. |
 
 ## Middleware Protection

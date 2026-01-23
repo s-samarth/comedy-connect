@@ -300,6 +300,7 @@ npm run test-all
 > 2. Update the **API Documentation** section below if endpoints are changed.
 > 3. Verify that the architecture and tech stack sections remain accurate.
 > 4. Do NOT mark a task as complete until documentation is updated.
+> 5. **ALWAYS** run `npm run build` and ensure it passes before committing changes to git.
 
 ### Code Review Checklist
 - [ ] TypeScript types are correct

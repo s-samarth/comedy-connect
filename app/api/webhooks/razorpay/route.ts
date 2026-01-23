@@ -47,8 +47,8 @@ export async function POST(request: Request) {
         include: { ticketInventory: true }
       })
 
-      if (!show) {
-        return NextResponse.json({ error: "Show not found" }, { status: 404 })
+      if (!show || !show.ticketInventory) {
+        return NextResponse.json({ error: "Show or inventory not found" }, { status: 404 })
       }
 
       // Calculate platform fee
@@ -68,8 +68,8 @@ export async function POST(request: Request) {
       await prisma.ticketInventory.update({
         where: { showId: booking.showId },
         data: {
-          available: show.ticketInventory[0].available - booking.quantity,
-          locked: show.ticketInventory[0].locked - booking.quantity
+          available: show.ticketInventory.available - booking.quantity,
+          locked: show.ticketInventory.locked - booking.quantity
         }
       })
 
@@ -100,12 +100,12 @@ export async function POST(request: Request) {
           include: { ticketInventory: true }
         })
 
-        if (show) {
+        if (show && show.ticketInventory) {
           await prisma.ticketInventory.update({
             where: { showId: booking.showId },
             data: {
-              available: show.ticketInventory[0].available + booking.quantity,
-              locked: show.ticketInventory[0].locked - booking.quantity
+              available: show.ticketInventory.available + booking.quantity,
+              locked: show.ticketInventory.locked - booking.quantity
             }
           })
         }
@@ -115,8 +115,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "ok" })
   } catch (error) {
     console.error('Webhook processing failed:', error)
-    return NextResponse.json({ 
-      error: "Webhook processing failed" 
+    return NextResponse.json({
+      error: "Webhook processing failed"
     }, { status: 500 })
   }
 }

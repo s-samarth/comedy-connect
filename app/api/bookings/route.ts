@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       }
 
       // Check available tickets
-      const inventory = show.ticketInventory[0]
+      const inventory = show.ticketInventory
       if (!inventory || inventory.available < quantity) {
         throw new Error("Not enough tickets available")
       }

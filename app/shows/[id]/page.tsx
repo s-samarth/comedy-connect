@@ -105,9 +105,9 @@ export default async function ShowPage({ params }: PageProps) {
                       </div>
                       <div>
                         <span className="text-gray-600">Available:</span>
-                        <span className="ml-2 font-medium">{show.ticketInventory[0]?.available || 0}</span>
+                        <span className="ml-2 font-medium">{show.ticketInventory?.available || 0}</span>
                         <span className="ml-2 font-medium text-green-600">
-                          ({show.ticketInventory[0]?.available || 0} available)
+                          ({show.ticketInventory?.available || 0} available)
                         </span>
                       </div>
                       <div>
@@ -116,9 +116,9 @@ export default async function ShowPage({ params }: PageProps) {
                       </div>
                       <div>
                         <span className="text-gray-600">Status:</span>
-                        <span className={`ml-2 font-medium ${(show.ticketInventory[0]?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
+                        <span className={`ml-2 font-medium ${(show.ticketInventory?.available || 0) > 0 ? 'text-green-600' : 'text-red-600'
                           }`}>
-                          {(show.ticketInventory[0]?.available || 0) > 0 ? 'Available' : 'Sold Out'}
+                          {(show.ticketInventory?.available || 0) > 0 ? 'Available' : 'Sold Out'}
                         </span>
                       </div>
                     </div>

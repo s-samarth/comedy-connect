@@ -48,7 +48,7 @@ export async function GET() {
         const salesData = shows.map(show => {
             const ticketsSold = show.bookings.reduce((total, booking) => total + booking.quantity, 0)
             const totalRevenue = show.bookings.reduce((total, booking) => total + booking.totalAmount, 0)
-            const ticketsRemaining = show.ticketInventory?.[0]?.available || show.totalTickets
+            const ticketsRemaining = show.ticketInventory?.available || show.totalTickets
             const bookingCount = show.bookings.length
 
             return {

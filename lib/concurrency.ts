@@ -34,7 +34,7 @@ export async function acquireTicketLock(
     include: { ticketInventory: true }
   })
 
-  if (!show || (show.ticketInventory[0]?.available || 0) < quantity) {
+  if (!show || (show.ticketInventory?.available || 0) < quantity) {
     return false
   }
 
@@ -84,7 +84,7 @@ export async function withRetry<T>(
       return await operation()
     } catch (error) {
       lastError = error as Error
-      
+
       if (attempt === maxRetries) {
         throw lastError
       }

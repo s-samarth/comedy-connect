@@ -10,14 +10,14 @@ interface Show {
   venue: string
   ticketPrice: number
   totalTickets: number
-  ticketInventory: Array<{
+  ticketInventory: {
     id: string
     createdAt: Date
     updatedAt: Date
     showId: string
     available: number
     locked: number
-  }>
+  } | null
   creator: {
     id: string
     name: string | null
@@ -38,10 +38,10 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
   const [error, setError] = useState<string | null>(null)
   const totalAmount = show.ticketPrice * quantity
 
-  const isSoldOut = (show.ticketInventory[0]?.available || 0) === 0
+  const isSoldOut = (show.ticketInventory?.available || 0) === 0
   const isPastShow = new Date(show.date) <= new Date()
   const hasNoComedians = !show.showComedians || show.showComedians.length === 0
-  const maxQuantity = Math.min(show.ticketInventory[0]?.available || 0, 10)
+  const maxQuantity = Math.min(show.ticketInventory?.available || 0, 10)
   const isBookable = !isSoldOut && !isPastShow && !hasNoComedians
 
   const handleBooking = async () => {
@@ -139,7 +139,7 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
                   ))}
                 </select>
                 <p className="text-xs text-gray-500 mt-1">
-                  {(show.ticketInventory[0]?.available || 0)} tickets available
+                  {(show.ticketInventory?.available || 0)} tickets available
                 </p>
               </div>
 

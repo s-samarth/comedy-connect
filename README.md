@@ -305,6 +305,15 @@ npm run test-all
 3. Update documentation as needed
 4. Submit pull request for review
 
+### 🤖 AI Agent & Developer Guidelines
+> **CRITICAL**: Every code change MUST be accompanied by a corresponding update to this README or relevant documentation files. 
+> 
+> If you are an AI agent or a developer adding a new feature, API, or modifying existing behavior:
+> 1. Update the **Features** list if applicable.
+> 2. Update the **API Documentation** section below if endpoints are changed.
+> 3. Verify that the architecture and tech stack sections remain accurate.
+> 4. Do NOT mark a task as complete until documentation is updated.
+
 ### Code Review Checklist
 - [ ] TypeScript types are correct
 - [ ] Database migrations included if needed
@@ -329,14 +338,20 @@ npm run test-all
 - `GET /api/bookings` - List user's personal bookings
 
 ### Admin Endpoints
-- `GET /api/admin/check-session` - Check admin authentication session
-- `POST /api/admin/login` - Admin password authentication
-- `POST /api/admin/logout` - Admin session logout
-- `POST /api/admin/setup-password` - Initial admin password setup
+### Admin Endpoints (Secure)
+- `POST /api/admin-secure/login` - Admin secure login (password)
+- `POST /api/admin-secure/logout` - Secure logout
+- `POST /api/admin-secure/setup` - Initial password setup
 - `GET /api/admin/organizers` - List organizers
-- `POST /api/admin/organizers/[id]/approve` - Approve organizer
-- `GET /api/admin/comedians` - List comedians with creator info
-- `GET /api/admin/users` - List all users
+- `GET /api/admin/shows` - List all shows
+- `POST /api/admin/shows/[id]/disable` - Moderation: Disable a show
+- `GET /api/admin/comedians` - List all comedians
+
+### User & Auth Endpoints
+- `GET /api/auth/me` - Get current user details
+- `POST /api/auth/check-user` - Check if email exists
+- `POST /api/user/onboarding` - Complete user onboarding
+- `GET /api/user/onboarding-status` - Check onboarding status
 
 ## 🔍 Troubleshooting
 

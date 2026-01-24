@@ -187,12 +187,6 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
             </div>
           )}
 
-          {/* Additional Info */}
-          <div className="mt-4 text-xs text-gray-500">
-            <p>• Maximum 10 tickets per person</p>
-            <p>• Booking closes 1 hour before show time</p>
-            <p>• Payment to be collected at venue</p>
-          </div>
         </>
       )}
     </div>

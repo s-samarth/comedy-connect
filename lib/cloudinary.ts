@@ -12,7 +12,7 @@ export { cloudinary }
 
 // Upload image to Cloudinary
 export async function uploadImage(
-  file: Buffer, 
+  file: Buffer,
   folder: string = 'comedy-connect'
 ): Promise<{ url: string; publicId: string }> {
   return new Promise((resolve, reject) => {
@@ -61,7 +61,7 @@ export async function deleteImage(publicId: string): Promise<void> {
 // Validate image file
 export function validateImageFile(file: File): { valid: boolean; error?: string } {
   // Check file type
-  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/pjpeg']
   if (!allowedTypes.includes(file.type)) {
     return {
       valid: false,

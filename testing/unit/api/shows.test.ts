@@ -130,6 +130,7 @@ describe('Shows API - /api/shows', () => {
             description: 'A hilarious evening',
             date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             venue: 'Test Venue, Hyderabad',
+            googleMapsLink: 'https://maps.app.goo.gl/test',
             ticketPrice: 500,
             totalTickets: 100,
             comedianIds: [],
@@ -337,6 +338,7 @@ describe('Shows API - /api/shows', () => {
                 title: 'No Comedians Show ' + Date.now(),
                 date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
                 venue: 'Test Venue, Hyderabad',
+                googleMapsLink: 'https://maps.app.goo.gl/test',
                 ticketPrice: 500,
                 totalTickets: 100,
                 // No comedianIds field

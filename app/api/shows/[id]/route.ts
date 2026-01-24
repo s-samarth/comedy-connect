@@ -117,6 +117,7 @@ export async function PUT(
     if (updates.title) updateData.title = updates.title
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.venue) updateData.venue = updates.venue
+    if (updates.googleMapsLink) updateData.googleMapsLink = updates.googleMapsLink
     if (updates.posterImageUrl !== undefined) updateData.posterImageUrl = updates.posterImageUrl
     if (updates.youtubeUrls !== undefined) updateData.youtubeUrls = updates.youtubeUrls
     if (updates.instagramUrls !== undefined) updateData.instagramUrls = updates.instagramUrls

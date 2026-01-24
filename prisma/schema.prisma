@@ -86,6 +86,7 @@ model OrganizerProfile {
   venue         String?
   youtubeUrls   String[]            @default([])
   instagramUrls String[]            @default([])
+  socialLinks   Json?
   createdAt     DateTime            @default(now())
   updatedAt     DateTime            @updatedAt
   approvals     OrganizerApproval[]
@@ -158,6 +159,7 @@ model Show {
   ticketPrice     Float
   totalTickets    Int
   posterImageUrl  String?
+  googleMapsLink  String           @default("")
   isPublished     Boolean          @default(false)
   youtubeUrls     String[]         @default([])
   instagramUrls   String[]         @default([])

@@ -367,18 +367,18 @@ export async function POST(request: Request) {
       description,
       date,
       venue,
+      googleMapsLink,
       ticketPrice,
       totalTickets,
-      comedianIds,
       posterImageUrl,
       youtubeUrls,
       instagramUrls
     } = await request.json()
 
     // Validation
-    if (!title || !date || !venue || !ticketPrice || !totalTickets) {
+    if (!title || !date || !venue || !googleMapsLink || !ticketPrice || !totalTickets) {
       return NextResponse.json({
-        error: "Title, date, venue, ticket price, and total tickets are required"
+        error: "Title, date, venue, location link, ticket price, and total tickets are required"
       }, { status: 400 })
     }
 
@@ -391,8 +391,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Total tickets must be greater than 0" }, { status: 400 })
     }
 
-    if (ticketPrice <= 0) {
-      return NextResponse.json({ error: "Ticket price must be greater than 0" }, { status: 400 })
+    if (!Number.isInteger(ticketPrice) || ticketPrice <= 0) {
+      return NextResponse.json({ error: "Ticket price must be a positive integer" }, { status: 400 })
     }
 
     // Comedians are optional - validate only if provided
@@ -401,7 +401,7 @@ export async function POST(request: Request) {
     // Create show and related records in a transaction
     const result = await prisma.$transaction(async (tx) => {
       // Auto-add comedian to their own show
-      let finalComedianIds = comedianIds || []
+      let finalComedianIds: string[] = []
       if (user.role.startsWith('COMEDIAN')) {
         const comedianProfile = await tx.comedian.findFirst({
           where: { createdBy: user.id }
@@ -419,6 +419,7 @@ export async function POST(request: Request) {
           description,
           date: showDate,
           venue,
+          googleMapsLink,
           ticketPrice,
           totalTickets,
           posterImageUrl,

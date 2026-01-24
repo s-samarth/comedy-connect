@@ -5,7 +5,7 @@ import { useState, useRef } from "react"
 interface ImageUploadProps {
   onUpload: (url: string, publicId: string) => void
   currentImage?: string
-  type: 'show' | 'comedian'
+  type: 'show' | 'comedian' | 'profile'
   className?: string
 }
 
@@ -14,7 +14,7 @@ export default function ImageUpload({ onUpload, currentImage, type, className = 
   const [preview, setPreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file) {
       // Create preview
@@ -23,13 +23,13 @@ export default function ImageUpload({ onUpload, currentImage, type, className = 
         setPreview(reader.result as string)
       }
       reader.readAsDataURL(file)
+
+      // Auto upload
+      await handleUpload(file)
     }
   }
 
-  const handleUpload = async () => {
-    const file = fileInputRef.current?.files?.[0]
-    if (!file) return
-
+  const handleUpload = async (file: File) => {
     setIsUploading(true)
 
     try {
@@ -45,23 +45,27 @@ export default function ImageUpload({ onUpload, currentImage, type, className = 
       if (response.ok) {
         const result = await response.json()
         onUpload(result.url, result.publicId)
-        setPreview(null)
-        if (fileInputRef.current) {
-          fileInputRef.current.value = ''
-        }
+        // Keep preview
       } else {
         const error = await response.json()
         alert(error.error || 'Upload failed')
+        setPreview(null) // Reset preview on failure
       }
     } catch (error) {
       alert('Upload failed')
+      setPreview(null)
     } finally {
       setIsUploading(false)
+      // Reset input value so same file can be selected again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
-  const handleCancel = () => {
+  const handleRemove = () => {
     setPreview(null)
+    onUpload("", "") // Clear in parent
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -72,29 +76,30 @@ export default function ImageUpload({ onUpload, currentImage, type, className = 
       {/* Current/Preview Image */}
       <div className="relative">
         {(preview || currentImage) ? (
-          <div className="relative">
+          <div className="relative group">
             <img
               src={preview || currentImage}
               alt="Preview"
-              className="w-full h-48 object-cover rounded-lg"
+              className={`w-full h-48 object-cover rounded-lg ${isUploading ? 'opacity-50' : ''}`}
             />
-            {preview && (
-              <div className="absolute top-2 right-2 flex gap-2">
-                <button
-                  onClick={handleUpload}
-                  disabled={isUploading}
-                  className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700 disabled:opacity-50"
-                >
-                  {isUploading ? 'Uploading...' : 'Save'}
-                </button>
-                <button
-                  onClick={handleCancel}
-                  disabled={isUploading}
-                  className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
-                >
-                  Cancel
-                </button>
+            {isUploading && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="bg-black/50 text-white px-4 py-2 rounded-full text-sm font-medium animate-pulse">
+                  Uploading...
+                </div>
               </div>
+            )}
+            {!isUploading && (
+              <button
+                onClick={handleRemove}
+                type="button"
+                className="absolute top-2 right-2 bg-red-600 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
+                title="Remove Image"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             )}
           </div>
         ) : (
@@ -112,39 +117,22 @@ export default function ImageUpload({ onUpload, currentImage, type, className = 
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
           onChange={handleFileSelect}
           className="hidden"
           id={`file-input-${type}`}
+          disabled={isUploading}
         />
         <label
           htmlFor={`file-input-${type}`}
-          className="block w-full text-center px-4 py-2 bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200 cursor-pointer transition-colors"
+          className={`block w-full text-center px-4 py-2 bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200 cursor-pointer transition-colors ${isUploading ? 'pointer-events-none opacity-50' : ''}`}
         >
-          Choose Image
+          {preview || currentImage ? 'Change Image' : 'Choose Image'}
         </label>
         <p className="text-xs text-zinc-500 mt-1">
-          JPEG, PNG, or WebP (max 5MB)
+          JPEG, JPG, PNG, or WebP (max 5MB)
         </p>
       </div>
-
-      {/* Upload Button (only show when there's a preview and not uploading) */}
-      {preview && !isUploading && (
-        <div className="flex gap-2">
-          <button
-            onClick={handleUpload}
-            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Upload Image
-          </button>
-          <button
-            onClick={handleCancel}
-            className="flex-1 px-4 py-2 bg-zinc-300 text-zinc-700 rounded hover:bg-zinc-400"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
     </div>
   )
 }

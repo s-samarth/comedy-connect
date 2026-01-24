@@ -9,6 +9,7 @@ interface Show {
   description?: string
   date: string
   venue: string
+  googleMapsLink: string
   ticketPrice: number
   totalTickets: number
   posterImageUrl?: string
@@ -60,9 +61,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     description: "",
     date: "",
     venue: "",
+    googleMapsLink: "",
     ticketPrice: "",
     totalTickets: "",
-    comedianIds: [] as string[],
     posterImageUrl: "",
     youtubeUrls: [] as string[],
     instagramUrls: [] as string[]
@@ -113,6 +114,23 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     setIsLoading(true)
 
     try {
+      // Capture any pending URLs in the inputs
+      const ytInput = document.getElementById('newYoutubeUrl') as HTMLInputElement;
+      const igInput = document.getElementById('newInstagramUrl') as HTMLInputElement;
+
+      let currentYoutubeUrls = [...formData.youtubeUrls];
+      let currentInstagramUrls = [...formData.instagramUrls];
+
+      if (ytInput && ytInput.value.trim()) {
+        currentYoutubeUrls.push(ytInput.value.trim());
+        ytInput.value = ""; // Clear input after capturing
+      }
+
+      if (igInput && igInput.value.trim()) {
+        currentInstagramUrls.push(igInput.value.trim());
+        igInput.value = ""; // Clear input after capturing
+      }
+
       const url = editingShow ? `/api/shows/${editingShow.id}` : "/api/shows"
       const method = editingShow ? "PUT" : "POST"
 
@@ -121,8 +139,10 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
+          youtubeUrls: currentYoutubeUrls,
+          instagramUrls: currentInstagramUrls,
           posterImageUrl: formData.posterImageUrl || undefined,
-          ticketPrice: parseFloat(formData.ticketPrice),
+          ticketPrice: parseInt(formData.ticketPrice),
           totalTickets: parseInt(formData.totalTickets)
         })
       })
@@ -136,9 +156,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           description: "",
           date: "",
           venue: "",
+          googleMapsLink: "",
           ticketPrice: "",
           totalTickets: "",
-          comedianIds: [],
           posterImageUrl: "",
           youtubeUrls: [],
           instagramUrls: []
@@ -161,9 +181,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
       description: show.description || "",
       date: new Date(show.date).toISOString().slice(0, 16),
       venue: show.venue,
+      googleMapsLink: (show as any).googleMapsLink || "",
       ticketPrice: show.ticketPrice.toString(),
       totalTickets: show.totalTickets.toString(),
-      comedianIds: show.showComedians.map(sc => sc.comedian.id),
       posterImageUrl: show.posterImageUrl || "",
       youtubeUrls: show.youtubeUrls || [],
       instagramUrls: show.instagramUrls || []
@@ -355,6 +375,20 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
               />
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-zinc-700 mb-2">
+                Google Maps Link *
+              </label>
+              <input
+                type="url"
+                required
+                value={formData.googleMapsLink}
+                onChange={(e) => setFormData(prev => ({ ...prev, googleMapsLink: e.target.value }))}
+                placeholder="https://maps.app.goo.gl/..."
+                className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
@@ -364,7 +398,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                   type="number"
                   required
                   min="0"
-                  step="0.01"
+                  step="1"
                   value={formData.ticketPrice}
                   onChange={(e) => setFormData(prev => ({ ...prev, ticketPrice: e.target.value }))}
                   className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -386,36 +420,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-zinc-700 mb-2">
-                Comedians
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-32 overflow-y-auto border border-zinc-300 rounded-md p-2">
-                {comedians.map((comedian) => (
-                  <label key={comedian.id} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={formData.comedianIds.includes(comedian.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setFormData(prev => ({
-                            ...prev,
-                            comedianIds: [...prev.comedianIds, comedian.id]
-                          }))
-                        } else {
-                          setFormData(prev => ({
-                            ...prev,
-                            comedianIds: prev.comedianIds.filter(id => id !== comedian.id)
-                          }))
-                        }
-                      }}
-                      className="rounded border-zinc-300"
-                    />
-                    <span className="text-sm">{comedian.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
+            {/* Comedians Checkbox Removed as per requirement */}
 
             {/* Social Media Links */}
             <div className="border-t pt-4 mt-4">
@@ -534,9 +539,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                     description: "",
                     date: "",
                     venue: "",
+                    googleMapsLink: "",
                     ticketPrice: "",
                     totalTickets: "",
-                    comedianIds: [],
                     posterImageUrl: "",
                     youtubeUrls: [],
                     instagramUrls: []

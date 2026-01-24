@@ -8,6 +8,7 @@ interface ProfileCardProps {
     email: string
     role: string
     createdAt: Date
+    image?: string | null
     name?: string | null
     phone?: string | null
     age?: number | null
@@ -22,9 +23,10 @@ interface ProfileCardProps {
     organizerProfile?: any
     comedianProfile?: any
   }
+  isOwner?: boolean
 }
 
-export default function ProfileCard({ user }: ProfileCardProps) {
+export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) {
   const router = useRouter()
 
   const getRoleDisplay = (role: string) => {
@@ -80,10 +82,14 @@ export default function ProfileCard({ user }: ProfileCardProps) {
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="text-center">
         {/* Profile Avatar */}
-        <div className="mx-auto h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center mb-4">
-          <svg className="h-12 w-12 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
-          </svg>
+        <div className="mx-auto h-24 w-24 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4 overflow-hidden border-2 border-zinc-200 dark:border-zinc-700">
+          {user.image ? (
+            <img src={user.image} alt={user.name || ''} className="w-full h-full object-cover" />
+          ) : (
+            <svg className="h-14 w-14 text-zinc-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          )}
         </div>
 
         {/* User Info */}
@@ -91,9 +97,11 @@ export default function ProfileCard({ user }: ProfileCardProps) {
           {user.name || 'Anonymous User'}
         </h2>
 
-        <p className="text-sm text-gray-600 mb-4">
-          {user.email}
-        </p>
+        {isOwner && (
+          <p className="text-sm text-gray-600 mb-4">
+            {user.email}
+          </p>
+        )}
 
         {/* Profile Completion Status */}
         <div className="mb-4">
@@ -117,14 +125,16 @@ export default function ProfileCard({ user }: ProfileCardProps) {
 
         {/* Account Details */}
         <div className="space-y-3 text-left">
-          <div className="border-t pt-3">
-            <p className="text-sm text-gray-500">Phone</p>
-            <p className="text-sm font-medium text-gray-900">
-              {formatPhone(user.phone || '')}
-            </p>
-          </div>
+          {isOwner && user.phone && (
+            <div className="border-t pt-3">
+              <p className="text-sm text-gray-500">Phone</p>
+              <p className="text-sm font-medium text-gray-900">
+                {formatPhone(user.phone)}
+              </p>
+            </div>
+          )}
 
-          {user.age && (
+          {isOwner && user.age && (
             <div>
               <p className="text-sm text-gray-500">Age</p>
               <p className="text-sm font-medium text-gray-900">
@@ -187,21 +197,44 @@ export default function ProfileCard({ user }: ProfileCardProps) {
             <div className="border-t pt-3">
               <p className="text-sm text-gray-500 mb-2">Social Media & Clips</p>
               <div className="flex flex-wrap gap-2">
+                {/* Social Handles */}
+                {(user.comedianProfile?.socialLinks?.youtube || user.organizerProfile?.socialLinks?.youtube) && (
+                  <a
+                    href={`https://youtube.com/@${user.comedianProfile?.socialLinks?.youtube || user.organizerProfile?.socialLinks?.youtube}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-2 py-1 rounded bg-red-600 text-white text-xs hover:bg-red-700 font-bold"
+                  >
+                    @YouTube
+                  </a>
+                )}
+                {(user.comedianProfile?.socialLinks?.instagram || user.organizerProfile?.socialLinks?.instagram) && (
+                  <a
+                    href={`https://instagram.com/${user.comedianProfile?.socialLinks?.instagram || user.organizerProfile?.socialLinks?.instagram}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-2 py-1 rounded bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs hover:opacity-90 font-bold"
+                  >
+                    @Instagram
+                  </a>
+                )}
+
+                {/* Video Clips */}
                 {((user.organizerProfile?.youtubeUrls || user.comedianProfile?.youtubeUrls || []) as string[]).map((url, i) => (
                   <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-1 rounded bg-red-50 text-red-700 text-xs hover:bg-red-100">
-                    📹 YouTube
+                    📹 Video
                   </a>
                 ))}
                 {((user.organizerProfile?.instagramUrls || user.comedianProfile?.instagramUrls || []) as string[]).map((url, i) => (
                   <a key={i} href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center px-2 py-1 rounded bg-pink-50 text-pink-700 text-xs hover:bg-pink-100">
-                    📱 Instagram
+                    📱 Reel
                   </a>
                 ))}
               </div>
             </div>
           )}
 
-          {user.accounts && user.accounts.length > 0 && (
+          {isOwner && user.accounts && user.accounts.length > 0 && (
             <div>
               <p className="text-sm text-gray-500">Connected Accounts</p>
               <div className="flex justify-center space-x-2 mt-1">
@@ -236,7 +269,16 @@ export default function ProfileCard({ user }: ProfileCardProps) {
 
         {/* Action Buttons */}
         <div className="mt-6 space-y-2">
-          {!isProfileComplete && (
+          {isOwner && (
+            <button
+              onClick={() => router.push('/profile/edit')}
+              className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2 rounded-md hover:opacity-90 transition-opacity text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              <span>⚙️</span> Edit Profile
+            </button>
+          )}
+
+          {isOwner && !isProfileComplete && (
             <button
               onClick={() => router.push('/onboarding')}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
@@ -245,7 +287,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
             </button>
           )}
 
-          {user.role === 'ORGANIZER_UNVERIFIED' && (
+          {isOwner && user.role === 'ORGANIZER_UNVERIFIED' && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
               <p className="text-sm text-yellow-800">
                 Your organizer account is pending verification. You'll be able to list shows once approved.
@@ -253,7 +295,7 @@ export default function ProfileCard({ user }: ProfileCardProps) {
             </div>
           )}
 
-          {user.role === 'AUDIENCE' && isProfileComplete && (
+          {isOwner && user.role === 'AUDIENCE' && isProfileComplete && (
             <button className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium">
               Become an Organizer
             </button>

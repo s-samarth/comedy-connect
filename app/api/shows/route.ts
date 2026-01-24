@@ -290,10 +290,38 @@ export async function GET(request: Request) {
           ticketInventory: true,
           _count: {
             select: { bookings: true }
-          }
+          },
+          // Include bookings for stats only in manage mode
+          bookings: isManageMode ? {
+            where: {
+              status: {
+                in: ["CONFIRMED", "CONFIRMED_UNPAID"]
+              }
+            },
+            select: {
+              quantity: true,
+              totalAmount: true
+            }
+          } : false
         },
         orderBy: { date: 'asc' }
       })
+
+      // Calculate stats if in manage mode
+      if (isManageMode) {
+        shows = shows.map(show => {
+          const ticketsSold = show.bookings?.reduce((sum: number, b: any) => sum + b.quantity, 0) || 0
+          const revenue = show.bookings?.reduce((sum: number, b: any) => sum + b.totalAmount, 0) || 0
+          const { bookings, ...showWithoutBookings } = show
+          return {
+            ...showWithoutBookings,
+            stats: {
+              ticketsSold,
+              revenue
+            }
+          }
+        })
+      }
     } catch (dbError) {
       console.log('Database error, using mock data:', dbError)
     }

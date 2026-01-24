@@ -53,20 +53,9 @@ export async function POST(request: Request) {
         throw new Error("Not enough tickets available")
       }
 
-      // Check for existing pending/confirmed booking from same user for this show
-      const existingBooking = await tx.booking.findFirst({
-        where: {
-          userId: user.id,
-          showId,
-          status: {
-            in: [BookingStatus.CONFIRMED_UNPAID, BookingStatus.CONFIRMED, BookingStatus.PENDING]
-          }
-        }
-      })
-
-      if (existingBooking) {
-        throw new Error("You already have a booking for this show")
-      }
+      // Check for existing pending/confirmed booking - REMOVED to allow multiple bookings
+      // const existingBooking = await tx.booking.findFirst({ ... })
+      // if (existingBooking) throw new Error(...)
 
       // Calculate total amount
       const totalAmount = show.ticketPrice * quantity

@@ -33,6 +33,10 @@ interface Show {
   _count: {
     bookings: number
   }
+  stats?: {
+    ticketsSold: number
+    revenue: number
+  }
 }
 
 interface Comedian {
@@ -608,6 +612,18 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                   <div>
                     🎟️ {show.ticketInventory.available} of {show.totalTickets} tickets available
                   </div>
+                  {show.stats && (
+                    <div className="flex justify-between items-center bg-zinc-50 p-2 rounded text-zinc-800 border border-zinc-200 mt-2">
+                      <div>
+                        <span className="font-bold text-lg">{show.stats.ticketsSold}</span>{' '}
+                        <span className="text-xs text-zinc-500 uppercase">Sold</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-lg text-green-600">{formatPrice(show.stats.revenue)}</span>{' '}
+                        <span className="text-xs text-zinc-500 uppercase">Rev</span>
+                      </div>
+                    </div>
+                  )}
                   {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
                     <div className="flex gap-3 pt-2 text-xs font-medium">
                       {show.youtubeUrls && show.youtubeUrls.length > 0 && (
@@ -620,36 +636,38 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                   )}
                 </div>
 
-                {show.showComedians.length > 0 && (
-                  <div className="mb-4 border-t pt-2">
-                    <p className="text-sm font-medium text-zinc-700 mb-2">Comedian Lineup:</p>
-                    <div className="space-y-2">
-                      {show.showComedians.map(sc => (
-                        <div key={sc.comedian.id} className="bg-zinc-50 p-2 rounded">
-                          <p className="font-medium text-sm">{sc.comedian.name}</p>
-                          {((sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0) ||
-                            (sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0)) && (
-                              <div className="mt-1 flex gap-2 text-xs">
-                                {sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0 && (
-                                  <span className="text-red-600 flex items-center gap-1">
-                                    📹 {sc.comedian.youtubeUrls.length} Video{sc.comedian.youtubeUrls.length > 1 ? 's' : ''}
-                                  </span>
-                                )}
-                                {sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0 && (
-                                  <span className="text-pink-600 flex items-center gap-1">
-                                    📱 {sc.comedian.instagramUrls.length} Reel{sc.comedian.instagramUrls.length > 1 ? 's' : ''}
-                                  </span>
-                                )}
-                                <a href={`/comedians/${sc.comedian.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue-600 hover:underline">
-                                  View Profile
-                                </a>
-                              </div>
-                            )}
-                        </div>
-                      ))}
+                {
+                  show.showComedians.length > 0 && (
+                    <div className="mb-4 border-t pt-2">
+                      <p className="text-sm font-medium text-zinc-700 mb-2">Comedian Lineup:</p>
+                      <div className="space-y-2">
+                        {show.showComedians.map(sc => (
+                          <div key={sc.comedian.id} className="bg-zinc-50 p-2 rounded">
+                            <p className="font-medium text-sm">{sc.comedian.name}</p>
+                            {((sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0) ||
+                              (sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0)) && (
+                                <div className="mt-1 flex gap-2 text-xs">
+                                  {sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0 && (
+                                    <span className="text-red-600 flex items-center gap-1">
+                                      📹 {sc.comedian.youtubeUrls.length} Video{sc.comedian.youtubeUrls.length > 1 ? 's' : ''}
+                                    </span>
+                                  )}
+                                  {sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0 && (
+                                    <span className="text-pink-600 flex items-center gap-1">
+                                      📱 {sc.comedian.instagramUrls.length} Reel{sc.comedian.instagramUrls.length > 1 ? 's' : ''}
+                                    </span>
+                                  )}
+                                  <a href={`/comedians/${sc.comedian.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue-600 hover:underline">
+                                    View Profile
+                                  </a>
+                                </div>
+                              )}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )
+                }
 
                 {isVerified && (
                   <div className="flex gap-2 mt-4 pt-4 border-t flex-wrap items-center">

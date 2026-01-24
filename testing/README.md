@@ -32,6 +32,7 @@ Test individual API routes in isolation.
 - `organizers.test.ts` - `/api/organizer/*` endpoints
 - `comedians.test.ts` - `/api/comedians` endpoints
 - `auth.test.ts` - Authentication endpoints
+- `dashboard.test.ts` - Organizer and Comedian dashboard statistics
 
 ### 2. Integration Tests (`/integration/`)
 Test complete user workflows.

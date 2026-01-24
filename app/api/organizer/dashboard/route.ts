@@ -33,14 +33,22 @@ export async function GET() {
             )
         }
 
-        // Fetch all shows created by this user
+        // Fetch all shows created by this user with booking data
         const shows = await prisma.show.findMany({
             where: {
                 createdBy: user.id
             },
             include: {
-                _count: {
-                    select: { bookings: true }
+                bookings: {
+                    where: {
+                        status: {
+                            in: ["CONFIRMED", "CONFIRMED_UNPAID"]
+                        }
+                    },
+                    select: {
+                        quantity: true,
+                        totalAmount: true
+                    }
                 },
                 ticketInventory: {
                     select: { available: true }
@@ -56,17 +64,34 @@ export async function GET() {
         // Calculate statistics
         const totalShows = shows.length
 
-        // Filter upcoming shows for display, but ensure total stats are correct
+        // Filter upcoming shows
         const upcomingShows = shows.filter(show => new Date(show.date) > now)
         const upcomingShowsCount = upcomingShows.length
 
-        // Calculate total tickets sold across all shows
-        const ticketsSold = shows.reduce((total, show) => {
-            return total + show._count.bookings
-        }, 0)
+        // Calculate totals across all shows
+        let totalTicketsSold = 0
+        let totalRevenue = 0
+
+        const showsWithStats = shows.map(show => {
+            const showTicketsSold = show.bookings.reduce((sum, b) => sum + b.quantity, 0)
+            const showRevenue = show.bookings.reduce((sum, b) => sum + b.totalAmount, 0)
+
+            totalTicketsSold += showTicketsSold
+            totalRevenue += showRevenue
+
+            return {
+                ...show,
+                stats: {
+                    ticketsSold: showTicketsSold,
+                    revenue: showRevenue,
+                    bookingsCount: show.bookings.length
+                }
+            }
+        })
 
         // Get next 5 upcoming shows with details
-        const upcomingShowsList = upcomingShows
+        const upcomingShowsList = showsWithStats
+            .filter(show => new Date(show.date) > now)
             .slice(0, 5)
             .map(show => ({
                 id: show.id,
@@ -76,13 +101,19 @@ export async function GET() {
                 ticketPrice: show.ticketPrice,
                 ticketsAvailable: show.ticketInventory?.available || 0,
                 totalTickets: show.totalTickets,
-                bookingsCount: show._count.bookings
+                bookingsCount: show.stats.bookingsCount,
+                ticketsSold: show.stats.ticketsSold,
+                revenue: show.stats.revenue
             }))
+
+        // Also return full list for detailed view if needed, or just summary
+        // For the dashboard overview we stick to summary + upcoming
 
         return NextResponse.json({
             totalShows,
             upcomingShows: upcomingShowsCount,
-            ticketsSold,
+            ticketsSold: totalTicketsSold,
+            totalRevenue,
             upcomingShowsList
         })
 

@@ -86,7 +86,7 @@ describe('Integration: Booking Flow', () => {
         it('Step 1: Guest can browse shows', async () => {
             mockGetCurrentUser.mockResolvedValue(null);
 
-            const response = await getShows();
+            const response = await getShows(new Request('http://localhost:3000/api/shows'));
 
             expect(response.status).toBe(200);
             const data = await response.json();
@@ -169,7 +169,7 @@ describe('Integration: Booking Flow', () => {
             expect(booking.quantity).toBe(2);
         });
 
-        it('Step 5: User cannot book same show again', async () => {
+        it('Step 5: User CAN book same show again (Robust Booking)', async () => {
             mockGetCurrentUser.mockResolvedValue({
                 id: audience.id,
                 email: audience.email,
@@ -184,9 +184,15 @@ describe('Integration: Booking Flow', () => {
 
             const response = await createBooking(request);
 
-            expect(response.status).toBe(400);
+            expect(response.status).toBe(200);
             const data = await response.json();
-            expect(data.error.toLowerCase()).toContain('already');
+            expect(data.success).toBe(true);
+
+            // Verify there are now 2 bookings for this user/show
+            const bookings = await prisma.booking.findMany({
+                where: { userId: audience.id, showId: show.id }
+            });
+            expect(bookings.length).toBe(2);
         });
     });
 

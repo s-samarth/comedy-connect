@@ -61,7 +61,7 @@ describe('Shows API - /api/shows', () => {
                 method: 'GET',
             });
 
-            const response = await GET();
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();
@@ -76,11 +76,51 @@ describe('Shows API - /api/shows', () => {
                 role: UserRole.AUDIENCE,
             } as any);
 
-            const response = await GET();
+            const request = new Request('http://localhost:3000/api/shows');
+            const response = await GET(request);
 
             expect(response.status).toBe(200);
             const data = await response.json();
             expect(data).toHaveProperty('shows');
+        });
+
+        it('should return stats in manage mode for creator', async () => {
+            mockGetCurrentUser.mockResolvedValue({
+                id: testOrganizer.id,
+                email: testOrganizer.email,
+                role: testOrganizer.role,
+            } as any);
+
+            // Create a show and a booking
+            const myShow = await createTestShow(testOrganizer.id, {
+                id: 'test-show-manage-stats',
+                ticketPrice: 100
+            });
+
+            const prisma = getTestPrisma();
+            await prisma.booking.create({
+                data: {
+                    id: 'test-booking-manage-stats',
+                    showId: myShow.id,
+                    userId: testOrganizer.id,
+                    quantity: 2,
+                    totalAmount: 200,
+                    platformFee: 16,
+                    status: 'CONFIRMED'
+                }
+            });
+
+            const request = new Request('http://localhost:3000/api/shows?mode=manage');
+            const response = await GET(request);
+
+            expect(response.status).toBe(200);
+            const data = await response.json();
+            const showWithStats = data.shows.find((s: any) => s.id === myShow.id);
+
+            expect(showWithStats).toBeTruthy();
+            expect(showWithStats.stats).toBeDefined();
+            expect(showWithStats.stats.ticketsSold).toBe(2);
+            expect(showWithStats.stats.revenue).toBe(200);
         });
     });
 
@@ -243,7 +283,7 @@ describe('Shows API - /api/shows', () => {
             expect([200, 201, 403]).toContain(response.status);
         });
 
-        it('should create shows with isPublished: true by default', async () => {
+        it('should create shows with isPublished: false by default (Draft)', async () => {
             mockGetCurrentUser.mockResolvedValue({
                 id: testOrganizer.id,
                 email: testOrganizer.email,
@@ -261,7 +301,7 @@ describe('Shows API - /api/shows', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...validShowData,
-                    title: 'Published Show ' + Date.now(),
+                    title: 'Draft Show ' + Date.now(),
                 }),
             });
 
@@ -272,12 +312,12 @@ describe('Shows API - /api/shows', () => {
             const showId = data.show?.id || data.id;
             expect(showId).toBeTruthy();
 
-            // Verify the show is published by default
+            // Verify the show is draft by default
             const prisma = getTestPrisma();
             const createdShow = await prisma.show.findUnique({
                 where: { id: showId },
             });
-            expect(createdShow?.isPublished).toBe(true);
+            expect(createdShow?.isPublished).toBe(false);
         });
 
         it('should allow organizer to create show without comedianIds', async () => {

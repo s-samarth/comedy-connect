@@ -1,6 +1,6 @@
-import { requireComedian } from "@/lib/auth"
-import { isVerifiedComedian } from "@/lib/auth"
+import { requireComedian, isVerifiedComedian } from "@/lib/auth"
 import Link from "next/link"
+import DashboardOverview from "@/components/organizer/DashboardOverview"
 
 export default async function ComedianPage() {
     const user = await requireComedian()
@@ -38,6 +38,13 @@ export default async function ComedianPage() {
                             </div>
                         )}
                     </div>
+
+                    {/* Dashboard Overview - only for verified comedians */}
+                    {isVerified && (
+                        <div className="mb-6">
+                            <DashboardOverview salesBaseUrl="/comedian/sales" />
+                        </div>
+                    )}
 
                     {/* Quick Actions */}
                     <div className="bg-white rounded-lg shadow p-6">

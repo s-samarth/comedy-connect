@@ -7,6 +7,7 @@ interface DashboardStats {
     totalShows: number
     upcomingShows: number
     ticketsSold: number
+    totalRevenue: number
     upcomingShowsList: Array<{
         id: string
         title: string
@@ -16,10 +17,12 @@ interface DashboardStats {
         ticketsAvailable: number
         totalTickets: number
         bookingsCount: number
+        ticketsSold: number
+        revenue: number
     }>
 }
 
-export default function DashboardOverview() {
+export default function DashboardOverview({ salesBaseUrl = "/organizer/sales" }: { salesBaseUrl?: string }) {
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -58,7 +61,8 @@ export default function DashboardOverview() {
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
-            currency: 'INR'
+            currency: 'INR',
+            maximumFractionDigits: 0
         }).format(price)
     }
 
@@ -88,7 +92,7 @@ export default function DashboardOverview() {
     return (
         <div className="space-y-6">
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-white rounded-lg shadow p-6 border-l-4 border-blue-600">
                     <h3 className="text-sm font-medium text-zinc-600 uppercase tracking-wide">
                         Total Shows
@@ -105,10 +109,30 @@ export default function DashboardOverview() {
 
                 <div className="bg-white rounded-lg shadow p-6 border-l-4 border-purple-600">
                     <h3 className="text-sm font-medium text-zinc-600 uppercase tracking-wide">
-                        Tickets Sold
+                        Total Tickets Sold
                     </h3>
                     <p className="mt-2 text-3xl font-bold text-zinc-900">{stats.ticketsSold}</p>
                 </div>
+
+                <div className="bg-white rounded-lg shadow p-6 border-l-4 border-amber-600">
+                    <h3 className="text-sm font-medium text-zinc-600 uppercase tracking-wide">
+                        Total Revenue
+                    </h3>
+                    <p className="mt-2 text-3xl font-bold text-zinc-900">{formatPrice(stats.totalRevenue)}</p>
+                </div>
+            </div>
+
+            {/* Quick Link to Detailed Sales */}
+            <div className="flex justify-end">
+                <Link
+                    href={salesBaseUrl}
+                    className="flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                >
+                    <span>View Detailed Sales Report</span>
+                    <svg className="w-5 h-5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                </Link>
             </div>
 
             {/* Upcoming Shows List */}
@@ -121,31 +145,50 @@ export default function DashboardOverview() {
                     <div className="divide-y divide-zinc-200">
                         {stats.upcomingShowsList.map((show) => (
                             <div key={show.id} className="p-6 hover:bg-zinc-50 transition-colors">
-                                <div className="flex items-start justify-between">
+                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                                     <div className="flex-1">
-                                        <h4 className="font-semibold text-zinc-900">{show.title}</h4>
+                                        <h4 className="font-semibold text-zinc-900 text-lg">{show.title}</h4>
                                         <div className="mt-2 space-y-1 text-sm text-zinc-600">
-                                            <div>📅 {formatDate(show.date)}</div>
-                                            <div>📍 {show.venue}</div>
-                                            <div>🎫 {formatPrice(show.ticketPrice)}</div>
+                                            <div className="flex items-center gap-2">
+                                                <span>📅</span> {formatDate(show.date)}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span>📍</span> {show.venue}
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span>🎫</span> {formatPrice(show.ticketPrice)} per ticket
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="ml-4 text-right">
-                                        <div className="text-sm text-zinc-600">
-                                            <div className="font-medium">
-                                                {show.ticketsAvailable} / {show.totalTickets} available
+
+                                    <div className="flex flex-col items-end gap-3 min-w-[200px]">
+                                        <div className="text-right">
+                                            <div className="text-sm font-medium text-zinc-900">Sales Status</div>
+                                            <div className="text-2xl font-bold text-green-600">
+                                                {show.ticketsSold} <span className="text-sm font-normal text-zinc-500">tickets</span>
                                             </div>
-                                            {show.bookingsCount > 0 && (
-                                                <div className="mt-1 px-2 py-1 bg-green-100 text-green-800 rounded text-xs inline-block">
-                                                    {show.bookingsCount} booking{show.bookingsCount > 1 ? 's' : ''}
-                                                </div>
-                                            )}
+                                            <div className="text-sm text-zinc-500">
+                                                Rev: {formatPrice(show.revenue)}
+                                            </div>
                                         </div>
+
+                                        <div className="text-right border-t pt-2 w-full">
+                                            <div className="text-xs text-zinc-500 mb-1">
+                                                {show.ticketsAvailable} / {show.totalTickets} remaining
+                                            </div>
+                                            <div className="w-full bg-zinc-200 rounded-full h-1.5">
+                                                <div
+                                                    className="bg-green-600 h-1.5 rounded-full"
+                                                    style={{ width: `${Math.min(((show.totalTickets - show.ticketsAvailable) / show.totalTickets) * 100, 100)}%` }}
+                                                ></div>
+                                            </div>
+                                        </div>
+
                                         <Link
                                             href={`/organizer/shows`}
-                                            className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800"
+                                            className="text-sm text-blue-600 hover:text-blue-800 font-medium"
                                         >
-                                            Manage →
+                                            Manage Show →
                                         </Link>
                                     </div>
                                 </div>

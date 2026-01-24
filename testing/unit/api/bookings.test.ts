@@ -323,62 +323,68 @@ describe('Bookings API - /api/bookings', () => {
             expect(updatedInventory?.available).toBe((initialInventory?.available || 50) - quantity);
         });
 
-        it('should prevent duplicate bookings for same user and show', async () => {
-            // Create user and show for duplicate test
-            const dupeUser = await createTestUser(UserRole.AUDIENCE, {
-                id: 'test-dupe-user-' + Date.now(),
-                email: `dupe-${Date.now()}@test.com`,
+        it('should allow multiple bookings for same user and show', async () => {
+            // Create user and show for multi-booking test
+            const multiUser = await createTestUser(UserRole.AUDIENCE, {
+                id: 'test-multi-user-' + Date.now(),
+                email: `multi-${Date.now()}@test.com`,
             });
 
-            const dupeShow = await createTestShow(testOrganizer.id, {
-                id: 'test-dupe-show-' + Date.now(),
-                title: 'Duplicate Test Show',
+            const multiShow = await createTestShow(testOrganizer.id, {
+                id: 'test-multi-show-' + Date.now(),
+                title: 'Multi Test Show',
                 totalTickets: 100,
             });
 
             // Add comedian
             const comedian = await createTestComedian(testOrganizer.id, {
-                id: 'test-dupe-comedian-' + Date.now(),
-                name: 'Dupe Comedian',
+                id: 'test-multi-comedian-' + Date.now(),
+                name: 'Multi Comedian',
             });
 
             const prisma = getTestPrisma();
             await prisma.showComedian.create({
                 data: {
-                    id: 'test-dupe-sc-' + Date.now(),
-                    showId: dupeShow.id,
+                    id: 'test-multi-sc-' + Date.now(),
+                    showId: multiShow.id,
                     comedianId: comedian.id,
                     order: 1,
                 },
             });
 
             mockGetCurrentUser.mockResolvedValue({
-                id: dupeUser.id,
-                email: dupeUser.email,
-                role: dupeUser.role,
+                id: multiUser.id,
+                email: multiUser.email,
+                role: multiUser.role,
             } as any);
 
             // First booking should succeed
             const request1 = new Request('http://localhost:3000/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ showId: dupeShow.id, quantity: 2 }),
+                body: JSON.stringify({ showId: multiShow.id, quantity: 2 }),
             });
 
             const response1 = await POST(request1);
             expect(response1.status).toBe(200);
 
-            // Second booking should fail
+            // Second booking should also succeed now
             const request2 = new Request('http://localhost:3000/api/bookings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ showId: dupeShow.id, quantity: 1 }),
+                body: JSON.stringify({ showId: multiShow.id, quantity: 1 }),
             });
 
             const response2 = await POST(request2);
-            expect(response2.status).toBe(400);
+            expect(response2.status).toBe(200);
             const data = await response2.json();
-            expect(data.error.toLowerCase()).toContain('already');
+            expect(data.success).toBe(true);
+
+            // Verify there are 2 bookings in DB
+            const bookings = await prisma.booking.findMany({
+                where: { userId: multiUser.id, showId: multiShow.id }
+            });
+            expect(bookings.length).toBe(2);
         });
     });
 });

@@ -40,11 +40,6 @@ export async function POST(request: Request) {
         throw new Error("Show not found")
       }
 
-      // Check if show has comedians
-      if (show.showComedians.length === 0) {
-        throw new Error("This show is not yet available for booking")
-      }
-
       // Check if show is in the future
       if (new Date(show.date) <= new Date()) {
         throw new Error("Cannot book past shows")

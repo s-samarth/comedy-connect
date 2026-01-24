@@ -16,8 +16,10 @@
 ## Shows (`/api/shows`)
 
 - **`GET /api/shows`**
-  - Lists all available comedy shows.
-  - Query Params: `date`, `venue`, `price`.
+  - Lists comedy shows.
+  - Query Params: 
+    - `mode`: (`discovery`|`manage`) Use `discovery` for public browsing (hides drafts), `manage` for organizer views (shows user's own shows including drafts).
+    - `date`, `venue`, `price`: Filter results.
 - **`POST /api/shows`**
   - Creates a new comedy show.
   - Role Required: `ORGANIZER_VERIFIED`, `COMEDIAN_VERIFIED`, or `ADMIN`.
@@ -29,6 +31,10 @@
 - **`DELETE /api/shows/[id]`**
   - Deletes a show.
   - Role Required: `ORGANIZER_VERIFIED` (Owner) or `ADMIN`.
+- **`POST /api/shows/[id]/publish`**
+  - Publishes a draft show.
+  - Logic: Validates ticket availability and dates. Comedian assignment is optional at time of publishing.
+  - Role Required: `ORGANIZER_VERIFIED` (Owner).
 
 ## Comedians (`/api/comedians`)
 

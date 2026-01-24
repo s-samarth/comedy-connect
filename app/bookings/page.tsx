@@ -64,42 +64,6 @@ export default async function BookingsPage() {
 
     return (
         <div className="min-h-screen bg-zinc-50 dark:bg-black">
-            {/* Header */}
-            <header className="bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <Link href="/" className="text-xl font-semibold text-zinc-900 dark:text-white">
-                            Comedy Connect
-                        </Link>
-
-                        <nav className="flex items-center space-x-6">
-                            <span className="text-sm border border-zinc-200 dark:border-zinc-800 px-3 py-1 rounded-full bg-zinc-50 dark:bg-zinc-900 font-medium text-zinc-900 dark:text-white">
-                                {user.name || user.email}
-                            </span>
-                            <Link href="/shows" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
-                                Shows
-                            </Link>
-                            <Link href="/bookings" className="text-zinc-900 dark:text-white font-medium">
-                                My Bookings
-                            </Link>
-                            <Link href="/profile" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
-                                Profile
-                            </Link>
-                            {user.role === "ADMIN" && (
-                                <Link href="/admin-secure" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
-                                    Admin
-                                </Link>
-                            )}
-                            <form action="/api/auth/signout" method="POST">
-                                <button type="submit" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
-                                    Sign Out
-                                </button>
-                            </form>
-                        </nav>
-                    </div>
-                </div>
-            </header>
-
             {/* Main Content */}
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">

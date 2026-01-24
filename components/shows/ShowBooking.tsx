@@ -42,12 +42,12 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
   const isPastShow = new Date(show.date) <= new Date()
   const hasNoComedians = !show.showComedians || show.showComedians.length === 0
   const maxQuantity = Math.min(show.ticketInventory?.available || 0, 10)
-  const isBookable = !isSoldOut && !isPastShow && !hasNoComedians
+  const isBookable = !isSoldOut && !isPastShow
 
   const handleBooking = async () => {
     if (!user) {
-      // Redirect to sign in with callback to this page
-      router.push(`/auth/signin?callback=/shows/${show.id}`)
+      // Redirect to sign in with callbackUrl to this page
+      router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.href)}`)
       return
     }
 
@@ -105,11 +105,7 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
         </div>
       )}
 
-      {hasNoComedians && !isPastShow && !isSoldOut && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-yellow-800 text-sm">This show is not yet available for booking</p>
-        </div>
-      )}
+
 
       {error && (
         <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">

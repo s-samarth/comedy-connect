@@ -8,18 +8,6 @@ export default async function ComedianPage() {
 
     return (
         <div className="min-h-screen bg-zinc-50">
-            {/* Navigation Header */}
-            <div className="bg-white border-b border-zinc-200">
-                <div className="max-w-6xl mx-auto px-8 py-4 flex items-center justify-between">
-                    <Link href="/" className="text-blue-600 hover:text-blue-700 font-medium">
-                        ← Home
-                    </Link>
-                    <Link href="/api/auth/signout" className="text-zinc-600 hover:text-zinc-800">
-                        Sign Out
-                    </Link>
-                </div>
-            </div>
-
             <div className="p-8">
                 <div className="max-w-6xl mx-auto">
                     <h1 className="text-3xl font-bold mb-8">Comedian Dashboard</h1>

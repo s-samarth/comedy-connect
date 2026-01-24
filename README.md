@@ -10,16 +10,18 @@ Comedy Connect is a full-stack web application that connects comedy enthusiasts 
 
 - **Guest Browsing**: Browse comedy shows without authentication (Sign in required only to book)
 - **User Authentication**: Sign up/sign in with Google OAuth
+- **Global Navigation**: Unified header across all pages for consistent site navigation
 - **Show Discovery**: Filter and search comedy events by date, price, and venue
-- **Ticket Booking**: Secure direct booking flow with atomic inventory management (payment-free in current phase)
+- **Ticket Booking**: Secure direct booking flow with atomic inventory management
+- **Guest Experience**: Seamless "Sign In to Book" flow that returns you to your previous page
+- **Simplified Publishing**: Organizers can publish shows immediately without mandatory early comedian assignments
+- **Privacy Controls**: Draft shows are hidden from discovery views and visible only to the creator
 - **Show Details**: Dedicated page for each show with rich details, comedian lineup, and booking controls
 - **My Bookings**: View and manage all your personal show tickets in one place
-- **Identity Management**: User names captured from Google OAuth and displayed across the platform
-- **Unified Auth**: Single "Sign In" flow for new and returning users alike
 - **Role-Based Access**: Specialized dashboards for Comedians and Organizers
 - **Unified Show Creation**: Both Organizers and verified Comedians can create and manage shows
 - **Admin Dashboard**: Secure administrative oversight with password protection
-- **Robust Testing**: Comprehensive test suite ensuring 100% code reliability
+- **Robust Testing**: Comprehensive test suite with automated data cleanup
 - **Mock Data**: Pre-populated with sample comedy shows for demonstration
 
 ## 🏗️ Architecture
@@ -138,6 +140,9 @@ comedy-connect/
 
    # (Optional) Seed the database with sample data
    npm run seed
+
+   # (Optional) Clean up test data if running tests
+   npx ts-node scripts/cleanup-test-artifacts.ts
    ```
 
 6. **Start the development server**

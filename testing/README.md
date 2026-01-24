@@ -148,6 +148,13 @@ const show = await createTestShow(organizerId);
 const comedian = await createTestComedian(organizerId);
 ```
 
+### Artifact Cleanup
+For persistent test records that remain in the database (e.g., failed tests or manual runs), use the standalone artifact cleanup script:
+```bash
+npx ts-node scripts/cleanup-test-artifacts.ts
+```
+This utility script specifically targets users, shows, and bookings with "test" identifiers and removes them to prevent data bloat and accidental display in UI.
+
 ## Contribution Rules
 
 ### Mandatory Requirements

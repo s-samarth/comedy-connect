@@ -48,12 +48,7 @@ export async function POST(
             return NextResponse.json({ error: "Show is already published" }, { status: 400 })
         }
 
-        // Must have at least one comedian
-        if (show.showComedians.length === 0) {
-            return NextResponse.json({
-                error: "Show must have at least one comedian before publishing"
-            }, { status: 400 })
-        }
+
 
         // Date must be in future
         if (show.date <= new Date()) {

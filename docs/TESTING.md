@@ -39,6 +39,13 @@ The test suite is organized into four main categories in the `testing/` director
 - `createTestUser`, `createTestShow`, etc., create real records.
 - **Teardown**: `cleanupTestData()` creates a clean state after suites run.
 
+### Test Data Cleanup
+For thorough manual cleanup of test-generated records (users, shows, bookings):
+```bash
+npx ts-node scripts/cleanup-test-artifacts.ts
+```
+This script identifies test artifacts by specific patterns (e.g., emails containing "test") and removes them from the database.
+
 ## 🧩 Mocking Strategy
 
 We use **Jest Mocks** to isolate unit tests from external services:

@@ -219,7 +219,7 @@ const mockShows = [
   }
 ]
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const user = await getCurrentUser()
 
@@ -233,11 +233,24 @@ export async function GET() {
         }
       }
 
-      if (!user || user.role === 'AUDIENCE') {
+      const { searchParams } = new URL(request.url)
+      const isPublicMode = searchParams.get('mode') === 'public' || searchParams.get('mode') === 'discovery'
+      const isManageMode = searchParams.get('mode') === 'manage'
+
+      if (isManageMode && user) {
+        // Management mode - strictly only shows created by this user
+        visibilityFilter = {
+          createdBy: user.id
+        }
+      } else if (isPublicMode) {
+        // Explicit public query - only published shows
+        visibilityFilter.isPublished = true
+      } else if (!user || user.role === 'AUDIENCE') {
         // Guests and audience see only published shows
         visibilityFilter.isPublished = true
       } else if (user.role.startsWith('ORGANIZER') || user.role.startsWith('COMEDIAN')) {
-        // Organizers and comedians see published shows + their own drafts
+        // Organizers and comedians default view (if not managing strictly)
+        // Shows published shows + their own drafts
         visibilityFilter = {
           AND: [
             { date: { gte: new Date() } },
@@ -250,7 +263,8 @@ export async function GET() {
           ]
         }
       }
-      // Admin sees all shows (no additional filter)
+      // Admin sees all shows (no additional filter unless public mode forced)
+
 
       shows = await prisma.show.findMany({
         where: user?.role === 'ADMIN' ? { date: { gte: new Date() } } : visibilityFilter,
@@ -353,13 +367,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Ticket price must be greater than 0" }, { status: 400 })
     }
 
-    // Validate venue is in Hyderabad (basic check)
-    if (!venue.toLowerCase().includes("hyderabad")) {
-      return NextResponse.json({
-        error: "Currently only Hyderabad venues are supported"
-      }, { status: 400 })
-    }
-
     // Comedians are optional - validate only if provided
     // Note: Validation removed to allow organizers to create shows without comedians
 
@@ -389,7 +396,7 @@ export async function POST(request: Request) {
           posterImageUrl,
           youtubeUrls: youtubeUrls || [],
           instagramUrls: instagramUrls || [],
-          isPublished: true, // Shows are published by default and visible to everyone
+          isPublished: false, // Shows are created as drafts by default
           createdBy: user.id, // FIX: Add createdBy field
         } as any
       })

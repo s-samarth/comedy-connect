@@ -29,6 +29,7 @@ interface Show {
   ticketInventory: {
     available: number
   }
+  isPublished: boolean
   _count: {
     bookings: number
   }
@@ -78,7 +79,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
   const fetchShows = async () => {
     try {
-      const response = await fetch("/api/shows")
+      // Fetch only shows created by the current user (manage mode)
+      const response = await fetch("/api/shows?mode=manage")
       if (response.ok) {
         const data = await response.json()
         setShows(data.shows)
@@ -181,6 +183,52 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
       }
     } catch (error) {
       alert("An error occurred while deleting the show")
+    }
+  }
+
+  const handlePublish = async (id: string) => {
+    if (!confirm("Are you sure you want to publish this show? It will become visible to the audience.")) return
+
+    try {
+      setIsLoading(true)
+      const response = await fetch(`/api/shows/${id}/publish`, {
+        method: "POST"
+      })
+
+      if (response.ok) {
+        await fetchShows()
+        alert("Show published successfully!")
+      } else {
+        const error = await response.json()
+        alert(error.error || "Failed to publish show")
+      }
+    } catch (error) {
+      alert("An error occurred while publishing the show")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUnpublish = async (id: string) => {
+    if (!confirm("Are you sure you want to unpublish this show? It will be hidden from the audience.")) return
+
+    try {
+      setIsLoading(true)
+      const response = await fetch(`/api/shows/${id}/unpublish`, {
+        method: "POST"
+      })
+
+      if (response.ok) {
+        await fetchShows()
+        alert("Show unpublished successfully!")
+      } else {
+        const error = await response.json()
+        alert(error.error || "Failed to unpublish show")
+      }
+    } catch (error) {
+      alert("An error occurred while unpublishing the show")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -291,7 +339,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-2">
-                Venue * (Must include "Hyderabad")
+                Venue *
               </label>
               <input
                 type="text"
@@ -535,7 +583,17 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
             {filteredShows.map((show) => (
               <div key={show.id} className="bg-white rounded-lg shadow p-6">
                 <div className="flex justify-between items-start mb-4">
-                  <h3 className="font-semibold text-lg flex-1">{show.title}</h3>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-lg">{show.title}</h3>
+                      <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${show.isPublished
+                        ? "bg-green-100 text-green-800"
+                        : "bg-gray-100 text-gray-800"
+                        }`}>
+                        {show.isPublished ? "Published" : "Draft"}
+                      </span>
+                    </div>
+                  </div>
                   {show._count.bookings > 0 && (
                     <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
                       {show._count.bookings} booking{show._count.bookings > 1 ? 's' : ''}
@@ -594,22 +652,34 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                 )}
 
                 {isVerified && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
-                    <button
-                      onClick={() => handleEdit(show)}
-                      disabled={show._count.bookings > 0}
-                      className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(show.id)}
-                      disabled={show._count.bookings > 0}
-                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Delete
-                    </button>
-                    {show._count.bookings > 0 && (
+                  <div className="flex gap-2 mt-4 pt-4 border-t flex-wrap items-center">
+                    {!show.isPublished ? (
+                      <>
+                        <button
+                          onClick={() => handlePublish(show.id)}
+                          className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          Publish
+                        </button>
+                        <button
+                          onClick={() => handleEdit(show)}
+                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => handleDelete(show.id)}
+                          className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                        >
+                          Delete
+                        </button>
+                      </>
+                    ) : (
+                      <span className="text-sm text-zinc-500 italic flex items-center gap-1">
+                        🔒 Published - Actions disabled
+                      </span>
+                    )}
+                    {show._count.bookings > 0 && !show.isPublished && (
                       <span className="ml-auto text-xs text-zinc-500 self-center">
                         Locked (has bookings)
                       </span>

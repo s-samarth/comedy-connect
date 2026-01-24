@@ -13,6 +13,10 @@ Contains the application routes and pages.
 ### `components/`
 Reusable UI components organized by feature.
 
+#### `components/layout/`
+Application-wide layout elements.
+- **`Navbar`**: Global navigation header with dynamic authentication states and dashboards links.
+
 #### `components/ui/`
 Shared utility components.
 - **`ImageUpload`**: Cloudinary image upload widget.

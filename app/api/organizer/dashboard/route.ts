@@ -55,6 +55,8 @@ export async function GET() {
 
         // Calculate statistics
         const totalShows = shows.length
+
+        // Filter upcoming shows for display, but ensure total stats are correct
         const upcomingShows = shows.filter(show => new Date(show.date) > now)
         const upcomingShowsCount = upcomingShows.length
 

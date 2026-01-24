@@ -64,7 +64,7 @@ export async function requireRole(role: UserRole) {
 
 export async function requireOrganizer() {
   const user = await requireAuth()
-  if (!user.role.startsWith("ORGANIZER")) {
+  if (user.role !== "ADMIN" && !user.role.startsWith("ORGANIZER")) {
     throw new Error("Access denied. Organizer role required")
   }
   return user
@@ -72,7 +72,7 @@ export async function requireOrganizer() {
 
 export async function requireComedian() {
   const user = await requireAuth()
-  if (!user.role.startsWith("COMEDIAN")) {
+  if (user.role !== "ADMIN" && !user.role.startsWith("COMEDIAN")) {
     throw new Error("Access denied. Comedian role required")
   }
   return user
@@ -83,21 +83,21 @@ export async function requireAdmin() {
 }
 
 export function isVerifiedOrganizer(role: UserRole): boolean {
-  return role === "ORGANIZER_VERIFIED"
+  return role === "ADMIN" || role === "ORGANIZER_VERIFIED"
 }
 
 export function isVerifiedComedian(role: UserRole): boolean {
-  return (role as string) === "COMEDIAN_VERIFIED"
+  return role === "ADMIN" || (role as string) === "COMEDIAN_VERIFIED"
 }
 
 export async function requireShowCreator() {
   const user = await requireAuth()
-  if (!user.role.startsWith("COMEDIAN") && !user.role.startsWith("ORGANIZER")) {
+  if (user.role !== "ADMIN" && !user.role.startsWith("COMEDIAN") && !user.role.startsWith("ORGANIZER")) {
     throw new Error("Access denied. Comedian or Organizer role required")
   }
   return user
 }
 
 export function isVerifiedShowCreator(role: UserRole): boolean {
-  return isVerifiedComedian(role) || isVerifiedOrganizer(role)
+  return role === "ADMIN" || isVerifiedComedian(role) || isVerifiedOrganizer(role)
 }

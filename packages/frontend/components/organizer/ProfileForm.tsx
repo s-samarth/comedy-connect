@@ -29,7 +29,7 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/organizer/profile", {
+      const response = await fetch("/api/v1/organizer/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

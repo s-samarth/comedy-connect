@@ -58,7 +58,7 @@ export default function CollectionManagement() {
     const fetchCollections = async () => {
         try {
             setLoading(true)
-            const res = await fetch(`/api/admin/collections?t=${Date.now()}`, { cache: 'no-store' })
+            const res = await fetch(`/api/v1/admin/collections?t=${Date.now()}`, { cache: 'no-store' })
             if (res.ok) {
                 const json = await res.json()
                 setData(json)
@@ -75,7 +75,7 @@ export default function CollectionManagement() {
 
         setActionLoading(showId)
         try {
-            const res = await fetch("/api/admin/collections", {
+            const res = await fetch("/api/v1/admin/collections", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ showId, action: "DISBURSE" })

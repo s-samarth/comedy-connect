@@ -33,7 +33,7 @@ export default function DashboardOverview({ salesBaseUrl = "/organizer/sales" }:
 
     const fetchDashboardStats = async () => {
         try {
-            const response = await fetch("/api/organizer/dashboard")
+            const response = await fetch("/api/v1/organizer/dashboard")
             if (response.ok) {
                 const data = await response.json()
                 setStats(data)

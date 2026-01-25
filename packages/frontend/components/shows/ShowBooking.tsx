@@ -55,7 +55,7 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
     setError(null)
 
     try {
-      const response = await fetch('/api/bookings', {
+      const response = await fetch('/api/v1/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

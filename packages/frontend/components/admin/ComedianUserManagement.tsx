@@ -37,7 +37,7 @@ export default function ComedianUserManagement() {
 
     const fetchComedians = async () => {
         try {
-            const response = await fetch("/api/admin/comedian-users", { cache: "no-store" })
+            const response = await fetch("/api/v1/admin/comedian-users", { cache: "no-store" })
             if (response.ok) {
                 const data = await response.json()
                 setComedians(data.comedians || [])
@@ -53,7 +53,7 @@ export default function ComedianUserManagement() {
         setActionLoading(comedianId)
 
         try {
-            const response = await fetch("/api/admin/comedian-users", {
+            const response = await fetch("/api/v1/admin/comedian-users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ comedianId, action })
@@ -76,7 +76,7 @@ export default function ComedianUserManagement() {
     const handleUpdateFee = async (comedianId: string, customPlatformFee: number) => {
         setActionLoading(comedianId)
         try {
-            const response = await fetch("/api/admin/comedian-users", {
+            const response = await fetch("/api/v1/admin/comedian-users", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ comedianId, action: 'UPDATE_FEE', customPlatformFee })

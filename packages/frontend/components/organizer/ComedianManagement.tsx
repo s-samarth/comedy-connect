@@ -54,7 +54,7 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
 
   const fetchComedians = async () => {
     try {
-      const response = await fetch("/api/comedians")
+      const response = await fetch("/api/v1/comedians")
       if (response.ok) {
         const data = await response.json()
         setComedians(data.comedians)
@@ -71,7 +71,7 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
     setIsLoading(true)
 
     try {
-      const url = editingComedian ? `/api/comedians/${editingComedian.id}` : "/api/comedians"
+      const url = editingComedian ? `/api/v1/comedians/${editingComedian.id}` : "/api/v1/comedians"
       const method = editingComedian ? "PUT" : "POST"
 
       const response = await fetch(url, {
@@ -124,7 +124,7 @@ export default function ComedianManagement({ userId, isVerified }: ComedianManag
     if (!confirm("Are you sure you want to delete this comedian?")) return
 
     try {
-      const response = await fetch(`/api/comedians/${id}`, {
+      const response = await fetch(`/api/v1/comedians/${id}`, {
         method: "DELETE"
       })
 

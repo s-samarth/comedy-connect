@@ -20,8 +20,8 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
     setError('')
 
     try {
-      const endpoint = isSetup ? '/api/admin/set-password' : '/api/admin/verify-password'
-      const body = isSetup 
+      const endpoint = isSetup ? '/api/v1/admin/set-password' : '/api/v1/admin/verify-password'
+      const body = isSetup
         ? { password, confirmPassword }
         : { password }
 
@@ -59,7 +59,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
         <h1 className="text-2xl font-bold mb-6 text-center">
           {isSetup ? 'Set Admin Password' : 'Admin Authentication'}
         </h1>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label htmlFor="password" className="block text-sm font-medium mb-2">

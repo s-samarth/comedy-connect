@@ -10,7 +10,7 @@ In the decoupled architecture, the **Backend Service** manages all authenticatio
 - **Provider**: Google OAuth.
 - **Session Strategy**: Database-backed sessions using the Prisma Adapter.
 - **Handling**: 
-  - Frontend redirects to `${BACKEND_URL}/api/v1/auth/signin`.
+  - Frontend redirects to `${BACKEND_URL}/api/auth/signin`.
   - Backend sets a `next-auth.session-token` cookie.
   - Subsequent requests from Frontend include `credentials: 'include'`.
 

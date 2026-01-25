@@ -28,7 +28,7 @@ export default function ComedianProfileForm({ initialData, isVerified, userId }:
     setIsLoading(true)
 
     try {
-      const response = await fetch("/api/comedian/profile", {
+      const response = await fetch("/api/v1/comedian/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

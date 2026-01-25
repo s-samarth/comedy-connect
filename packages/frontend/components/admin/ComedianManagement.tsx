@@ -32,7 +32,7 @@ export default function ComedianManagement() {
 
     const fetchComedians = async () => {
         try {
-            const response = await fetch("/api/admin/comedians")
+            const response = await fetch("/api/v1/admin/comedians")
             if (response.ok) {
                 const data = await response.json()
                 setComedians(data.comedians)

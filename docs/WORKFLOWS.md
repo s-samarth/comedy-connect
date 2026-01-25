@@ -56,6 +56,6 @@ sequenceDiagram
 1. **Portal Access**: Admin accesses `/admin` on the Frontend.
 2. **First-Tier Auth**: Verify role is `ADMIN` via standard session.
 3. **Second-Tier Auth**: Admin enters password.
-   - Frontend POSTs to `/api/v1/admin-secure/login`.
+    - Frontend POSTs to `/api/admin-secure/login`.
    - Backend verifies password and sets a secure short-lived cookie.
 4. **Action**: Admin can now perform sensitive tasks (Disbursement, Fee Changes).

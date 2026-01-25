@@ -17,7 +17,7 @@ export function AdminPasswordReset() {
     setSuccess('')
 
     try {
-      const response = await fetch('/api/admin/reset-password', {
+      const response = await fetch('/api/v1/admin/reset-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -34,7 +34,7 @@ export function AdminPasswordReset() {
         setCurrentPassword('')
         setNewPassword('')
         setConfirmPassword('')
-        
+
         // Reload page after 2 seconds to force re-authentication
         setTimeout(() => {
           window.location.reload()
@@ -52,7 +52,7 @@ export function AdminPasswordReset() {
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
       <h3 className="font-medium mb-4 text-blue-800">Reset Admin Password</h3>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="currentPassword" className="block text-sm font-medium mb-2">

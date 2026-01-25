@@ -10,14 +10,14 @@ export function DatabaseCleanup() {
     const confirmed = window.confirm(
       '⚠️ This will permanently delete ALL user data except admin users. Are you absolutely sure?'
     )
-    
+
     if (!confirmed) return
 
     setIsLoading(true)
     setResult(null)
 
     try {
-      const response = await fetch('/api/admin/cleanup-database', {
+      const response = await fetch('/api/v1/admin/cleanup-database', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -47,13 +47,13 @@ export function DatabaseCleanup() {
       >
         {isLoading ? 'Cleaning up...' : '🧹 Clean Database'}
       </button>
-      
+
       {result && (
         <div className={`p-3 rounded text-sm ${result.includes('✅') ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
           {result}
         </div>
       )}
-      
+
       <div className="text-xs text-zinc-500 mt-2">
         <p>• Deletes all non-admin users</p>
         <p>• Removes all shows, comedians, bookings</p>

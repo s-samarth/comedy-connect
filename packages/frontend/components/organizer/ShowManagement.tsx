@@ -85,7 +85,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
   const fetchShows = async () => {
     try {
       // Fetch only shows created by the current user (manage mode)
-      const response = await fetch("/api/shows?mode=manage")
+      const response = await fetch("/api/v1/shows?mode=manage")
       if (response.ok) {
         const data = await response.json()
         setShows(data.shows)
@@ -99,7 +99,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
   const fetchComedians = async () => {
     try {
-      const response = await fetch("/api/comedians")
+      const response = await fetch("/api/v1/comedians")
       if (response.ok) {
         const data = await response.json()
         setComedians(data.comedians)
@@ -131,7 +131,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
         igInput.value = ""; // Clear input after capturing
       }
 
-      const url = editingShow ? `/api/shows/${editingShow.id}` : "/api/shows"
+      const url = editingShow ? `/api/v1/shows/${editingShow.id}` : "/api/v1/shows"
       const method = editingShow ? "PUT" : "POST"
 
       const response = await fetch(url, {
@@ -195,7 +195,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     if (!confirm("Are you sure you want to delete this show?")) return
 
     try {
-      const response = await fetch(`/api/shows/${id}`, {
+      const response = await fetch(`/api/v1/shows/${id}`, {
         method: "DELETE"
       })
 
@@ -215,7 +215,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
     try {
       setIsLoading(true)
-      const response = await fetch(`/api/shows/${id}/publish`, {
+      const response = await fetch(`/api/v1/shows/${id}/publish`, {
         method: "POST"
       })
 
@@ -238,7 +238,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
     try {
       setIsLoading(true)
-      const response = await fetch(`/api/shows/${id}/unpublish`, {
+      const response = await fetch(`/api/v1/shows/${id}/unpublish`, {
         method: "POST"
       })
 

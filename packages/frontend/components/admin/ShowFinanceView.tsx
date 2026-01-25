@@ -39,7 +39,7 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await fetch(`/api/admin/collections?showId=${showId}`)
+                const res = await fetch(`/api/v1/admin/collections?showId=${showId}`)
                 if (!res.ok) throw new Error('Failed to fetch financial data')
                 const result = await res.json()
                 // The API returns { lifetime: { shows: [...] }, ... }

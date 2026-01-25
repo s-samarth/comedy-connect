@@ -125,7 +125,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
         }
 
         try {
-            const response = await fetch("/api/profile/update", {
+            const response = await fetch("/api/v1/profile/update", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)

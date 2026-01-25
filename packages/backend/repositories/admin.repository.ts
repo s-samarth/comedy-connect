@@ -1,0 +1,75 @@
+import { prisma } from "@/lib/prisma"
+
+export class AdminRepository {
+    /**
+     * Fetch all shows with creator info (replaces Raw SQL)
+     * Using Prisma relations for better type safety, though Raw SQL was used for performance?
+     * The original code used Raw SQL to join User and OrganizerProfile.
+     * We can achieve this with Prisma include.
+     */
+    async findAllShowsWithCreator() {
+        // We stick to Prisma findMany for consistency unless performance is critical
+        // The previous Raw SQL query structure:
+        /*
+        SELECT s.*, u.email, op.name 
+        FROM Show s 
+        LEFT JOIN User u ... 
+        LEFT JOIN OrganizerProfile op ...
+        */
+        const shows = await prisma.show.findMany({
+            include: {
+                creator: {
+                    include: {
+                        organizerProfile: true // Join to get name
+                    }
+                },
+                _count: {
+                    select: { bookings: true }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        })
+
+        // Map to match the specific Raw SQL output structure if needed, or return Prisma objects
+        // The service will handle mapping
+        return shows
+    }
+
+    /**
+     * Get booking stats for all shows
+     */
+    async getBookingStats() {
+        return prisma.$queryRaw`
+          SELECT 
+            "showId", 
+            SUM("totalAmount") as "revenue", 
+            SUM("quantity") as "ticketsSold"
+          FROM "Booking"
+          WHERE "status" IN ('CONFIRMED', 'CONFIRMED_UNPAID')
+          GROUP BY "showId"
+        ` as Promise<any[]>
+    }
+
+    /**
+     * Update platform fee via Raw SQL (as per original implementation)
+     */
+    async updatePlatformFee(showId: string, fee: number) {
+        return prisma.$executeRaw`
+          UPDATE "Show" 
+          SET "customPlatformFee" = ${fee} 
+          WHERE "id" = ${showId}
+        `
+    }
+
+    /**
+     * Set disbursed status
+     */
+    async setDisbursed(showId: string, isDisbursed: boolean) {
+        return prisma.show.update({
+            where: { id: showId },
+            data: { isDisbursed }
+        })
+    }
+}
+
+export const adminRepository = new AdminRepository()

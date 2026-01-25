@@ -3,8 +3,16 @@
 This document describes the REST API endpoints provided by the **Comedy Connect Backend Service**. 
 
 ## 🌐 Base URL
-- **Local**: `http://localhost:4000/api/v1`
-- **Production**: `https://api.comedyconnect.com/api/v1`
+- **Local**: `http://localhost:4000`
+- **Production**: `https://api.comedyconnect.com`
+
+---
+
+## 🏗️ Architecture
+The backend follows a **Service/Repository architecture**.
+- **Services**: Contain all business logic, fee calculations, and validation.
+- **Repositories**: Handle all data access via Prisma.
+- **Controllers**: Thin Next.js API route handlers that delegate to services.
 
 ---
 

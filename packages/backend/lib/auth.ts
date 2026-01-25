@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/app/auth/[...nextauth]/route"
 import { UserRole } from "@prisma/client"
 import { cookies } from "next/headers"
 import { validateAdminSession } from "@/lib/admin-password"
@@ -8,10 +8,8 @@ export async function getCurrentUser() {
   // 1. Try NextAuth session first
   const session = await getServerSession(authOptions)
   if ((session as any)?.user?.id) {
-    const { prisma } = await import('@/lib/prisma')
-    return await prisma.user.findUnique({
-      where: { id: (session as any).user.id }
-    })
+    const { userRepository } = await import('@/repositories/user.repository')
+    return await userRepository.findById((session as any).user.id)
   }
 
   // 2. Try Admin Password Session
@@ -24,10 +22,8 @@ export async function getCurrentUser() {
 
       if (valid && email) {
         // Fetch user from DB to ensure we have ID and role
-        const { prisma } = await import('@/lib/prisma')
-        const user = await prisma.user.findUnique({
-          where: { email }
-        })
+        const { userRepository } = await import('@/repositories/user.repository')
+        const user = await userRepository.findByEmail(email)
 
         if (user && user.role === 'ADMIN') {
           return {

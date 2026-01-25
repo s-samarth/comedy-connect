@@ -1,7 +1,7 @@
 import { getCurrentUser, requireShowCreator, isVerifiedShowCreator } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
-import { UserRole } from "@prisma/client"
+import { showService } from "@/services/shows/show.service"
+import { mapErrorToResponse } from "@/errors"
 
 // Mock comedy shows data
 const mockShows = [
@@ -222,108 +222,17 @@ const mockShows = [
 export async function GET(request: Request) {
   try {
     const user = await getCurrentUser()
+    const { searchParams } = new URL(request.url)
+    const mode = searchParams.get('mode') as "public" | "manage" | "discovery" | undefined
 
-    // Try to get real shows from database
+    // Try to get real shows from service
     let shows: any[] = []
     try {
-      // Build visibility filter based on user role
-      let visibilityFilter: any = {
-        date: {
-          gte: new Date()
-        }
-      }
-
-      const { searchParams } = new URL(request.url)
-      const isPublicMode = searchParams.get('mode') === 'public' || searchParams.get('mode') === 'discovery'
-      const isManageMode = searchParams.get('mode') === 'manage'
-
-      if (isManageMode && user) {
-        // Management mode - strictly only shows created by this user
-        visibilityFilter = {
-          createdBy: user.id
-        }
-      } else if (isPublicMode) {
-        // Explicit public query - only published shows
-        visibilityFilter.isPublished = true
-      } else if (!user || user.role === 'AUDIENCE') {
-        // Guests and audience see only published shows
-        visibilityFilter.isPublished = true
-      } else if (user.role.startsWith('ORGANIZER') || user.role.startsWith('COMEDIAN')) {
-        // Organizers and comedians default view (if not managing strictly)
-        // Shows published shows + their own drafts
-        visibilityFilter = {
-          AND: [
-            { date: { gte: new Date() } },
-            {
-              OR: [
-                { isPublished: true },
-                { createdBy: user.id }
-              ]
-            }
-          ]
-        }
-      }
-      // Admin sees all shows (no additional filter unless public mode forced)
-
-      // Admin sees all shows only if not in public/discovery mode
-      const useAdminView = user?.role === 'ADMIN' && !isPublicMode
-
-      shows = await prisma.show.findMany({
-        where: useAdminView ? { date: { gte: new Date() } } : visibilityFilter,
-        include: {
-          creator: {
-            select: { email: true, role: true }
-          },
-          showComedians: {
-            include: {
-              comedian: {
-                select: {
-                  id: true,
-                  name: true,
-                  bio: true,
-                  profileImageUrl: true,
-                  youtubeUrls: true,
-                  instagramUrls: true
-                } as any
-              }
-            },
-            orderBy: { order: 'asc' }
-          },
-          ticketInventory: true,
-          _count: {
-            select: { bookings: true }
-          },
-          // Include bookings for stats only in manage mode
-          bookings: isManageMode ? {
-            where: {
-              status: {
-                in: ["CONFIRMED", "CONFIRMED_UNPAID"]
-              }
-            },
-            select: {
-              quantity: true,
-              totalAmount: true
-            }
-          } : false
-        },
-        orderBy: { date: 'asc' }
+      shows = await showService.listShows({
+        userId: user?.id,
+        userRole: user?.role,
+        mode
       })
-
-      // Calculate stats if in manage mode
-      if (isManageMode) {
-        shows = shows.map(show => {
-          const ticketsSold = show.bookings?.reduce((sum: number, b: any) => sum + b.quantity, 0) || 0
-          const revenue = show.bookings?.reduce((sum: number, b: any) => sum + b.totalAmount, 0) || 0
-          const { bookings, ...showWithoutBookings } = show
-          return {
-            ...showWithoutBookings,
-            stats: {
-              ticketsSold,
-              revenue
-            }
-          }
-        })
-      }
     } catch (dbError) {
       console.log('Database error, using mock data:', dbError)
     }
@@ -364,103 +273,25 @@ export async function POST(request: Request) {
       }, { status: 403 })
     }
 
-    const {
-      title,
-      description,
-      date,
-      venue,
-      googleMapsLink,
-      ticketPrice,
-      totalTickets,
-      posterImageUrl,
-      youtubeUrls,
-      instagramUrls
-    } = await request.json()
+    const body = await request.json()
 
-    // Validation
-    if (!title || !date || !venue || !googleMapsLink || !ticketPrice || !totalTickets) {
-      return NextResponse.json({
-        error: "Title, date, venue, location link, ticket price, and total tickets are required"
-      }, { status: 400 })
-    }
-
-    const showDate = new Date(date)
-    if (showDate <= new Date()) {
-      return NextResponse.json({ error: "Show date must be in the future" }, { status: 400 })
-    }
-
-    if (totalTickets <= 0) {
-      return NextResponse.json({ error: "Total tickets must be greater than 0" }, { status: 400 })
-    }
-
-    if (!Number.isInteger(ticketPrice) || ticketPrice <= 0) {
-      return NextResponse.json({ error: "Ticket price must be a positive integer" }, { status: 400 })
-    }
-
-    // Comedians are optional - validate only if provided
-    // Note: Validation removed to allow organizers to create shows without comedians
-
-    // Create show and related records in a transaction
-    const result = await prisma.$transaction(async (tx) => {
-      // Auto-add comedian to their own show
-      let finalComedianIds: string[] = []
-      if (user.role.startsWith('COMEDIAN')) {
-        const comedianProfile = await tx.comedian.findFirst({
-          where: { createdBy: user.id }
-        })
-
-        if (comedianProfile && !finalComedianIds.includes(comedianProfile.id)) {
-          // Add comedian to beginning of list
-          finalComedianIds = [comedianProfile.id, ...finalComedianIds]
-        }
-      }
-
-      const show = await tx.show.create({
-        data: {
-          title,
-          description,
-          date: showDate,
-          venue,
-          googleMapsLink,
-          ticketPrice,
-          totalTickets,
-          posterImageUrl,
-          youtubeUrls: youtubeUrls || [],
-          instagramUrls: instagramUrls || [],
-          isPublished: false, // Shows are created as drafts by default
-          createdBy: user.id, // FIX: Add createdBy field
-        } as any
-      })
-
-      // Create ticket inventory
-      await tx.ticketInventory.create({
-        data: {
-          showId: show.id,
-          available: totalTickets
-        }
-      })
-
-      // Associate comedians if provided
-      if (finalComedianIds && finalComedianIds.length > 0) {
-        const showComedians = finalComedianIds.map((comedianId: string, index: number) => ({
-          showId: show.id,
-          comedianId,
-          order: index
-        }))
-
-        await tx.showComedian.createMany({
-          data: showComedians
-        })
-      }
-
-      return show
+    // Call service to create show
+    const show = await showService.createShow(user.id, user.role, {
+      title: body.title,
+      description: body.description,
+      date: new Date(body.date),
+      venue: body.venue,
+      googleMapsLink: body.googleMapsLink,
+      ticketPrice: body.ticketPrice,
+      totalTickets: body.totalTickets,
+      posterImageUrl: body.posterImageUrl,
+      youtubeUrls: body.youtubeUrls,
+      instagramUrls: body.instagramUrls
     })
 
-    return NextResponse.json({ show: result })
+    return NextResponse.json({ show })
   } catch (error) {
-    console.error('Error creating show:', error)
-    return NextResponse.json({
-      error: "Failed to create show. Please try again."
-    }, { status: 500 })
+    const { status, error: message } = mapErrorToResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }

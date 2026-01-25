@@ -49,6 +49,13 @@ The migration followed a 6-phase plan to ensure **zero production downtime**.
 3. **Write Operations**: Carefully migrated bookings (atomic transactions).
 4. **Validation**: Verified data consistency between old and new systems.
 
+### Phase 5: Architecture Refactor (Jan 2026)
+1. **Clean Architecture**: Refactored the backend to a layered **Service/Repository pattern**.
+2. **Repository Layer**: Isolated all Prisma queries in specialized repository classes.
+3. **Service Layer**: Moved business logic, validation, and complex calculations (like fees) out of route handlers and into services.
+4. **Domain Errors**: Introduced structured error handling to separate HTTP concerns from domain logic.
+5. **Decoupling**: Decoupled the auth library (`lib/auth.ts`) from direct database access using the `UserRepository`.
+
 ---
 
 ## 🛠️ Technical Details of the Split

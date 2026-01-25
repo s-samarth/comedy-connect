@@ -1,6 +1,7 @@
 import { getCurrentUser } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
+import { showService } from "@/services/shows/show.service"
+import { mapErrorToResponse } from "@/errors"
 
 export async function POST(
     request: Request,
@@ -15,67 +16,15 @@ export async function POST(
 
         const { id: showId } = await params
 
-        // Fetch the show with all required data
-        const show = await prisma.show.findUnique({
-            where: { id: showId },
-            include: {
-                showComedians: true,
-                _count: {
-                    select: { bookings: true }
-                }
-            }
-        })
-
-        if (!show) {
-            return NextResponse.json({ error: "Show not found" }, { status: 404 })
-        }
-
-        // Verify ownership
-        if (show.createdBy !== user.id && user.role !== 'ADMIN') {
-            return NextResponse.json({ error: "You don't have permission to publish this show" }, { status: 403 })
-        }
-
-        // Verify user is verified
-        const isVerified = user.role === 'ORGANIZER_VERIFIED' || user.role === 'COMEDIAN_VERIFIED' || user.role === 'ADMIN'
-        if (!isVerified) {
-            return NextResponse.json({
-                error: "Your account must be verified before you can publish shows"
-            }, { status: 403 })
-        }
-
-        // Validation checks before publishing
-        if (show.isPublished) {
-            return NextResponse.json({ error: "Show is already published" }, { status: 400 })
-        }
-
-
-
-        // Date must be in future
-        if (show.date <= new Date()) {
-            return NextResponse.json({
-                error: "Show date must be in the future"
-            }, { status: 400 })
-        }
-
-        // Capacity must be greater than 0
-        if (show.totalTickets <= 0) {
-            return NextResponse.json({
-                error: "Show must have at least 1 ticket"
-            }, { status: 400 })
-        }
-
-        // Publish the show
-        const updatedShow = await prisma.show.update({
-            where: { id: showId },
-            data: { isPublished: true }
-        })
+        // Call service to publish show
+        const updatedShow = await showService.publishShow(showId, user.id, user.role)
 
         return NextResponse.json({
             message: "Show published successfully",
             show: updatedShow
         })
     } catch (error) {
-        console.error("Error publishing show:", error)
-        return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+        const { status, error: message } = mapErrorToResponse(error)
+        return NextResponse.json({ error: message }, { status })
     }
 }

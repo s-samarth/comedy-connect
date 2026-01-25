@@ -4,7 +4,7 @@ Comedy Connect uses a robust, dual-layered authentication system designed to han
 
 ## 🔐 Authentication Architecture
 
-In the decoupled architecture, the **Backend Service** manages all authentication logic.
+In the decoupled architecture, the **Backend Service** manages all authentication logic. Data access for users is abstracted into the `UserRepository`.
 
 ### 1. NextAuth.js (Standard Users)
 - **Provider**: Google OAuth.

@@ -62,3 +62,4 @@ npm run seed
 - **Transactions**: Atomic operations are used for bookings to ensure `TicketInventory` is always accurate.
 - **Enums**: Roles and Statuses are enforced at the database level.
 - **Foreign Keys**: Cascading deletes are configured for accounts and sessions to maintain cleanliness.
+- **Data Access Layer**: All database queries are isolated in the `packages/backend/repositories` directory, separated from business logic.

@@ -53,8 +53,8 @@ The frontend can be toggled between the **Internal Monolith API** and the **Stan
 
 ## 🏗️ Technology Stack
 - **Frontend**: Next.js 14+ (App Router), Tailwind CSS, SWR.
-- **Backend**: Next.js API Routes (Standalone), Prisma ORM, NextAuth.js.
-- **Database**: PostgreSQL.
+- **Backend**: Next.js Standalone API Service using **Service/Repository architecture** for clean separation of concerns.
+- **Database**: PostgreSQL with Prisma ORM.
 - **Type Safety**: Shared TypeScript package `@comedy-connect/types`.
 
 ## 🚀 Getting Started
@@ -201,11 +201,11 @@ The frontend can be toggled between the **Internal Monolith API** and the **Stan
 - Component-based architecture
 
 ### API Design
-- RESTful API endpoints
-- Consistent error handling
-- Proper HTTP status codes
-- Input validation and sanitization
-
+- RESTful API endpoints.
+- **Layered Architecture**: Service and Repository layers for separation of business logic and data access.
+- Consistent error handling with domain-specific exceptions.
+- Proper HTTP status codes.
+- Input validation and sanitization.
 ### Database Best Practices
 - Prisma migrations for schema changes
 - Database transactions for data consistency

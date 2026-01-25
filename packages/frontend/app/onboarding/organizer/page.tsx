@@ -3,6 +3,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api/client"
 
 export default function OrganizerOnboardingPage() {
     const router = useRouter()
@@ -19,20 +20,11 @@ export default function OrganizerOnboardingPage() {
         setIsLoading(true)
 
         try {
-            const response = await fetch("/api/organizer/profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            })
+            await apiClient.post("/api/v1/organizer/profile", formData)
 
-            if (response.ok) {
-                router.push("/organizer/pending-verification")
-            } else {
-                const error = await response.json()
-                alert(error.error || "Failed to create profile")
-            }
-        } catch (error) {
-            alert("An error occurred while creating your profile")
+            router.push("/organizer/pending-verification")
+        } catch (error: any) {
+            alert(error.message?.replace('API Error:', '').trim() || "Failed to create profile")
         } finally {
             setIsLoading(false)
         }

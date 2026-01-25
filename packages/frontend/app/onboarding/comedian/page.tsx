@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import { apiClient } from "@/lib/api/client"
 
 export default function ComedianOnboardingPage() {
     const router = useRouter()
@@ -20,30 +21,21 @@ export default function ComedianOnboardingPage() {
         setIsLoading(true)
 
         try {
-            const response = await fetch("/api/comedian/profile", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    stageName: formData.stageName,
-                    bio: formData.bio,
-                    contact: formData.contact,
-                    socialLinks: {
-                        instagram: formData.instagram,
-                        twitter: formData.twitter,
-                        youtube: formData.youtube
-                    }
-                })
+            await apiClient.post("/api/v1/comedian/profile", {
+                stageName: formData.stageName,
+                bio: formData.bio,
+                contact: formData.contact,
+                socialLinks: {
+                    instagram: formData.instagram,
+                    twitter: formData.twitter,
+                    youtube: formData.youtube
+                }
             })
 
-            if (response.ok) {
-                // Redirect to pending verification page
-                router.push("/comedian/pending-verification")
-            } else {
-                const error = await response.json()
-                alert(error.error || "Failed to create profile")
-            }
-        } catch (error) {
-            alert("An error occurred while creating your profile")
+            // Redirect to pending verification page
+            router.push("/comedian/pending-verification")
+        } catch (error: any) {
+            alert(error.message?.replace('API Error:', '').trim() || "Failed to create profile")
         } finally {
             setIsLoading(false)
         }

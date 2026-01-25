@@ -28,7 +28,7 @@ export function useAuth() {
  * Custom hook for fetching shows
  */
 export function useShows(mode?: 'discovery' | 'manage' | 'public') {
-    const endpoint = mode ? `/api/shows?mode=${mode}` : '/api/shows'
+    const endpoint = mode ? `/api/v1/shows?mode=${mode}` : '/api/v1/shows'
 
     const { data, error, isLoading, mutate } = useSWR(
         endpoint,
@@ -49,8 +49,8 @@ export function useShows(mode?: 'discovery' | 'manage' | 'public') {
  */
 export function useShow(id: string | null) {
     const { data, error, isLoading, mutate } = useSWR(
-        id ? `/api/shows/${id}` : null,
-        () => id ? api.get<{ show: any }>(`/api/shows/${id}`) : null
+        id ? `/api/v1/shows/${id}` : null,
+        () => id ? api.get<{ show: any }>(`/api/v1/shows/${id}`) : null
     )
 
     return {
@@ -66,8 +66,8 @@ export function useShow(id: string | null) {
  */
 export function useBookings() {
     const { data, error, isLoading, mutate } = useSWR(
-        '/api/bookings',
-        () => api.get<{ bookings: any[] }>('/api/bookings')
+        '/api/v1/bookings',
+        () => api.get<{ bookings: any[] }>('/api/v1/bookings')
     )
 
     return {
@@ -83,8 +83,8 @@ export function useBookings() {
  */
 export function useComedians() {
     const { data, error, isLoading, mutate } = useSWR(
-        '/api/comedians',
-        () => api.get<{ comedians: any[] }>('/api/comedians')
+        '/api/v1/comedians',
+        () => api.get<{ comedians: any[] }>('/api/v1/comedians')
     )
 
     return {
@@ -100,8 +100,8 @@ export function useComedians() {
  */
 export function useOrganizerProfile() {
     const { data, error, isLoading, mutate } = useSWR(
-        '/api/organizer/profile',
-        () => api.get<{ profile: any }>('/api/organizer/profile')
+        '/api/v1/organizer/profile',
+        () => api.get<{ profile: any }>('/api/v1/organizer/profile')
     )
 
     return {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { apiClient } from '@/lib/api/client'
 import ShowFinanceView from './ShowFinanceView'
 
 interface Show {
@@ -45,13 +46,10 @@ export function ShowManagement() {
 
   const fetchShows = async () => {
     try {
-      const response = await fetch('/api/admin/shows', { cache: 'no-store' })
-      if (!response.ok) throw new Error('Failed to fetch shows')
-
-      const data = await response.json()
+      const data = await apiClient.get<any>('/api/v1/admin/shows')
       setShows(data.shows || [])
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to load shows')
+    } catch (error: any) {
+      setError(error.message?.replace('API Error:', '').trim() || 'Failed to load shows')
     } finally {
       setLoading(false)
     }
@@ -65,17 +63,10 @@ export function ShowManagement() {
     setActionLoading(showId)
 
     try {
-      const response = await fetch('/api/admin/shows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId, action })
-      })
-
-      if (!response.ok) throw new Error('Failed to update show')
-
+      await apiClient.post('/api/v1/admin/shows', { showId, action })
       await fetchShows() // Refresh list
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update show')
+    } catch (error: any) {
+      setError(error.message?.replace('API Error:', '').trim() || 'Failed to update show')
     } finally {
       setActionLoading(null)
     }
@@ -84,16 +75,14 @@ export function ShowManagement() {
   const handleUpdateShowFee = async (showId: string, customPlatformFee: number | null) => {
     setActionLoading(showId + '-fee')
     try {
-      const response = await fetch('/api/admin/shows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId, action: 'UPDATE_FEE', customPlatformFee: customPlatformFee === null ? null : customPlatformFee })
+      await apiClient.post('/api/v1/admin/shows', {
+        showId,
+        action: 'UPDATE_FEE',
+        customPlatformFee: customPlatformFee === null ? null : customPlatformFee
       })
-
-      if (!response.ok) throw new Error('Failed to update fee')
       await fetchShows()
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update fee')
+    } catch (error: any) {
+      setError(error.message?.replace('API Error:', '').trim() || 'Failed to update fee')
     } finally {
       setActionLoading(null)
     }
@@ -101,16 +90,14 @@ export function ShowManagement() {
   const handleSetDisbursed = async (showId: string, isDisbursed: boolean) => {
     setActionLoading(showId + '-payment')
     try {
-      const response = await fetch('/api/admin/shows', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ showId, action: 'SET_DISBURSED', isDisbursed })
+      await apiClient.post('/api/v1/admin/shows', {
+        showId,
+        action: 'SET_DISBURSED',
+        isDisbursed
       })
-
-      if (!response.ok) throw new Error('Failed to update payment status')
       await fetchShows()
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to update payment status')
+    } catch (error: any) {
+      setError(error.message?.replace('API Error:', '').trim() || 'Failed to update payment status')
     } finally {
       setActionLoading(null)
     }

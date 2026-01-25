@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { apiClient } from '@/lib/api/client'
 
 function SetupForm() {
     const router = useRouter()
@@ -31,21 +32,14 @@ function SetupForm() {
         setLoading(true)
 
         try {
-            const res = await fetch('/api/admin-secure/setup', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+            const data = await apiClient.post<any>('/api/admin-secure/setup', {
+                email,
+                password,
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                setError(data.error || 'Setup failed')
-            } else {
-                router.push('/admin-secure')
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.')
+            router.push('/admin-secure')
+        } catch (err: any) {
+            setError(err.message?.replace('API Error:', '').trim() || 'Setup failed')
         } finally {
             setLoading(false)
         }

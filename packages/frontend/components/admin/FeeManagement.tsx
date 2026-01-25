@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiClient } from "@/lib/api/client"
 
 interface FeeSlab {
   minPrice: number
@@ -29,9 +30,8 @@ export default function FeeManagement() {
 
   const fetchFeeConfig = async () => {
     try {
-      const response = await fetch("/api/admin/fees")
-      if (response.ok) {
-        const data = await response.json()
+      const data = await apiClient.get<any>("/api/v1/admin/fees")
+      if (data?.feeConfig) {
         setFeeConfig(data.feeConfig)
         setFormData(data.feeConfig.slabs)
       }
@@ -47,21 +47,10 @@ export default function FeeManagement() {
     setIsSaving(true)
 
     try {
-      const response = await fetch("/api/admin/fees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slabs: formData })
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setFeeConfig(data.feeConfig)
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to update fee configuration")
-      }
-    } catch (error) {
-      alert("An error occurred while updating fee configuration")
+      const data = await apiClient.post<any>("/api/v1/admin/fees", { slabs: formData })
+      setFeeConfig(data.feeConfig)
+    } catch (error: any) {
+      alert(error.message?.replace('API Error:', '').trim() || "Failed to update fee configuration")
     } finally {
       setIsSaving(false)
     }

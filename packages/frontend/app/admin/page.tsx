@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { apiClient } from '@/lib/api/client'
 import { AdminPasswordPrompt } from "@/components/admin/AdminPasswordPrompt"
 import OrganizerManagement from "@/components/admin/OrganizerManagement"
 import ComedianManagement from "@/components/admin/ComedianManagement"
@@ -18,8 +19,7 @@ export default function AdminPage() {
     // Check if admin password session exists
     const checkSession = async () => {
       try {
-        const response = await fetch('/api/admin/check-session')
-        const data = await response.json()
+        const data = await apiClient.get<any>('/api/v1/admin/check-session')
 
         if (data.needsPasswordSetup) {
           setNeedsPasswordSetup(true)

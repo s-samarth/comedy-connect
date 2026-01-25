@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { apiClient } from "@/lib/api/client"
 
 interface Organizer {
   id: string
@@ -37,11 +38,8 @@ export default function OrganizerManagement() {
 
   const fetchOrganizers = async () => {
     try {
-      const response = await fetch("/api/admin/organizers", { cache: "no-store" })
-      if (response.ok) {
-        const data = await response.json()
-        setOrganizers(data.organizers)
-      }
+      const data = await apiClient.get<any>("/api/v1/admin/organizers")
+      setOrganizers(data.organizers || [])
     } catch (error) {
       console.error("Failed to fetch organizers:", error)
     } finally {
@@ -53,21 +51,11 @@ export default function OrganizerManagement() {
     setActionLoading(organizerId)
 
     try {
-      const response = await fetch("/api/admin/organizers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizerId, action })
-      })
-
-      if (response.ok) {
-        await fetchOrganizers() // Refresh the list
-        setReviewOrganizer(null) // Close modal if open
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to process action")
-      }
-    } catch (error) {
-      alert("An error occurred while processing your request")
+      await apiClient.post("/api/v1/admin/organizers", { organizerId, action })
+      await fetchOrganizers() // Refresh the list
+      setReviewOrganizer(null) // Close modal if open
+    } catch (error: any) {
+      alert(error.message?.replace('API Error:', '').trim() || "Failed to process action")
     } finally {
       setActionLoading(null)
     }
@@ -76,21 +64,11 @@ export default function OrganizerManagement() {
   const handleUpdateFee = async (organizerId: string, customPlatformFee: number) => {
     setActionLoading(organizerId)
     try {
-      const response = await fetch("/api/admin/organizers", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ organizerId, action: 'UPDATE_FEE', customPlatformFee })
-      })
-
-      if (response.ok) {
-        await fetchOrganizers()
-        setReviewOrganizer(null)
-      } else {
-        const error = await response.json()
-        alert(error.error || "Failed to update fee")
-      }
-    } catch (error) {
-      alert("An error occurred")
+      await apiClient.post("/api/v1/admin/organizers", { organizerId, action: 'UPDATE_FEE', customPlatformFee })
+      await fetchOrganizers()
+      setReviewOrganizer(null)
+    } catch (error: any) {
+      alert(error.message?.replace('API Error:', '').trim() || "Failed to update fee")
     } finally {
       setActionLoading(null)
     }

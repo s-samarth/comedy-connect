@@ -51,7 +51,7 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
 
   const fetchShows = async () => {
     try {
-      const response = await fetch("/api/shows?mode=discovery")
+      const response = await fetch("/api/v1/shows?mode=discovery")
       if (response.ok) {
         const data = await response.json()
         setShows(data.shows)

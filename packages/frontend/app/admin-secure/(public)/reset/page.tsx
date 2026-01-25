@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { apiClient } from '@/lib/api/client'
 
 export default function ResetRequestPage() {
     const router = useRouter()
@@ -16,22 +17,11 @@ export default function ResetRequestPage() {
         setLoading(true)
 
         try {
-            const res = await fetch('/api/admin-secure/reset/request', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
-            })
-
-            const data = await res.json()
-
-            if (!res.ok) {
-                setError(data.error || 'Failed to send reset code')
-            } else {
-                // Redirect to verify page with email pre-filled
-                router.push(`/admin-secure/reset/verify?email=${encodeURIComponent(email)}`)
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.')
+            await apiClient.post('/api/admin-secure/reset/request', { email })
+            // Redirect to verify page with email pre-filled
+            router.push(`/admin-secure/reset/verify?email=${encodeURIComponent(email)}`)
+        } catch (err: any) {
+            setError(err.message?.replace('API Error:', '').trim() || 'Failed to send reset code')
         } finally {
             setLoading(false)
         }

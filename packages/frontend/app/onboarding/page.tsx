@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession, signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { apiClient } from '@/lib/api/client'
 
 export default function OnboardingPage() {
   const { data: session, status } = useSession()
@@ -38,22 +39,10 @@ export default function OnboardingPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/onboarding', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
-
-      if (response.ok) {
-        router.push('/')
-      } else {
-        const data = await response.json()
-        setError(data.error || 'Something went wrong')
-      }
-    } catch (error) {
-      setError('Network error. Please try again.')
+      await apiClient.post('/api/v1/onboarding', formData)
+      router.push('/')
+    } catch (error: any) {
+      setError(error.message?.replace('API Error:', '').trim() || 'Something went wrong')
     } finally {
       setIsSubmitting(false)
     }

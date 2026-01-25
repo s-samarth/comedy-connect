@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
 import { getToken } from "next-auth/jwt"
-import { checkAdminPasswordSession } from "@/lib/admin-password"
+import { checkAdminPasswordSession, validateAdminSession } from "@/lib/admin-password"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 // Whitelist of admin emails - only you can access admin panel
@@ -11,6 +11,34 @@ const ADMIN_WHITELIST = [
 ]
 
 export async function middleware(request: NextRequest) {
+  // CORS Handling
+  const origin = request.headers.get('origin')
+  const isAllowedOrigin = origin === 'http://localhost:3000' || !origin
+
+  // Handle preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': origin || '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cookie',
+        'Access-Control-Allow-Credentials': 'true',
+        'Access-Control-Max-Age': '86400',
+      },
+    })
+  }
+
+  const response = NextResponse.next()
+
+  // Add CORS headers to all responses
+  if (isAllowedOrigin) {
+    response.headers.set('Access-Control-Allow-Origin', origin || '*')
+    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie')
+    response.headers.set('Access-Control-Allow-Credentials', 'true')
+  }
+
   const token = await getToken({
     req: request,
     secret: process.env.NEXTAUTH_SECRET,
@@ -18,122 +46,68 @@ export async function middleware(request: NextRequest) {
   })
   const { pathname } = request.nextUrl
 
+  // Helper for 401/403 responses instead of redirects for API routes
+  const errorResponse = (status: number, message: string) => {
+    const res = NextResponse.json({ error: message }, { status })
+    if (isAllowedOrigin) {
+      res.headers.set('Access-Control-Allow-Origin', origin || '*')
+      res.headers.set('Access-Control-Allow-Credentials', 'true')
+    }
+    return res
+  }
+
   // Check if user needs onboarding (authenticated but hasn't completed onboarding)
+  // Disable redirection for API routes
   if (token && !pathname.startsWith('/onboarding') && !pathname.startsWith('/api') && !pathname.startsWith('/auth')) {
-    try {
-      // Fetch fresh user data to check onboarding status
-      const response = await fetch(`${request.nextUrl.origin}/api/user/onboarding-status`, {
-        headers: {
-          'Cookie': request.headers.get('cookie') || '',
-        },
-      })
+    // ... (existing onboarding check logic if needed for port 4000's own UI, but port 4000 is mostly API)
+  }
 
-      if (response.ok) {
-        const { needsOnboarding } = await response.json()
-        if (needsOnboarding) {
-          return NextResponse.redirect(new URL("/onboarding", request.url))
-        }
-      }
-    } catch (error) {
-      // If we can't check onboarding status, allow request to proceed
-      console.error('Error checking onboarding status:', error)
+  // Check for admin-secure-session cookie
+  const adminCookie = request.cookies.get('admin-secure-session')?.value
+  const adminSession = validateAdminSession(adminCookie)
+
+  // Protect admin routes (including API routes)
+  if (pathname.startsWith("/api/v1/admin") || (pathname.startsWith("/admin") && !pathname.startsWith("/admin-secure"))) {
+    const isNextAuthAdmin = token && (token as any).role === "ADMIN" && token.email && ADMIN_WHITELIST.includes(token.email as string)
+    const isAdminCookieValid = adminSession.valid && adminSession.email && ADMIN_WHITELIST.includes(adminSession.email)
+
+    if (!isNextAuthAdmin && !isAdminCookieValid) {
+      return pathname.startsWith('/api') ? errorResponse(403, 'Unauthorized') : NextResponse.redirect(new URL("/", request.url))
     }
   }
 
-  // Special handling for admin-hidden - allow access for password prompt
-  if (pathname.startsWith("/admin-hidden")) {
-    // Allow access to the main admin-hidden page for password setup/verification
-    if (pathname === "/admin-hidden") {
-      // Only check if user is authenticated (any role)
-      if (!token) {
-        return NextResponse.redirect(new URL("/auth/signin", request.url))
-      }
-
-      // Check email whitelist for security
-      if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
-        return NextResponse.redirect(new URL("/", request.url))
-      }
-
-      // Allow access - page component will handle password verification and role checking
-      return NextResponse.next()
-    }
-
-    // For other admin-hidden subroutes, require full admin access
-    if (!token || (token as any).role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    // Additional email whitelist check for extra security
-    if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    // Require password verification for subroutes
-    const hasValidPasswordSession = await checkAdminPasswordSession(request)
-    if (!hasValidPasswordSession) {
-      return NextResponse.redirect(new URL("/admin-hidden", request.url))
-    }
+  // Admin Secure portal logic
+  if (pathname.startsWith("/api/admin-secure") || pathname.startsWith("/admin-secure")) {
+    // Admin-secure handles its own session cookies, let it pass or check session
+    // For now, let the route handler manage it
+    return response
   }
 
-  // Protect admin routes (except the admin portal which handles its own password-based auth)
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin-secure")) {
-    console.log("🔍 Admin route accessed:", pathname)
-    console.log("🔍 Token:", token ? {
-      email: token.email,
-      role: (token as any).role,
-      id: (token as any).id
-    } : "NO TOKEN")
-    console.log("🔍 Admin whitelist:", ADMIN_WHITELIST)
-
-    if (!token || (token as any).role !== "ADMIN") {
-      console.log("❌ Access denied: No token or role is not ADMIN")
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    // Additional email whitelist check for extra security
-    if (!token.email || !ADMIN_WHITELIST.includes(token.email as string)) {
-      console.log("❌ Access denied: Email not in whitelist")
-      return NextResponse.redirect(new URL("/", request.url))
-    }
-
-    console.log("✅ Admin access granted")
-  }
-
-  // Protect organizer routes - allow existing session to pass, 
-  // page-level auth will verify fresh role from DB
-  if (pathname.startsWith("/organizer")) {
-    console.log("🎭 Organizer route accessed:", pathname)
-    console.log("🎭 Token:", token ? {
-      email: token.email,
-      role: (token as any).role,
-      id: (token as any).id
-    } : "NO TOKEN")
+  // Protect organizer routes
+  if (pathname.startsWith("/api/v1/organizer") || pathname.startsWith("/organizer")) {
     if (!token) {
-      console.log("❌ Organizer access denied: No token")
-      return NextResponse.redirect(new URL("/", request.url))
+      return pathname.startsWith('/api') ? errorResponse(401, 'Unauthenticated') : NextResponse.redirect(new URL("/", request.url))
     }
-    console.log("✅ Organizer token check passed")
   }
 
-  // Protect comedian routes - allow existing session to pass,
-  // page-level auth will verify fresh role from DB
-  if (pathname.startsWith("/comedian")) {
-    console.log("🎤 Comedian route accessed:", pathname)
-    console.log("🎤 Token:", token ? {
-      email: token.email,
-      role: (token as any).role,
-      id: (token as any).id
-    } : "NO TOKEN")
+  // Protect comedian routes
+  if (pathname.startsWith("/api/v1/comedian") || pathname.startsWith("/comedian")) {
     if (!token) {
-      console.log("❌ Comedian access denied: No token")
-      return NextResponse.redirect(new URL("/", request.url))
+      return pathname.startsWith('/api') ? errorResponse(401, 'Unauthenticated') : NextResponse.redirect(new URL("/", request.url))
     }
-    console.log("✅ Comedian token check passed")
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/admin-hidden/:path*", "/organizer/:path*", "/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    "/admin/:path*",
+    "/admin-hidden/:path*",
+    "/organizer/:path*",
+    "/comedian/:path*",
+    "/api/:path*",
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 }
+

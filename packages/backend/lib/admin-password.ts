@@ -89,8 +89,13 @@ export async function checkAdminPasswordSession(request: NextRequest): Promise<b
 
 // Email whitelist validation
 export function isAdminEmailWhitelisted(email: string): boolean {
-  const adminEmails = process.env.ADMIN_EMAIL?.split(',').map(e => e.trim()) || []
-  return adminEmails.includes(email)
+  if (!email) return false
+  const adminEmails = (process.env.ADMIN_EMAIL || '')
+    .split(',')
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean)
+
+  return adminEmails.includes(email.trim().toLowerCase())
 }
 
 // Create admin session cookie

@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { apiClient } from '@/lib/api/client'
 
 function VerifyForm() {
     const router = useRouter()
@@ -34,24 +35,18 @@ function VerifyForm() {
         setLoading(true)
 
         try {
-            const res = await fetch('/api/admin-secure/reset/confirm', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, code, newPassword }),
+            await apiClient.post('/api/admin-secure/reset/confirm', {
+                email,
+                code,
+                newPassword
             })
 
-            const data = await res.json()
-
-            if (!res.ok) {
-                setError(data.error || 'Reset failed')
-            } else {
-                setSuccess(true)
-                setTimeout(() => {
-                    router.push('/admin-secure/login')
-                }, 2000)
-            }
-        } catch (err) {
-            setError('An error occurred. Please try again.')
+            setSuccess(true)
+            setTimeout(() => {
+                router.push('/admin-secure/login')
+            }, 2000)
+        } catch (err: any) {
+            setError(err.message?.replace('API Error:', '').trim() || 'Reset failed')
         } finally {
             setLoading(false)
         }

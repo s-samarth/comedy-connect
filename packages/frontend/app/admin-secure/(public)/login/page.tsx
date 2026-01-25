@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { apiClient } from '@/lib/api/client'
 
 export default function AdminLoginPage() {
     const router = useRouter()
@@ -17,25 +18,27 @@ export default function AdminLoginPage() {
         setLoading(true)
 
         try {
-            const res = await fetch('/api/admin-secure/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+            const data = await apiClient.post<any>('/api/admin-secure/login', {
+                email,
+                password,
             })
 
-            const data = await res.json()
+            if (data.code === 'SETUP_REQUIRED') {
+                router.push(`/admin-secure/setup?email=${encodeURIComponent(email)}`)
+                return
+            }
 
-            if (!res.ok) {
-                if (data.code === 'SETUP_REQUIRED') {
+            router.push('/admin-secure')
+        } catch (err: any) {
+            const errorMessage = err.message || 'Login failed'
+            if (errorMessage.includes('403')) {
+                // Handle setup required if it comes as 403 error text
+                if (errorMessage.includes('SETUP_REQUIRED')) {
                     router.push(`/admin-secure/setup?email=${encodeURIComponent(email)}`)
                     return
                 }
-                setError(data.error || 'Login failed')
-            } else {
-                router.push('/admin-secure')
             }
-        } catch (err) {
-            setError('An error occurred. Please try again.')
+            setError(errorMessage.replace('API Error:', '').trim())
         } finally {
             setLoading(false)
         }

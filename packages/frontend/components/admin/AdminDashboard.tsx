@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
+import { apiClient } from "@/lib/api/client"
 
 interface DashboardStats {
     totalUsers: number
@@ -22,13 +23,12 @@ export default function AdminDashboard() {
 
     const fetchStats = async () => {
         try {
-            const res = await fetch("/api/admin/stats")
-            if (res.ok) {
-                const data = await res.json()
+            const data = await apiClient.get<any>("/api/v1/admin/stats")
+            if (data?.metrics) {
                 setStats(data.metrics)
             }
         } catch (e) {
-            console.error("Failed to fetch stats")
+            console.error("Failed to fetch stats", e)
         } finally {
             setLoading(false)
         }

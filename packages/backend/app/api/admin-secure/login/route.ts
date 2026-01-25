@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { hashAdminPassword, createAdminSessionCookie, isAdminEmailWhitelisted } from '@/lib/admin-password'
+import { verifyAdminPassword, createAdminSessionCookie, isAdminEmailWhitelisted } from '@/lib/admin-password'
 
 export async function POST(request: Request) {
     try {
@@ -10,47 +10,40 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
         }
 
-        if (password.length < 8) {
-            return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 })
-        }
-
         // 1. Check whitelist
+        console.log(`[AdminLogin] Attempting login for ${email}. Whitelist check...`)
         if (!isAdminEmailWhitelisted(email)) {
+            console.warn(`[AdminLogin] Email ${email} not in whitelist. Whitelist env: ${process.env.ADMIN_EMAIL}`)
             return NextResponse.json({ error: 'Unauthorized email' }, { status: 401 })
         }
+        console.log(`[AdminLogin] Email ${email} whitelisted.`)
 
-        // 2. Check user
+        // 2. Find user
         const user = await prisma.user.findUnique({
             where: { email }
         })
 
-        // If user exists and has password -> Error
-        if (user?.adminPasswordHash) {
-            return NextResponse.json({ error: 'Password already set' }, { status: 400 })
+        if (!user || user.role !== 'ADMIN') {
+            return NextResponse.json({ error: 'Restricted access' }, { status: 401 })
         }
 
-        // 3. Hash password
-        const hashedPassword = await hashAdminPassword(password)
+        // 3. Check if password set
+        if (!user.adminPasswordHash) {
+            return NextResponse.json({ error: 'Setup required', code: 'SETUP_REQUIRED' }, { status: 403 })
+        }
 
-        // 4. Create or Update User
-        await prisma.user.upsert({
-            where: { email },
-            update: {
-                role: 'ADMIN',
-                adminPasswordHash: hashedPassword
-            },
-            create: {
-                email,
-                role: 'ADMIN',
-                adminPasswordHash: hashedPassword,
-                name: 'Admin User'
-            }
-        })
+        // 4. Verify password
+        const isValid = await verifyAdminPassword(password, user.adminPasswordHash)
+        if (!isValid) {
+            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+        }
 
         // 5. Create session
         const sessionCookie = createAdminSessionCookie(email)
 
+        // Set cookie on response
         const response = NextResponse.json({ success: true })
+        // Using admin-secure-session to distinguish from previous attempts
         response.cookies.set('admin-secure-session', sessionCookie, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -61,7 +54,7 @@ export async function POST(request: Request) {
         return response
 
     } catch (error) {
-        console.error('Setup error:', error)
+        console.error('Login error:', error)
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
     }
 }

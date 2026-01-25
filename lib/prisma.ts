@@ -10,7 +10,7 @@ const globalForPrisma = globalThis as unknown as {
 if (
   process.env.NODE_ENV !== "production" &&
   globalForPrisma.prisma &&
-  !(globalForPrisma.prisma as any).comedianProfile
+  (!(globalForPrisma.prisma as any).comedianProfile || !(globalForPrisma.prisma as any).show?.fields?.isDisbursed)
 ) {
   console.log("Refreshing stale Prisma client instance...")
   globalForPrisma.prisma = undefined

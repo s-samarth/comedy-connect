@@ -40,18 +40,15 @@ describe('Admin API - /api/admin/*', () => {
     beforeAll(async () => {
         // Create test users
         testAdmin = await createTestUser(UserRole.ADMIN, {
-            id: 'test-admin-api-admin',
-            email: 'admin-api@test.com',
+            email: `admin-api-${Date.now()}@test.com`,
         });
 
         testAudience = await createTestUser(UserRole.AUDIENCE, {
-            id: 'test-admin-api-audience',
-            email: 'audience-admin-api@test.com',
+            email: `audience-admin-api-${Date.now()}@test.com`,
         });
 
         testOrganizer = await createTestUser(UserRole.ORGANIZER_UNVERIFIED, {
-            id: 'test-admin-api-organizer',
-            email: 'organizer-admin-api@test.com',
+            email: `organizer-admin-api-${Date.now()}@test.com`,
         });
 
         // Create organizer profile for approval testing
@@ -176,8 +173,11 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
-            mockVerifyAdminSession.mockResolvedValue({ valid: true });
-            mockVerifyAdminSession.mockResolvedValue({ valid: true });
+            mockRequireAdmin.mockResolvedValue({
+                id: testAdmin.id,
+                email: testAdmin.email,
+                role: UserRole.ADMIN,
+            } as any);
 
             const request = new NextRequest('http://localhost:3000/api/admin/shows');
             const response = await GET(request);
@@ -225,7 +225,11 @@ describe('Admin API - /api/admin/*', () => {
                 email: testAdmin.email,
                 role: UserRole.ADMIN,
             } as any);
-            mockVerifyAdminSession.mockResolvedValue({ valid: true });
+            mockRequireAdmin.mockResolvedValue({
+                id: testAdmin.id,
+                email: testAdmin.email,
+                role: UserRole.ADMIN,
+            } as any);
 
             const request = new NextRequest('http://localhost:3000/api/admin/comedians');
             const response = await GET(request);

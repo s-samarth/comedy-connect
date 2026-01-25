@@ -136,6 +136,7 @@ describe('Security: Role-Based Access Control', () => {
             title: 'RBAC Test Show',
             date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
             venue: 'Test Venue, Hyderabad',
+            googleMapsLink: 'https://maps.google.com/test',
             ticketPrice: 500,
             totalTickets: 100,
             comedianIds: [],

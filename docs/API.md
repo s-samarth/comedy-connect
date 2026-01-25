@@ -79,13 +79,39 @@
 
 > **Note:** These endpoints require `ADMIN` role.
 
+### Dashboard & Stats
+- **`GET /api/admin/stats`**
+  - Retrieves dashboard metrics.
+  - Metrics: `totalUsers`, `newUsersToday`, `activeShows`, `totalRevenue`, `pendingApprovals`.
+
+### Collections (Finance)
+- **`GET /api/admin/collections`**
+  - Lists shows with financial breakdowns (revenue, fees, earnings).
+  - Segments: `lifetime`, `active`, `pending`, `booked`, `unpublished`.
+  - Query Param: `showId` (optional) to filter by a specific show.
+- **`POST /api/admin/collections`**
+  - Actions on show collections.
+  - Action: `DISBURSE` (Mark show earnings as paid out).
+
+### Comedian Users
+- **`GET /api/admin/comedian-users`**
+  - Lists all comedian users with their verification status and custom fee settings.
+  - Filters: Shows only verified comedians or unverified ones that haven't been finally rejected.
+- **`POST /api/admin/comedian-users`**
+  - Manage comedian verification and fees.
+  - Actions: 
+    - `APPROVE`: Verifies the comedian.
+    - `REJECT`: Rejects the application.
+    - `REVOKE`: Revokes verification.
+    - `UPDATE_FEE`: Sets `customPlatformFee` for the comedian.
+
 ### General Admin
 - **`GET /api/admin/organizers`**
   - Lists all organizers involved in the platform.
 - **`GET /api/admin/shows`**
   - Lists all shows, including those requiring moderation.
 - **`GET /api/admin/comedians`**
-  - Lists all comedians registered on the platform.
+  - Lists all comedians registered on the platform (Legacy/Simple listings).
 - **`POST /api/admin/shows/[id]/disable`**
   - Disables a show (moderation action).
 - **`GET /api/admin/fees`**

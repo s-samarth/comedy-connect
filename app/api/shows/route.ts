@@ -265,9 +265,11 @@ export async function GET(request: Request) {
       }
       // Admin sees all shows (no additional filter unless public mode forced)
 
+      // Admin sees all shows only if not in public/discovery mode
+      const useAdminView = user?.role === 'ADMIN' && !isPublicMode
 
       shows = await prisma.show.findMany({
-        where: user?.role === 'ADMIN' ? { date: { gte: new Date() } } : visibilityFilter,
+        where: useAdminView ? { date: { gte: new Date() } } : visibilityFilter,
         include: {
           creator: {
             select: { email: true, role: true }

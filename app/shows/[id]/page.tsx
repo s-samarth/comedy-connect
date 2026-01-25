@@ -3,10 +3,14 @@ import { prisma } from "@/lib/prisma"
 import ShowBooking from "@/components/shows/ShowBooking"
 import { getCurrentUser } from "@/lib/auth"
 import Link from "next/link"
+import { cookies } from "next/headers"
 
 interface PageProps {
   params: Promise<{ id: string }>
 }
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export default async function ShowPage({ params }: PageProps) {
   const { id } = await params
@@ -35,12 +39,106 @@ export default async function ShowPage({ params }: PageProps) {
     notFound()
   }
 
+  // Fetch bookings for stats if user is admin or creator
+  // Check for admin status via session OR explicitly via admin cookie for robust admin identification
+  const cookieStore = await cookies()
+  const hasAdminCookie = cookieStore.get('admin-secure-session')
+  const isAdmin = user?.role === 'ADMIN' || !!hasAdminCookie
+  const isCreator = user?.id === show.createdBy
+
+  let stats = null
+  if (isAdmin || isCreator) {
+    const bookings = await prisma.booking.findMany({
+      where: {
+        showId: id,
+        status: { in: ['CONFIRMED', 'CONFIRMED_UNPAID'] }
+      }
+    })
+
+    const ticketsSold = bookings.reduce((sum, b) => sum + b.quantity, 0)
+    const revenue = bookings.reduce((sum, b) => sum + Number(b.totalAmount), 0)
+
+    stats = {
+      ticketsSold,
+      revenue,
+      count: bookings.length
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-zinc-50 font-sans">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        {/* Admin Navigation Overlay */}
+        {isAdmin && (
+          <div className="mb-6 flex justify-between items-center">
+            <Link
+              href="/admin-secure/shows"
+              className="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100"
+            >
+              ← Back to Admin Show Management
+            </Link>
+            <div className="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-bold rounded-full uppercase tracking-wider border border-blue-100">
+              Administrator Mode
+            </div>
+          </div>
+        )}
+
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
+          {/* Admin/Creator Stats Banner - Premium Design */}
+          {stats && (
+            <div className="relative overflow-hidden bg-slate-900 px-8 py-8 text-white">
+              {/* Background Decoration */}
+              <div className="absolute top-0 right-0 -mt-8 -mr-8 w-48 h-48 bg-blue-500/20 rounded-full blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 -mb-8 -ml-8 w-48 h-48 bg-purple-500/20 rounded-full blur-3xl"></div>
+
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="p-1 px-2 bg-blue-500/20 rounded text-[10px] font-bold uppercase tracking-widest text-blue-400 border border-blue-500/30">
+                      Analytics
+                    </span>
+                    <h2 className="text-xl font-bold tracking-tight">Show Performance Metrics</h2>
+                  </div>
+                  <p className="text-slate-400 text-sm">Real-time data for "{show.title}"</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-8">
+                  <div>
+                    <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-1">Tickets Sold</div>
+                    <div className="text-2xl font-black text-white flex items-baseline gap-1">
+                      {stats.ticketsSold}
+                      <span className="text-xs font-medium text-slate-500">/ {show.totalTickets}</span>
+                    </div>
+                    <div className="w-24 h-1 bg-slate-800 rounded-full mt-2 overflow-hidden">
+                      <div
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{ width: `${Math.min(100, Math.round((stats.ticketsSold / show.totalTickets) * 100))}%` }}
+                      ></div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-1">Total Revenue</div>
+                    <div className="text-2xl font-black text-green-400">
+                      ₹{stats.revenue.toLocaleString('en-IN')}
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">Verified Confirmed</div>
+                  </div>
+
+                  <div className="hidden sm:block">
+                    <div className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-1">Bookings</div>
+                    <div className="text-2xl font-black text-blue-400">
+                      {stats.count}
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1 uppercase tracking-tighter">Unique Transactions</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Show Header */}
-          <div className="relative h-64 bg-gradient-to-r from-blue-600 to-purple-600">
+          <div className="relative h-72">
             {show.posterImageUrl && (
               <img
                 src={show.posterImageUrl}

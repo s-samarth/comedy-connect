@@ -253,8 +253,7 @@ describe('Shows API - /api/shows', () => {
 
         it('should create show successfully for COMEDIAN_VERIFIED', async () => {
             const comedian = await createTestUser(UserRole.COMEDIAN_VERIFIED, {
-                id: 'test-shows-comedian',
-                email: 'comedian@shows-test.com',
+                email: `comedian-shows-test-${Date.now()}@test.com`,
             });
 
             mockGetCurrentUser.mockResolvedValue({

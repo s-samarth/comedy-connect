@@ -21,6 +21,7 @@ export async function getCurrentUser() {
 
     if (adminCookie) {
       const { valid, email } = validateAdminSession(adminCookie.value)
+
       if (valid && email) {
         // Fetch user from DB to ensure we have ID and role
         const { prisma } = await import('@/lib/prisma')
@@ -36,10 +37,16 @@ export async function getCurrentUser() {
             image: user.image,
             role: user.role
           }
+        } else {
+          if (!user) console.warn(`[Auth] Admin session valid for ${email} but user not found in DB`)
+          else if (user.role !== 'ADMIN') console.warn(`[Auth] Admin session valid for ${email} but role is ${user.role}`)
         }
+      } else {
+        console.warn("[Auth] Admin cookie present but validation failed")
       }
     }
   } catch (e) {
+    console.error("[Auth] Error checking admin session:", e)
     // Ignore errors (e.g. if cookies() is not available in certain contexts)
   }
 

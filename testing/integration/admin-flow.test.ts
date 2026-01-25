@@ -40,13 +40,11 @@ describe('Integration: Admin Management Flow', () => {
 
     beforeAll(async () => {
         admin = await createTestUser(UserRole.ADMIN, {
-            id: 'test-int-admin-mgmt',
-            email: 'admin-mgmt@test.com',
+            email: `admin-mgmt-${Date.now()}@test.com`,
         });
 
         organizer = await createTestUser(UserRole.ORGANIZER_VERIFIED, {
-            id: 'test-int-admin-org',
-            email: 'admin-org@test.com',
+            email: `admin-org-${Date.now()}@test.com`,
         });
     });
 
@@ -103,12 +101,11 @@ describe('Integration: Admin Management Flow', () => {
 
             const { GET } = await import('@/app/api/admin/shows/route');
 
-            mockGetCurrentUser.mockResolvedValue({
+            mockRequireAdmin.mockResolvedValue({
                 id: admin.id,
                 email: admin.email,
                 role: UserRole.ADMIN,
             } as any);
-            mockVerifyAdminSession.mockResolvedValue({ valid: true });
 
             const request = new NextRequest('http://localhost:3000/api/admin/shows');
             const response = await GET(request);
@@ -143,6 +140,29 @@ describe('Integration: Admin Management Flow', () => {
 
             const data = await response.json();
             expect(data.comedians.length).toBeGreaterThanOrEqual(1);
+        });
+
+        it('Admin can view collections', async () => {
+            const { GET } = await import('@/app/api/admin/collections/route');
+
+            mockGetCurrentUser.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+            mockRequireAdmin.mockResolvedValue({
+                id: admin.id,
+                email: admin.email,
+                role: UserRole.ADMIN,
+            } as any);
+
+            const request = new NextRequest('http://localhost:3000/api/admin/collections');
+            const response = await GET(request);
+            expect(response.status).toBe(200);
+
+            const data = await response.json();
+            expect(data).toHaveProperty('lifetime');
+            expect(data.lifetime).toHaveProperty('showEarnings');
         });
     });
 

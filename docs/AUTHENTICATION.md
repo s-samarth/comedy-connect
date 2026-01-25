@@ -24,16 +24,17 @@ Permissions are enforced at both the API and Page levels.
 | :--- | :--- |
 | **AUDIENCE** | Browse shows, Book tickets, View own bookings. |
 | **ORGANIZER_UNVERIFIED** | Create organizer profile, Wait for approval. |
-| **ORGANIZER_VERIFIED** | Create/Edit Shows, Manage Bookings, View Analytics |
-| **COMEDIAN_UNVERIFIED** | New Comedian | Create Profile, View Status |
-| **COMEDIAN_VERIFIED** | Verify Comedian | Create/Edit Shows, Manage Profile |
-| **ADMIN** | Administrator | Full Access, Manage Users, Dashboard |
+| **ORGANIZER_VERIFIED** | Create/Edit Shows, Manage Bookings, View Analytics. |
+| **COMEDIAN_UNVERIFIED** | Create Profile, Wait for verification. |
+| **COMEDIAN_VERIFIED** | Create/Edit Shows, Manage Profile, Custom Fees. |
+| **ADMIN** | Full Access, Manage Users, Finance Dashboard. |
 
 ## Middleware Protection
 
 The `middleware.ts` file intercepts requests to protected routes:
 - **`/admin/*`**: Restricted to `ADMIN` role.
 - **`/organizer/*`**: Restricted to `ORGANIZER_VERIFIED` role.
+- **`/comedian/*`**: Restricted to authenticated users (Role checked on page).
 - **`/bookings/*`**: Restricted to authenticated users.
 
 ## Admin Security

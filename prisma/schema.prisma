@@ -84,6 +84,7 @@ model OrganizerProfile {
   contact       String?
   description   String?
   venue         String?
+  customPlatformFee Float?          // Custom percentage (e.g. 8.5)
   youtubeUrls   String[]            @default([])
   instagramUrls String[]            @default([])
   socialLinks   Json?
@@ -112,6 +113,7 @@ model ComedianProfile {
   stageName   String
   bio         String?
   contact     String?
+  customPlatformFee Float?         // Custom percentage (e.g. 8.5)
   socialLinks Json?
   youtubeUrls   String[]            @default([])
   instagramUrls String[]            @default([])
@@ -161,6 +163,8 @@ model Show {
   posterImageUrl  String?
   googleMapsLink  String           @default("")
   isPublished     Boolean          @default(false)
+  isDisbursed     Boolean          @default(false)
+  customPlatformFee Float?         // Overrides user and global settings
   youtubeUrls     String[]         @default([])
   instagramUrls   String[]         @default([])
   createdAt       DateTime         @default(now())
@@ -199,7 +203,8 @@ model Booking {
   userId      String
   quantity    Int
   totalAmount Float
-  platformFee Float
+  platformFee Float         // The commission/cut taken from the ticket price
+  bookingFee  Float         @default(0.0) // The convenience fee added on top
   status      BookingStatus @default(PENDING)
   paymentId   String?
   createdAt   DateTime      @default(now())
@@ -229,4 +234,11 @@ enum BookingStatus {
   CONFIRMED_UNPAID
   CANCELLED
   FAILED
+}
+
+model PlatformConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
 }

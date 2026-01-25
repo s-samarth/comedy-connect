@@ -43,7 +43,7 @@ comedy-connect/
 ├── app/                          # Next.js App Router
 │   ├── api/                      # API routes
 │   │   ├── auth/                 # NextAuth.js authentication
-│   │   ├── admin/                # Admin endpoints
+│   │   ├── admin/                # Admin endpoints (Collections, Stats, Users)
 │   │   ├── admin-secure/         # Secure admin endpoints
 │   │   ├── bookings/             # Booking operations
 │   │   ├── comedians/            # Comedian management
@@ -159,10 +159,10 @@ comedy-connect/
 
 - **User**: Base user entity with role-based access
 - **OrganizerProfile**: Extended profile for organizers
-- **Comedian**: Comedian profiles and information
-- **Show**: Comedy show events with details
+- **ComedianProfile**: Extended profile for verified comedians
+- **Show**: Comedy show events with details and finance controls
 - **ShowComedian**: Many-to-many relationship between shows and comedians
-- **Booking**: Ticket booking records
+- **Booking**: Ticket booking records with fee breakdown
 - **TicketInventory**: Real-time ticket availability tracking
 
 ### User Roles
@@ -170,9 +170,9 @@ comedy-connect/
 - **AUDIENCE**: Can browse shows and book tickets
 - **ORGANIZER_UNVERIFIED**: Can create profile, pending admin approval
 - **ORGANIZER_VERIFIED**: Can create and manage shows
-- **COMEDIAN_UNVERIFIED**: Registered as comic, pending verification
-- **COMEDIAN_VERIFIED**: Can create/manage own shows and profile
-- **ADMIN**: Full administrative access
+- **COMEDIAN_UNVERIFIED**: Login to claim/create profile, pending verification
+- **COMEDIAN_VERIFIED**: Managed profile, custom fee rates, can own shows
+- **ADMIN**: Full administrative access including Finance & Collections
 
 ## 🔐 Authentication Flow
 

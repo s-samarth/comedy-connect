@@ -228,7 +228,14 @@ describe('FULL USER FLOW VERIFICATION', () => {
 
             const req = new Request('http://localhost:3000/api/shows', {
                 method: 'POST',
-                body: JSON.stringify({ title: 'Illegal Show', date: new Date().toISOString(), venue: 'Hyd', ticketPrice: 100, totalTickets: 10 })
+                body: JSON.stringify({
+                    title: 'Illegal Show',
+                    date: new Date().toISOString(),
+                    venue: 'Hyd',
+                    googleMapsLink: 'https://maps.google.com/test',
+                    ticketPrice: 100,
+                    totalTickets: 10
+                })
             });
 
             const res = await POST(req);
@@ -276,6 +283,7 @@ describe('FULL USER FLOW VERIFICATION', () => {
                     description: 'Testing lifecycle',
                     date: new Date(Date.now() + 10000000).toISOString(),
                     venue: 'Hyderabad Lab',
+                    googleMapsLink: 'https://maps.google.com/test',
                     ticketPrice: 200,
                     totalTickets: 20
                 })

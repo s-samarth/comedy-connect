@@ -27,12 +27,18 @@ export async function POST(request: Request) {
 
     // Use transaction to ensure atomic inventory update
     const result = await prisma.$transaction(async (tx) => {
-      // Get show with ticket inventory using pessimistic locking
+      // Get show with ticket inventory and creator profiles
       const show = await tx.show.findUnique({
         where: { id: showId },
         include: {
           ticketInventory: true,
-          showComedians: true
+          showComedians: true,
+          creator: {
+            include: {
+              organizerProfile: true,
+              comedianProfile: true
+            }
+          }
         }
       })
 
@@ -45,7 +51,7 @@ export async function POST(request: Request) {
         throw new Error("Cannot book past shows")
       }
 
-      // Check available tickets - handled as potentially single or array from types
+      // Check available tickets
       const inventory = (show as any).ticketInventory
       const available = Array.isArray(inventory) ? inventory[0]?.available : inventory?.available
 
@@ -53,13 +59,37 @@ export async function POST(request: Request) {
         throw new Error("Not enough tickets available")
       }
 
-      // Check for existing pending/confirmed booking - REMOVED to allow multiple bookings
-      // const existingBooking = await tx.booking.findFirst({ ... })
-      // if (existingBooking) throw new Error(...)
-
       // Calculate total amount
       const totalAmount = show.ticketPrice * quantity
-      const platformFee = totalAmount * 0.08
+
+      // 1. Calculate platformFee (Commission - taken from payout)
+      // Hierarchy: Show override > Creator override > 8% default
+      let commPercentage = 0.08
+      if ((show as any).customPlatformFee !== null && (show as any).customPlatformFee !== undefined) {
+        commPercentage = (show as any).customPlatformFee / 100
+      } else {
+        const creator = (show as any).creator
+        const userFee = creator.organizerProfile?.customPlatformFee ?? creator.comedianProfile?.customPlatformFee
+        if (userFee !== null && userFee !== undefined) {
+          commPercentage = userFee / 100
+        }
+      }
+      const platformFee = totalAmount * commPercentage
+
+      // 2. Calculate bookingFee (Convenience Fee - added on top)
+      // Fetch slabs from config
+      const slabsConfig = await tx.platformConfig.findUnique({
+        where: { key: 'booking_fee_slabs' }
+      })
+      const slabs = (slabsConfig?.value as any[]) || [
+        { minPrice: 0, maxPrice: 199, fee: 7 },
+        { minPrice: 200, maxPrice: 400, fee: 8 },
+        { minPrice: 401, maxPrice: 1000000, fee: 9 }
+      ]
+
+      const matchedSlab = slabs.find(s => show.ticketPrice >= s.minPrice && show.ticketPrice <= s.maxPrice)
+      const bookingFeePercentage = (matchedSlab ? matchedSlab.fee : 8) / 100
+      const bookingFee = totalAmount * bookingFeePercentage
 
       // Atomically update inventory
       const updatedInventory = await tx.ticketInventory.update({
@@ -76,14 +106,15 @@ export async function POST(request: Request) {
         throw new Error("Failed to reserve tickets - please try again")
       }
 
-      // Create confirmed booking (without payment)
-      const booking = await tx.booking.create({
+      // Create confirmed booking
+      const booking = await (tx as any).booking.create({
         data: {
           showId,
           userId: user.id,
           quantity,
           totalAmount,
           platformFee,
+          bookingFee,
           status: BookingStatus.CONFIRMED_UNPAID
         },
         include: {
@@ -105,11 +136,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       booking: {
-        id: result.id,
-        show: result.show,
-        quantity: result.quantity,
-        totalAmount: result.totalAmount,
-        status: result.status
+        id: (result as any).id,
+        show: (result as any).show,
+        quantity: (result as any).quantity,
+        totalAmount: (result as any).totalAmount,
+        bookingFee: (result as any).bookingFee,
+        platformFee: (result as any).platformFee,
+        status: (result as any).status
       }
     })
   } catch (error) {

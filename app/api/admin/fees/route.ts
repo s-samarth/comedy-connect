@@ -1,21 +1,38 @@
-import { requireAdmin } from "@/lib/auth"
+
+import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 
+const DEFAULT_SLABS = [
+  { minPrice: 0, maxPrice: 199, fee: 7 }, // 7%
+  { minPrice: 200, maxPrice: 400, fee: 8 }, // 8%
+  { minPrice: 401, maxPrice: 1000000, fee: 9 } // 9%
+]
+
 export async function GET() {
   try {
-    await requireAdmin()
+    const user = await getCurrentUser()
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
 
-    // For now, return default fee structure
-    // In a real implementation, this would be stored in database
+    let config = await (prisma as any).platformConfig.findUnique({
+      where: { key: 'booking_fee_slabs' }
+    })
+
+    if (!config) {
+      config = await prisma.platformConfig.create({
+        data: {
+          key: 'booking_fee_slabs',
+          value: DEFAULT_SLABS
+        }
+      })
+    }
+
     const feeConfig = {
-      slabs: [
-        { minPrice: 0, maxPrice: 199, fee: 0.05 }, // 5% for < ₹200
-        { minPrice: 200, maxPrice: 400, fee: 0.07 }, // 7% for ₹200-₹400
-        { minPrice: 401, maxPrice: Infinity, fee: 0.08 } // 8% for > ₹400
-      ],
-      lastUpdated: new Date().toISOString(),
-      updatedBy: "system"
+      slabs: config.value,
+      lastUpdated: config.updatedAt,
+      updatedBy: "admin"
     }
 
     return NextResponse.json({ feeConfig })
@@ -29,57 +46,27 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const admin = await requireAdmin()
+    const user = await getCurrentUser()
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
     const { slabs } = await request.json()
 
-    // Validate slabs
     if (!Array.isArray(slabs) || slabs.length === 0) {
       return NextResponse.json({ error: "Invalid fee slabs" }, { status: 400 })
     }
 
-    // Validate each slab
-    for (const slab of slabs) {
-      if (
-        typeof slab.minPrice !== 'number' ||
-        typeof slab.maxPrice !== 'number' ||
-        typeof slab.fee !== 'number' ||
-        slab.minPrice < 0 ||
-        slab.maxPrice <= slab.minPrice ||
-        slab.fee < 0 ||
-        slab.fee > 1
-      ) {
-        return NextResponse.json({ error: "Invalid slab configuration" }, { status: 400 })
-      }
-    }
+    await (prisma as any).platformConfig.upsert({
+      where: { key: 'booking_fee_slabs' },
+      update: { value: slabs },
+      create: { key: 'booking_fee_slabs', value: slabs }
+    })
 
-    // Sort slabs by minPrice
-    slabs.sort((a, b) => a.minPrice - b.minPrice)
-
-    // Check for gaps or overlaps
-    for (let i = 1; i < slabs.length; i++) {
-      if (slabs[i].minPrice !== slabs[i - 1].maxPrice + 1) {
-        return NextResponse.json({ 
-          error: "Fee slabs must be continuous without gaps" 
-        }, { status: 400 })
-      }
-    }
-
-    // For now, just return the updated config
-    // In a real implementation, this would be stored in database
-    const feeConfig = {
-      slabs,
-      lastUpdated: new Date().toISOString(),
-      updatedBy: admin.email
-    }
-
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: "Fee configuration updated successfully",
-      feeConfig 
+      feeConfig: { slabs, lastUpdated: new Date() }
     })
   } catch (error) {
-    if (error instanceof Error && error.message.includes("Access denied")) {
-      return NextResponse.json({ error: error.message }, { status: 403 })
-    }
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

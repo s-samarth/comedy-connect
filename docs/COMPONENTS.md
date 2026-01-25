@@ -29,10 +29,14 @@ Components for show discovery and booking.
 
 #### `components/admin/`
 Administrative tools and dashboards.
+- **`AdminDashboard`**: Main analytics hub for platform metrics.
 - **`AdminPasswordPrompt`**: Security gate for sensitive actions.
 - **`AdminPasswordReset`**: Admin password management.
 - **`ShowManagement`**: Admin-level show moderation.
 - **`OrganizerManagement`**: Approval workflow for organizers.
+- **`ComedianUserManagement`**: Verification and fee management for comedians.
+- **`CollectionManagement`**: Financial oversight (Revenue, Fees, Disbursals).
+- **`ShowFinanceView`**: Detailed financial breakdown per show.
 - **`FeeManagement`**: Platform fee configuration.
 - **`DatabaseCleanup`**: Maintenance utilities.
 

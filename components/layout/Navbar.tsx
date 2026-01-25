@@ -2,10 +2,17 @@
 
 import Link from "next/link"
 import { useSession, signOut } from "next-auth/react"
+import { usePathname } from "next/navigation"
 
 export default function Navbar() {
     const { data: session } = useSession()
     const user = session?.user as any
+    const pathname = usePathname()
+
+    // Hide public navbar on admin routes
+    if (pathname?.startsWith('/admin')) {
+        return null
+    }
 
     return (
         <header className="bg-white dark:bg-black border-b border-zinc-200 dark:border-zinc-800 sticky top-0 z-50">

@@ -1,11 +1,14 @@
-import { requireAdmin } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import { UserRole, ApprovalStatus } from "@prisma/client"
 
 export async function GET() {
   try {
-    await requireAdmin()
+    const user = await getCurrentUser()
+    if (!user || user.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
 
     const organizers = await prisma.user.findMany({
       where: {
@@ -30,7 +33,37 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     })
 
-    return NextResponse.json({ organizers })
+    // Filter out organizers who are unverified and rejected
+    const filteredOrganizers = organizers.filter(organizer => {
+      // Keep verified organizers
+      if (organizer.role === UserRole.ORGANIZER_VERIFIED) return true;
+
+      // Check latest approval status for unverified organizers
+      const latestApproval = organizer.organizerProfile?.approvals?.[0];
+      if (latestApproval?.status === ApprovalStatus.REJECTED) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // ------------------------------------------------------------------
+    // READ PATCH: Fetch custom fees using Raw SQL to bypass stale metadata
+    // ------------------------------------------------------------------
+    const profileFees = await prisma.$queryRaw`
+        SELECT "userId", "customPlatformFee" FROM "OrganizerProfile"
+    ` as any[]
+
+    const feeMap = new Map(profileFees.map(f => [f.userId, f.customPlatformFee]))
+
+    const patchedOrganizers = filteredOrganizers.map(o => {
+      if (o.organizerProfile) {
+        (o.organizerProfile as any).customPlatformFee = feeMap.get(o.id) ?? (o.organizerProfile as any).customPlatformFee
+      }
+      return o
+    })
+
+    return NextResponse.json({ organizers: patchedOrganizers })
   } catch (error) {
     if (error instanceof Error && error.message.includes("Access denied")) {
       return NextResponse.json({ error: error.message }, { status: 403 })
@@ -41,8 +74,35 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const admin = await requireAdmin()
-    const { organizerId, action } = await request.json()
+    const admin = await getCurrentUser()
+    if (!admin || admin.role !== 'ADMIN') {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 })
+    }
+    const { organizerId, action, customPlatformFee } = await request.json()
+
+    if (action === 'UPDATE_FEE') {
+      if (typeof customPlatformFee !== 'number' || customPlatformFee < 0 || customPlatformFee > 100) {
+        return NextResponse.json({ error: "Invalid fee percentage (0-100 required)" }, { status: 400 })
+      }
+
+      // Update profile and propagate to all future/active shows (undisbursed)
+      await prisma.$transaction([
+        (prisma.organizerProfile as any).update({
+          where: { userId: organizerId },
+          data: { customPlatformFee }
+        }),
+        // Use isDisbursed=false to cover all active business
+        (prisma.show as any).updateMany({
+          where: {
+            createdBy: organizerId,
+            isDisbursed: false
+          },
+          data: { customPlatformFee }
+        })
+      ])
+
+      return NextResponse.json({ success: true, message: "Platform fee updated for organizer and future shows" })
+    }
 
     if (!organizerId || !action) {
       return NextResponse.json({ error: "Organizer ID and action are required" }, { status: 400 })
@@ -57,7 +117,7 @@ export async function POST(request: Request) {
       include: { organizerProfile: true }
     })
 
-    if (!organizer || !organizer.organizerProfile) {
+    if (!organizer) {
       return NextResponse.json({ error: "Organizer not found" }, { status: 404 })
     }
 
@@ -69,21 +129,50 @@ export async function POST(request: Request) {
       newRole = UserRole.ORGANIZER_VERIFIED
       approvalStatus = ApprovalStatus.APPROVED
     } else if (action === 'REVOKE') {
+      // For revoke, we just downgrade to unverified. 
+      // If they have no profile, they will appear as Pending.
       newRole = UserRole.ORGANIZER_UNVERIFIED
       approvalStatus = ApprovalStatus.REJECTED
+
+      // Unpublish all future shows immediately
+      await prisma.show.updateMany({
+        where: {
+          createdBy: organizerId,
+          date: { gte: new Date() },
+          isPublished: true
+        },
+        data: { isPublished: false }
+      })
     } else { // REJECT
-      newRole = UserRole.ORGANIZER_UNVERIFIED
       approvalStatus = ApprovalStatus.REJECTED
+
+      if (!organizer.organizerProfile) {
+        // If rejecting a user with no profile, set them to AUDIENCE
+        newRole = UserRole.AUDIENCE
+      } else {
+        newRole = UserRole.ORGANIZER_UNVERIFIED
+      }
     }
 
-    // Create approval record
-    await prisma.organizerApproval.create({
-      data: {
-        organizerId: organizer.organizerProfile.id,
-        adminId: admin.id,
-        status: approvalStatus
-      }
-    })
+    // Create or update approval record ONLY if profile exists
+    if (organizer.organizerProfile) {
+      await prisma.organizerApproval.upsert({
+        where: {
+          organizerId_adminId: {
+            organizerId: organizer.organizerProfile.id,
+            adminId: admin.id
+          }
+        },
+        update: {
+          status: approvalStatus
+        },
+        create: {
+          organizerId: organizer.organizerProfile.id,
+          adminId: admin.id,
+          status: approvalStatus
+        }
+      })
+    }
 
     // Update user role
     await prisma.user.update({

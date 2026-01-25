@@ -15,6 +15,8 @@ comedy-connect/
 │   ├── backend/         # Standalone API Service (Port 4000)
 │   └── types/           # Shared TypeScript API Contracts
 ├── docs/                # Comprehensive documentation
+│   ├── RUNNING.md       # ✅ Local running instructions
+│   ├── DEPLOYMENT.md    # ✅ Vercel deployment guide
 │   ├── MIGRATION_GUIDE.md # Details on the decoupling process
 │   ├── API.md           # REST API Specifications (v1)
 │   └── ... (Other Docs)

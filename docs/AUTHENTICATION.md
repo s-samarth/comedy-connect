@@ -1,44 +1,51 @@
 # Authentication & Security
 
- Comedy Connect uses **NextAuth.js** for authentication and a comprehensive role-based access control (RBAC) system.
+Comedy Connect uses a robust, dual-layered authentication system designed to handle both standard users (Audience, Organizers, Comedians) and secure administrative access.
 
-## Authentication Flow
+## 🔐 Authentication Architecture
 
-### Google OAuth
-- **Provider**: Google is the primary identity provider.
-- **Flow**:
-  1. User clicks "Sign In".
-  2. Redirected to Google for consent.
-  3. On success, NextAuth creates or updates the `User` record.
-  4. User name and image are synced from Google profile.
+In the decoupled architecture, the **Backend Service** manages all authentication logic.
 
-### Session Management
-- Sessions are database-persisted.
-- The `User` model is extended to include the `role` field in the session object, making it accessible client-side.
+### 1. NextAuth.js (Standard Users)
+- **Provider**: Google OAuth.
+- **Session Strategy**: Database-backed sessions using the Prisma Adapter.
+- **Handling**: 
+  - Frontend redirects to `${BACKEND_URL}/api/v1/auth/signin`.
+  - Backend sets a `next-auth.session-token` cookie.
+  - Subsequent requests from Frontend include `credentials: 'include'`.
 
-## Role-Based Access Control (RBAC)
+### 2. Admin Secure Session (Administrative Users)
+- **Method**: Secure password-based session.
+- **Cookie**: `admin-secure-session`.
+- **Logic**: Used for high-stakes administrative actions to prevent session hijacking.
 
-Permissions are enforced at both the API and Page levels.
+---
 
-| Role | Capabilities |
+## 🛡️ Security Layers
+
+### 1. Role-Based Access Control (RBAC)
+Middleware in the backend verifies the user's role stored in the database before proceeding with protected actions.
+
+| Route Prefix | Required Role |
 | :--- | :--- |
-| **AUDIENCE** | Browse shows, Book tickets, View own bookings. |
-| **ORGANIZER_UNVERIFIED** | Create organizer profile, Wait for approval. |
-| **ORGANIZER_VERIFIED** | Create/Edit Shows, Manage Bookings, View Analytics. |
-| **COMEDIAN_UNVERIFIED** | Create Profile, Wait for verification. |
-| **COMEDIAN_VERIFIED** | Create/Edit Shows, Manage Profile, Custom Fees. |
-| **ADMIN** | Full Access, Manage Users, Finance Dashboard. |
+| `/api/v1/admin/*` | `ADMIN` |
+| `/api/v1/organizer/*` | `ORGANIZER_VERIFIED` or `ADMIN` |
+| `/api/v1/comedian/profile` (POST) | `COMEDIAN_UNVERIFIED` (to claim) |
+| `/api/v1/bookings` (POST) | Any Authenticated User |
 
-## Middleware Protection
+### 2. CORS (Cross-Origin Resource Sharing)
+The backend explicitly whitelists the frontend origins:
+- `http://localhost:3000` (Dev)
+- `https://comedyconnect.com` (Production)
 
-The `middleware.ts` file intercepts requests to protected routes:
-- **`/admin/*`**: Restricted to `ADMIN` role.
-- **`/organizer/*`**: Restricted to `ORGANIZER_VERIFIED` role.
-- **`/comedian/*`**: Restricted to authenticated users (Role checked on page).
-- **`/bookings/*`**: Restricted to authenticated users.
+### 3. CSRF Protection
+- **Standard**: NextAuth.js automatically handles CSRF tokens for sensitive state-changing operations.
+- **Backend**: Verifies the origin and referer of incoming requests.
 
-## Admin Security
+---
 
-Administrative functions have an additional layer of security:
-- **Secondary Password**: Admins must authenticate with a separate password to access critical endpoints (`/api/admin-secure`).
-- **Password Hashing**: Admin passwords are securely hashed using bcrypt.
+## 🛠️ Configuration
+
+The following environment variables must be consistent between services:
+- `NEXTAUTH_SECRET`: Used to sign session tokens.
+- `DATABASE_URL`: Must point to the same database to share user session data.

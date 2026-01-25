@@ -1,10 +1,15 @@
 {
-  "name": "comedy-connect",
+  "name": "comedy-connect-monorepo",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "NEXT_DISABLE_TURBOPACK=1 next dev",
+    "dev:backend": "cd packages/backend && npm run dev",
     "build": "npx prisma generate && next build",
+    "build:backend": "cd packages/backend && npm run build",
     "start": "next start",
     "lint": "eslint",
     "cleanup-db": "node scripts/cleanup-database.js",

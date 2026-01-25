@@ -1,62 +1,63 @@
 # Components & Architecture
 
-The frontend is built using **Next.js App Router** with a component-based architecture.
+In the decoupled architecture, the frontend is a **Pure UI Consumer** located in `packages/frontend`. It is built using **Next.js App Router** and communicates with the backend via a versioned REST API.
 
-## Directory Structure
+## 🏗️ Design Principles
+
+1. **Pure UI**: The frontend contains zero database logic or Prisma imports.
+2. **Hook-Driven Data**: All data fetching and mutations are handled through custom hooks in `lib/hooks/`.
+3. **Decoupled State**: Managed via SWR for server-state caching and revalidation.
+4. **Dual-Mode Client**: Supports switching between the local monolith API and the standalone backend service.
+
+---
+
+## 📁 Directory Structure (`packages/frontend`)
 
 ### `app/`
 Contains the application routes and pages.
-- `page.tsx`: Landing page.
-- `error.tsx` / `loading.tsx`: Global error and loading boundaries.
-- `layout.tsx`: Root layout including providers.
+- `(public)/`: Guest-accessible pages (Landing, Shows).
+- `(auth)/`: Authentication pages.
+- `admin/`: Admin-specific dashboards.
+- `organizer/`: Organizer tools.
+- `bookings/`: User booking history.
 
 ### `components/`
-Reusable UI components organized by feature.
+Modular React components organized by feature.
 
 #### `components/layout/`
-Application-wide layout elements.
-- **`Navbar`**: Global navigation header with dynamic authentication states and dashboards links.
-
-#### `components/ui/`
-Shared utility components.
-- **`ImageUpload`**: Cloudinary image upload widget.
-- **`PaymentComingSoon`**: Placeholder for payment integration.
+- **`Navbar`**: Global navigation header. Uses `useAuth()` hook for dynamic auth state.
 
 #### `components/shows/`
-Components for show discovery and booking.
-- **`ShowDiscovery`**: Main interface for browsing and filtering shows.
-- **`ShowBooking`**: Handles the ticket booking flow.
+- **`ShowDiscovery`**: Uses `useShows()` for lazy-loading and filtering comedy events.
+- **`ShowBooking`**: Handles the booking flow using `api.post()`.
 
 #### `components/admin/`
-Administrative tools and dashboards.
-- **`AdminDashboard`**: Main analytics hub for platform metrics.
-- **`AdminPasswordPrompt`**: Security gate for sensitive actions.
-- **`AdminPasswordReset`**: Admin password management.
-- **`ShowManagement`**: Admin-level show moderation.
-- **`OrganizerManagement`**: Approval workflow for organizers.
-- **`ComedianUserManagement`**: Verification and fee management for comedians.
-- **`CollectionManagement`**: Financial oversight (Revenue, Fees, Disbursals).
-- **`ShowFinanceView`**: Detailed financial breakdown per show.
-- **`FeeManagement`**: Platform fee configuration.
-- **`DatabaseCleanup`**: Maintenance utilities.
+- **`AdminDashboard`**: Displays system metrics fetched via `useAdminStats()`.
+- **`CollectionManagement`**: Financial oversight for admin users.
 
-#### `components/organizer/`
-Organizer-specific dashboards.
-- **`ProfileForm`**: Organizer profile management.
-- **`ShowManagement`**: Interface for organizers to create/edit shows.
-- **`ComedianManagement`**: Interface for managing comedian profiles.
+### `lib/`
+- **`api/client.ts`**: The core `api` singleton with dual-mode support.
+- **`hooks/index.ts`**: Centralized data-fetching hooks (SWR).
 
-#### `components/profile/`
-User profile features.
-- **`ProfileCard`**: Displays user info (integrated with Auth).
-- **`UserBookings`**: List of user's past and upcoming bookings.
+---
 
-#### `components/providers/`
-React Context providers wrapping the application.
-- **`AuthProvider`**: Wraps the app in `SessionProvider` for NextAuth.
+## 🔄 Data Flow Pattern
 
-## Key Design Constraints
-- **Client vs Server Components**:
-  - Pages are Server Components by default.
-  - Interactive components (modals, forms) must use `"use client"`.
-- **Styling**: All styling is done via Tailwind CSS utility classes.
+### Data Fetching (Read)
+```typescript
+// Example: Using the useShows hook
+const { shows, isLoading } = useShows('discovery');
+```
+
+### Data Mutation (Write)
+```typescript
+// Example: Creating a booking
+const result = await api.post('/api/v1/bookings', { showId, quantity });
+```
+
+---
+
+## 🎨 Styling & UI
+- **Tailwind CSS**: Utility-first styling for consistency.
+- **Responsive**: Mobile-first design for audience browsing.
+- **Micro-animations**: Subtle feedback for button clicks and loading states.

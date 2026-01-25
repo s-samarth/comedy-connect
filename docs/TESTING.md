@@ -1,91 +1,62 @@
-# Testing Documentation
+# Testing Guide
 
-The Comedy Connect project uses a comprehensive **Jest-based testing framework** to ensure application stability and security.
+Comedy Connect uses **Jest** and **Supertest** for its comprehensive test suite. In the monorepo, tests are split between levels.
 
-## 🧪 Quick Start
+## 🧪 Test Hierarchy
 
-1. **Setup Test Environment**
-   Create a `.env.test.local` file in the root directory to provide a database connection for integration tests:
-   ```env
-   # Use your local development database or a dedicated test DB
-   DATABASE_URL="postgresql://username:password@localhost:5432/comedy_connect"
-   ```
+### 1. Backend Unit & Integration Tests
+Located in `packages/backend/testing`. These test the core business logic, API endpoints, and database interactions.
 
-2. **Run All Tests**
-   ```bash
-   npm run test:all
-   ```
-
-## 📂 Test Structure
-
-The test suite is organized into four main categories in the `testing/` directory:
-
-| Directory | Type | Description |
-|-----------|------|-------------|
-| `unit/` | **Unit Tests** | Tests individual API endpoints and functions using mocked dependencies. Fast and isolated. |
-| `integration/` | **Integration Tests** | Tests complete user flows (e.g., "Guest books a ticket") using a **real database**. |
-| `security/` | **Security Tests** | Verifies RBAC (Role-Based Access Control) and authentication barriers. |
-| `schema/` | **Schema Tests** | Validates Prisma schema integrity, constraints, and relationships. |
-
-## 🛠️ Configuration
-
-### Environment Variables
-- **Unit Tests**: Use mocked environment variables.
-- **Integration Tests**: Load variables from `.env.test.local` via `@next/env`.
-  - **Required**: `DATABASE_URL` (for DB access)
-
-### Database Handling
-- **Integration Tests** use `testing/config/test-db.ts` helpers.
-- `createTestUser`, `createTestShow`, etc., create real records.
-- **Teardown**: `cleanupTestData()` creates a clean state after suites run.
-
-### Test Data Cleanup
-For thorough manual cleanup of test-generated records (users, shows, bookings):
+**Run Commands:**
 ```bash
-npx ts-node scripts/cleanup-test-artifacts.ts
+# From Root
+npm run test:backend
+
+# From Backend Package
+cd packages/backend
+npm run test:all
+npm run test:unit
+npm run test:integration
 ```
-This script identifies test artifacts by specific patterns (e.g., emails containing "test") and removes them from the database.
 
-## 🧩 Mocking Strategy
+### 2. Security Tests
+Verifies that RBAC (Role-Based Access Control) is strictly enforced at the API level.
+```bash
+npm run test:security
+```
 
-We use **Jest Mocks** to isolate unit tests from external services:
+### 3. Frontend Testing (Planned)
+Component testing for UI logic using React Testing Library.
 
-- **Authentication**: `lib/auth.ts` is mocked to simulate different user roles (`AUDIENCE`, `ADMIN`, `ORGANIZER_VERIFIED`).
-  - *Example*: `mockRequireShowCreator.mockResolvedValue({ role: 'ORGANIZER_VERIFIED' })`
-- **Admin Session**: `lib/admin-password.ts` is mocked for admin flow tests.
-- **Prisma**: Deep mocked for unit tests; Real client used for integration tests.
+---
 
-## 📝 Writing Tests
+## 🛠️ Testing Environment Setup
 
-### Unit Test Example
+### 1. Test Database
+Tests require a dedicated PostgreSQL instance.
+1. Configure `.env.test` in the backend.
+2. Run migrations for the test database:
+   ```bash
+   DATABASE_URL=... npx prisma migrate deploy
+   ```
+
+### 2. Mock Data
+Automation cleanup scripts are used to ensure tests start from a clean state:
+`packages/backend/scripts/cleanup-test-artifacts.ts`
+
+---
+
+## 📝 Writing New Tests
+
+### API Test Example
+Stored in `packages/backend/testing/api/*.test.ts`:
 ```typescript
-it('should create show successfully', async () => {
-  // 1. Mock Auth
-  mockRequireShowCreator.mockResolvedValue({ id: 'user-1', role: 'ORGANIZER_VERIFIED' });
-  
-  // 2. Mock DB Call
-  prismaMock.show.create.mockResolvedValue(mockShow);
-
-  // 3. Call API
-  const response = await POST(req);
-  
-  // 4. Assert
-  expect(response.status).toBe(201);
-});
+import request from 'supertest';
+// ... test logic
 ```
 
-### Integration Test Example
-```typescript
-it('should allow user to book tickets', async () => {
-  // 1. Create real data
-  const user = await createTestUser(UserRole.AUDIENCE);
-  const show = await createTestShow(organizer.id);
-
-  // 2. Perform Action (simulated request)
-  const response = await POST(request);
-
-  // 3. Verify in DB
-  const booking = await prisma.booking.findFirst({ where: { userId: user.id }});
-  expect(booking).toBeDefined();
-});
-```
+### Key Areas to Cover
+- **Bookings**: Atomic inventory decrement.
+- **Auth**: Redirects and session validation.
+- **Admin**: Multi-tier password verification.
+- **Validation**: Input sanitization and error responses.

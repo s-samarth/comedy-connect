@@ -1,135 +1,131 @@
-# API Documentation
+# API Documentation (v1)
 
-## Authentication (`/api/auth`)
+This document describes the REST API endpoints provided by the **Comedy Connect Backend Service**. 
 
-- **`GET /api/auth/signin`**
-  - Renders the custom sign-in page.
-- **`POST /api/auth/signout`**
-  - Handles user sign-out.
-- **`GET /api/auth/session`**
-  - Retrieves the current user session.
-- **`GET /api/auth/me`**
-  - Retrieves detailed information about the currently authenticated user.
-- **`POST /api/auth/check-user`**
-  - Checks if a user with a given email already exists.
+## 🌐 Base URL
+- **Local**: `http://localhost:4000/api/v1`
+- **Production**: `https://api.comedyconnect.com/api/v1`
 
-## Shows (`/api/shows`)
+---
 
-- **`GET /api/shows`**
-  - Lists comedy shows.
-  - Query Params: 
-    - `mode`: (`discovery`|`manage`) Use `discovery` for public browsing (hides drafts), `manage` for organizer views (shows user's own shows including drafts).
-    - `date`, `venue`, `price`: Filter results.
-- **`POST /api/shows`**
-  - Creates a new comedy show.
-  - Role Required: `ORGANIZER_VERIFIED`, `COMEDIAN_VERIFIED`, or `ADMIN`.
-- **`GET /api/shows/[id]`**
-  - Retrieves details for a specific show.
-- **`PUT /api/shows/[id]`**
-  - Updates an existing show.
-  - Role Required: `ORGANIZER_VERIFIED` (Owner) or `ADMIN`.
-- **`DELETE /api/shows/[id]`**
-  - Deletes a show.
-  - Role Required: `ORGANIZER_VERIFIED` (Owner) or `ADMIN`.
-- **`POST /api/shows/[id]/publish`**
-  - Publishes a draft show.
-  - Logic: Validates ticket availability and dates. Comedian assignment is optional at time of publishing.
-  - Role Required: `ORGANIZER_VERIFIED` (Owner).
+## 🔐 Authentication (`/auth`)
 
-## Comedians (`/api/comedians`)
+### `GET /auth/session`
+Returns the current active session.
+- **Response**: `SessionResponse` (from `@comedy-connect/types`)
+- **Note**: Supports both NextAuth and Admin Secure cookies.
 
-- **`GET /api/comedians`**
-  - Lists comedians.
-  - **Authenticated Users**: See all comedians.
-  - **Organizers/Comedians**: See comedians they created + their own profile.
-- **`POST /api/comedians`**
-  - Creates a new comedian profile.
-  - Role Required: `ORGANIZER_VERIFIED`.
+### `GET /auth/me`
+Retrieves detailed profile info for the authenticated user.
+- **Auth Required**: Yes
 
-## Organizer (`/api/organizer`)
+### `POST /auth/signin`
+Initiates the OAuth sign-in flow (Google).
 
-- **`GET /api/organizer/profile`**
-  - Retrieves the authenticated user's organizer profile.
-- **`POST /api/organizer/profile`**
-  - Creates or updates the organizer profile.
-  - Helper: Sets user role to `ORGANIZER_UNVERIFIED` if not already set.
+---
 
-## Bookings (`/api/bookings`)
+## 🎭 Shows (`/shows`)
 
-- **`POST /api/bookings`**
-  - Creates a new booking for a show.
-  - Currently supports direct booking without payment integration.
-- **`GET /api/bookings`**
-  - Lists all bookings for the authenticated user.
+### `GET /shows`
+Lists all public shows (discovery mode) or shows belonging to the user (manage mode).
+- **Query Params**:
+  - `mode`: `discovery` (default) or `manage`.
+- **Response**: `ShowResponse[]`
 
-## Uploads (`/api/upload`)
+### `POST /shows`
+Creates a new show.
+- **Auth Required**: Yes (`ORGANIZER_VERIFIED`, `COMEDIAN_VERIFIED`, or `ADMIN`).
+- **Body**: `CreateShowRequest`
 
-- **`POST /api/upload`**
-  - Uploads an image to Cloudinary.
-  - Type: `show` or `comedian`.
-  - Role Required: `ORGANIZER_VERIFIED`.
+### `GET /shows/:id`
+Retrieves details for a specific show.
 
-## Webhooks (`/api/webhooks`)
+### `PUT /shows/:id`
+Updates show details.
+- **Auth Required**: Yes (Owner or Admin).
 
-- **`POST /api/webhooks/razorpay`**
-  - Handles Razorpay payment events (`payment.captured`, `payment.failed`).
-  - Verifies signature and updates booking status/inventory.
+### `POST /shows/:id/publish`
+Publishes a draft show.
+- **Auth Required**: Yes (Owner).
 
-## Admin (`/api/admin`)
+---
 
-> **Note:** These endpoints require `ADMIN` role.
+## 🎟️ Bookings (`/bookings`)
 
-### Dashboard & Stats
-- **`GET /api/admin/stats`**
-  - Retrieves dashboard metrics.
-  - Metrics: `totalUsers`, `newUsersToday`, `activeShows`, `totalRevenue`, `pendingApprovals`.
+### `POST /bookings`
+Creates a new ticket booking.
+- **Auth Required**: Yes
+- **Body**: `CreateBookingRequest`
+- **Logic**: Performs atomic inventory update and fee calculation.
 
-### Collections (Finance)
-- **`GET /api/admin/collections`**
-  - Lists shows with financial breakdowns (revenue, fees, earnings).
-  - Segments: `lifetime`, `active`, `pending`, `booked`, `unpublished`.
-  - Query Param: `showId` (optional) to filter by a specific show.
-- **`POST /api/admin/collections`**
-  - Actions on show collections.
-  - Action: `DISBURSE` (Mark show earnings as paid out).
+### `GET /bookings`
+Lists all bookings for the authenticated user.
 
-### Comedian Users
-- **`GET /api/admin/comedian-users`**
-  - Lists all comedian users with their verification status and custom fee settings.
-  - Filters: Shows only verified comedians or unverified ones that haven't been finally rejected.
-- **`POST /api/admin/comedian-users`**
-  - Manage comedian verification and fees.
-  - Actions: 
-    - `APPROVE`: Verifies the comedian.
-    - `REJECT`: Rejects the application.
-    - `REVOKE`: Revokes verification.
-    - `UPDATE_FEE`: Sets `customPlatformFee` for the comedian.
+---
 
-### General Admin
-- **`GET /api/admin/organizers`**
-  - Lists all organizers involved in the platform.
-- **`GET /api/admin/shows`**
-  - Lists all shows, including those requiring moderation.
-- **`GET /api/admin/comedians`**
-  - Lists all comedians registered on the platform (Legacy/Simple listings).
-- **`POST /api/admin/shows/[id]/disable`**
-  - Disables a show (moderation action).
-- **`GET /api/admin/fees`**
-  - Retrieves the current platform fee configuration.
-- **`POST /api/admin/fees`**
-  - Updates the platform fee configuration (slabs).
+## 🎤 Comedians (`/comedians`)
 
-### Secure Admin (`/api/admin-secure`)
-- **`POST /api/admin-secure/login`**
-  - Secure login for administrative tasks (password-based).
-- **`POST /api/admin-secure/logout`**
-  - Secure logout for admin session.
-- **`POST /api/admin-secure/setup`**
-  - Initial setup for admin password.
+### `GET /comedians`
+Lists comedian profiles.
 
-## User & Onboarding (`/api/user`)
+### `POST /comedians`
+Creates a new comedian profile.
+- **Auth Required**: Yes (`ORGANIZER_VERIFIED`).
 
-- **`POST /api/user/onboarding`**
-  - Submits user details to complete the onboarding process.
-- **`GET /api/user/onboarding-status`**
-  - Checks if the user has completed onboarding.
+---
+
+## 🛠️ Admin (`/admin`)
+
+> [!IMPORTANT]
+> All admin endpoints require the `ADMIN` role.
+
+### `GET /admin/stats`
+Retrieves system-wide metrics (Revenue, Users, Active Shows).
+
+### `GET /admin/collections`
+Financial breakdown of show revenue and platform fees.
+
+### `POST /admin/comedian-users`
+Manage comedian verification applications.
+
+---
+
+## 🖼️ Uploads (`/upload`)
+
+### `POST /upload/image`
+Uploads an image to Cloudinary.
+- **Auth Required**: Yes
+
+---
+
+## ⚡ Webhooks (`/webhooks`)
+
+### `POST /webhooks/razorpay`
+Handled payment completion events from Razorpay.
+
+---
+
+## 📦 Request/Response Standards
+
+### Success
+```json
+{
+  "success": true,
+  "data": { ... }
+}
+```
+
+### Error
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "code": "ERROR_CODE"
+}
+```
+
+### Common Error Codes
+- `UNAUTHORIZED`: Authentication missing.
+- `FORBIDDEN`: Insufficient permissions.
+- `NOT_FOUND`: Resource missing.
+- `SOLD_OUT`: No tickets available.

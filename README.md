@@ -1,77 +1,59 @@
 # Comedy Connect
 
-A comprehensive platform for discovering, booking, and managing live comedy shows in Hyderabad. Built with Next.js, TypeScript, and Prisma.
+A comprehensive platform for discovering, booking, and managing live comedy shows in Hyderabad.
 
-## 🎭 Overview
+## 🏗️ Architecture: Decoupled Monorepo
 
-Comedy Connect is a full-stack web application that connects comedy enthusiasts with live comedy events. It supports multiple user roles including audience members, comedians, organizers, and administrators.
-
-### Key Features
-
-- **Guest Browsing**: Browse comedy shows without authentication (Sign in required only to book)
-- **User Authentication**: Sign up/sign in with Google OAuth
-- **Global Navigation**: Unified header across all pages for consistent site navigation
-- **Show Discovery**: Filter and search comedy events by date, price, and venue
-- **Ticket Booking**: Secure direct booking flow with atomic inventory management
-- **Guest Experience**: Seamless "Sign In to Book" flow that returns you to your previous page
-- **Simplified Publishing**: Organizers can publish shows immediately without mandatory early comedian assignments
-- **Privacy Controls**: Draft shows are hidden from discovery views and visible only to the creator
-- **Show Details**: Dedicated page for each show with rich details, comedian lineup, and booking controls
-- **My Bookings**: View and manage all your personal show tickets in one place
-- **Role-Based Access**: Specialized dashboards for Comedians and Organizers
-- **Unified Show Creation**: Both Organizers and verified Comedians can create and manage shows
-- **Admin Dashboard**: Secure administrative oversight with password protection
-- **Robust Testing**: Comprehensive test suite with automated data cleanup
-- **Mock Data**: Pre-populated with sample comedy shows for demonstration
-
-## 🏗️ Architecture
-
-### Technology Stack
-
-- **Frontend**: Next.js 14 with App Router
-- **Styling**: Tailwind CSS
-- **Authentication**: NextAuth.js with Google OAuth
-- **Database**: PostgreSQL with Prisma ORM
-- **Type Safety**: TypeScript throughout
-- **Image Handling**: Cloudinary integration for show posters
-- **Payment**: Razorpay integration (coming soon)
+Comedy Connect has been migrated to a **decoupled monorepo** architecture to support independent development of the Frontend and Backend services.
 
 ### Project Structure
 
 ```
 comedy-connect/
-├── app/                          # Next.js App Router
-│   ├── api/                      # API routes
-│   │   ├── auth/                 # NextAuth.js authentication
-│   │   ├── admin/                # Admin endpoints (Collections, Stats, Users)
-│   │   ├── admin-secure/         # Secure admin endpoints
-│   │   ├── bookings/             # Booking operations
-│   │   ├── comedians/            # Comedian management
-│   │   ├── organizers/           # Organizer management
-│   │   ├── shows/                # Shows CRUD operations
-│   │   ├── upload/               # Image upload
-│   │   ├── user/                 # User management
-│   │   └── webhooks/             # External integration webhooks
-│   ├── admin/                    # Admin dashboard pages
-│   ├── bookings/                 # Booking history pages
-│   ├── onbarding/                # User onboarding
-│   ├── organizer/                # Organizer dashboard pages
-│   └── shows/                    # Show discovery and booking pages
-├── components/                   # Reusable React components
-│   ├── admin/                    # Admin-specific components
-│   ├── organizer/                # Organizer-specific components
-│   ├── profile/                  # User profile components
-│   ├── providers/                # Context providers
-│   ├── shows/                    # Show-related components
-│   └── ui/                       # Shared UI components
-├── lib/                          # Utility libraries
-│   ├── auth.ts                   # Authentication helpers
-│   ├── prisma.ts                 # Prisma client
-│   └── cloudinary.ts             # Image upload utilities
-├── prisma/                       # Database schema and migrations
-│   └── schema.prisma             # Prisma schema definition
-└── public/                       # Static assets
+├── packages/
+│   ├── frontend/        # Next.js UI Application (Port 3000)
+│   ├── backend/         # Standalone API Service (Port 4000)
+│   └── types/           # Shared TypeScript API Contracts
+├── docs/                # Comprehensive documentation
+│   ├── MIGRATION_GUIDE.md # Details on the decoupling process
+│   ├── API.md           # REST API Specifications (v1)
+│   └── ... (Other Docs)
+└── ... (Legacy monolith files preserved in root)
 ```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Backend Service
+```bash
+cd packages/backend
+npm install
+npx prisma generate
+npm run dev
+```
+Running on: [http://localhost:4000](http://localhost:4000)
+
+### 2. Frontend Application
+```bash
+cd packages/frontend
+npm install
+npm run dev
+```
+Running on: [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🔧 Dual-Mode Support
+The frontend can be toggled between the **Internal Monolith API** and the **Standalone Backend Service** using environment variables in `packages/frontend/.env.local`.
+
+---
+
+## 🏗️ Technology Stack
+- **Frontend**: Next.js 14+ (App Router), Tailwind CSS, SWR.
+- **Backend**: Next.js API Routes (Standalone), Prisma ORM, NextAuth.js.
+- **Database**: PostgreSQL.
+- **Type Safety**: Shared TypeScript package `@comedy-connect/types`.
 
 ## 🚀 Getting Started
 

@@ -1,81 +1,64 @@
-# Database Documentation
+# Database Schema & Management
 
-The application uses **PostgreSQL** as the primary database, managed via **Prisma ORM**.
+Comedy Connect uses **PostgreSQL** with **Prisma ORM**. The database is the single source of truth for both the Frontend and Backend services.
 
-## Core Models
+## 🗄️ Database Architecture
 
-### User Management
-- **`User`**: The central entity for all users.
-  - Roles: `AUDIENCE`, `ORGANIZER_UNVERIFIED`, `ORGANIZER_VERIFIED`, `ADMIN`, `COMEDIAN_UNVERIFIED`, `COMEDIAN_VERIFIED`.
-  - Auth: Integration with NextAuth.js (`Account`, `Session`).
-  - Profile: Includes fields for name, bio, interests, and admin-specific security fields.
-- **`OrganizerProfile`**: Extended profile for users with organizer roles.
-  - Linked one-to-one with `User`.
-  - Includes venue details, approval status.
-  - **New Fields**: `customPlatformFee` (override global fee), `youtubeUrls`, `instagramUrls`.
-- **`OrganizerApproval`**: Tracks the approval process for organizer accounts.
-  - Links `OrganizerProfile` with the `User` (Admin) who approved/rejected it.
-  - Status: Recorded via `ApprovalStatus`.
-- **`ComedianProfile`**: Extended profile for users with comedian roles.
-  - Linked one-to-one with `User`.
-  - Includes stage name, bio, contact info.
-  - **New Fields**: `customPlatformFee`, `youtubeUrls`, `instagramUrls`.
-- **`ComedianApproval`**: Tracks the approval process for comedian accounts.
-  - Links `ComedianProfile` with the `User` (Admin) who approved/rejected it.
+The database is managed exclusively by the **Backend Package** (`packages/backend`).
 
-### Content & Events
-- **`Show`**: Represents a comedy event.
-  - Contains details like title, venue, price, and date.
-  - **New Fields**:
-    - `isDisbursed`: Boolean to track if earnings have been paid out.
-    - `customPlatformFee`: Specific fee percentage for this show.
-    - `youtubeUrls`, `instagramUrls`: Media links.
-  - Linked to the creator (`User`) and performers (`Comedian`).
-- **`Comedian`**: Profile for a performer (Legacy/Simple).
-  - Created by organizers.
-  - Can be associated with multiple shows.
-- **`ShowComedian`**: Join table managing the many-to-many relationship between `Show` and `Comedian`.
-  - Includes metadata like performance order.
+### Location
+The schema and migrations reside in:
+`packages/backend/prisma/schema.prisma`
 
-### Commerce
-- **`Booking`**: Records a user's purchase for a show.
-  - Statuses: `PENDING`, `CONFIRMED`, `CANCELLED`, etc.
-  - **New Fields**:
-    - `platformFee`: Calculated commission for the platform.
-    - `bookingFee`: Convenience fee added on top.
-  - Links `User` and `Show`.
-- **`TicketInventory`**: Manages ticket availability and locking mechanisms to prevent overbooking.
+---
 
-### Configuration
-- **`PlatformConfig`**: Stores global system settings (e.g., default fee percentages).
-  - Key-Value pair storage (Value is JSON).
+## 📊 Core Models
 
-## Enums
+### User & Identity
+- **User**: Stores profile, roles (`AUDIENCE`, `ORGANIZER`, `COMEDIAN`, `ADMIN`), and onboarding status.
+- **Account/Session**: NextAuth.js tables for OAuth and session tracking.
 
-- **`UserRole`**: Defines permissions.
-  - `AUDIENCE`: Standard user.
-  - `ORGANIZER_UNVERIFIED`: Applied to be an organizer.
-  - `ORGANIZER_VERIFIED`: Approved to create shows.
-  - `ADMIN`: Platform administrator.
-  - `COMEDIAN_UNVERIFIED`: Applied to be a comedian/performer.
-  - `COMEDIAN_VERIFIED`: Approved comedian.
-- **`BookingStatus`**: Tracks the lifecycle of a booking.
-- **`ApprovalStatus`**: Tracks the state of organizer/comedian requests (`PENDING`, `APPROVED`, `REJECTED`).
+### Profiles
+- **OrganizerProfile**: Extended info for show organizers, tracks admin approval status.
+- **ComedianProfile**: Professional details for verified comedians.
 
-## Relationships Diagram (Conceptual)
+### Events & Bookings
+- **Show**: Details of comedy events, ticket pricing, and venue info.
+- **TicketInventory**: Real-time tracking of available and locked tickets.
+- **Booking**: Customer ticket purchases, platform fees, and payment status.
 
-```mermaid
-erDiagram
-    User ||--o| OrganizerProfile : "has"
-    User ||--o| ComedianProfile : "has"
-    User ||--o{ Show : "creates"
-    User ||--o{ Booking : "makes"
-    User ||--o{ OrganizerApproval : "approves"
-    User ||--o{ ComedianApproval : "approves"
-    OrganizerProfile ||--o{ OrganizerApproval : "requests"
-    ComedianProfile ||--o{ ComedianApproval : "requests"
-    Show ||--|{ ShowComedian : "features"
-    Comedian ||--|{ ShowComedian : "performs in"
-    Show ||--o{ Booking : "has"
-    Show ||--o| TicketInventory : "manages"
+### System Configuration
+- **PlatformConfig**: Global settings like default platform fees and convenience fee slabs.
+
+---
+
+## 🔄 Management Workflow
+
+### 1. Making Changes
+All schema changes must be performed within the backend directory:
+```bash
+cd packages/backend
+npx prisma migrate dev --name <migration_name>
 ```
+
+### 2. Generating the Client
+The Prisma client is generated into the shared node_modules to be accessible by all backend logic:
+```bash
+cd packages/backend
+npx prisma generate
+```
+
+### 3. Seeding Data
+Seed the database with mock shows and users:
+```bash
+cd packages/backend
+npm run seed
+```
+
+---
+
+## 🧪 Data Integrity
+
+- **Transactions**: Atomic operations are used for bookings to ensure `TicketInventory` is always accurate.
+- **Enums**: Roles and Statuses are enforced at the database level.
+- **Foreign Keys**: Cascading deletes are configured for accounts and sessions to maintain cleanliness.

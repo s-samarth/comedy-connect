@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model HealthCheck {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+}
+
+model User {
+  id                  String              @id @default(uuid())
+  email               String              @unique
+  role                UserRole            @default(AUDIENCE)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  adminPasswordHash   String?
+  adminResetCode      String?
+  adminResetExpires   DateTime?
+  age                 Int?
+  bio                 String?
+  city                String?
+  emailVerified       DateTime?
+  heardAboutUs        String?
+  image               String?
+  interests           Json?
+  language            String?
+  name                String?
+  onboardingCompleted Boolean             @default(false)
+  phone               String?
+  accounts            Account[]
+  bookings            Booking[]           @relation("UserBookings")
+  createdComedians    Comedian[]          @relation("ComedianCreator")
+  approvedComedians   ComedianApproval[]  @relation("ComedianAdminApprovals")
+  comedianProfile     ComedianProfile?
+  approvedOrganizers  OrganizerApproval[] @relation("AdminApprovals")
+  organizerProfile    OrganizerProfile?
+  sessions            Session[]
+  createdShows        Show[]              @relation("ShowCreator")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model OrganizerProfile {
+  id            String              @id @default(uuid())
+  userId        String              @unique
+  name          String
+  contact       String?
+  description   String?
+  venue         String?
+  customPlatformFee Float?          // Custom percentage (e.g. 8.5)
+  youtubeUrls   String[]            @default([])
+  instagramUrls String[]            @default([])
+  socialLinks   Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  approvals     OrganizerApproval[]
+  user          User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model OrganizerApproval {
+  id          String           @id @default(uuid())
+  organizerId String
+  adminId     String
+  status      ApprovalStatus   @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  admin       User             @relation("AdminApprovals", fields: [adminId], references: [id])
+  organizer   OrganizerProfile @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+
+  @@unique([organizerId, adminId])
+}
+
+model ComedianProfile {
+  id          String             @id @default(uuid())
+  userId      String             @unique
+  stageName   String
+  bio         String?
+  contact     String?
+  customPlatformFee Float?         // Custom percentage (e.g. 8.5)
+  socialLinks Json?
+  youtubeUrls   String[]            @default([])
+  instagramUrls String[]            @default([])
+  createdAt     DateTime            @default(now())
+  updatedAt   DateTime           @updatedAt
+  approvals   ComedianApproval[]
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ComedianApproval {
+  id         String          @id @default(uuid())
+  comedianId String
+  adminId    String
+  status     ApprovalStatus  @default(PENDING)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  admin      User            @relation("ComedianAdminApprovals", fields: [adminId], references: [id])
+  comedian   ComedianProfile @relation(fields: [comedianId], references: [id], onDelete: Cascade)
+
+  @@unique([comedianId, adminId])
+}
+
+model Comedian {
+  id              String         @id @default(uuid())
+  name            String
+  bio             String?
+  profileImageUrl String?
+  socialLinks     Json?
+  promoVideoUrl   String?
+  youtubeUrls     String[]       @default([])
+  instagramUrls   String[]       @default([])
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  createdBy       String
+  creator         User           @relation("ComedianCreator", fields: [createdBy], references: [id])
+  showComedians   ShowComedian[]
+}
+
+model Show {
+  id              String           @id @default(uuid())
+  title           String
+  description     String?
+  date            DateTime
+  venue           String
+  ticketPrice     Float
+  totalTickets    Int
+  posterImageUrl  String?
+  googleMapsLink  String           @default("")
+  isPublished     Boolean          @default(false)
+  isDisbursed     Boolean          @default(false)
+  customPlatformFee Float?         // Overrides user and global settings
+  youtubeUrls     String[]         @default([])
+  instagramUrls   String[]         @default([])
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  createdBy       String
+  bookings        Booking[]
+  creator         User             @relation("ShowCreator", fields: [createdBy], references: [id])
+  showComedians   ShowComedian[]
+  ticketInventory TicketInventory?
+}
+
+model ShowComedian {
+  id         String   @id @default(uuid())
+  showId     String
+  comedianId String
+  order      Int      @default(0)
+  comedian   Comedian @relation(fields: [comedianId], references: [id], onDelete: Cascade)
+  show       Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+
+  @@unique([showId, comedianId])
+}
+
+model TicketInventory {
+  id        String   @id @default(uuid())
+  showId    String   @unique
+  available Int
+  locked    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  show      Show     @relation(fields: [showId], references: [id], onDelete: Cascade)
+}
+
+model Booking {
+  id          String        @id @default(uuid())
+  showId      String
+  userId      String
+  quantity    Int
+  totalAmount Float
+  platformFee Float         // The commission/cut taken from the ticket price
+  bookingFee  Float         @default(0.0) // The convenience fee added on top
+  status      BookingStatus @default(PENDING)
+  paymentId   String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  show        Show          @relation(fields: [showId], references: [id])
+  user        User          @relation("UserBookings", fields: [userId], references: [id])
+}
+
+enum UserRole {
+  AUDIENCE
+  ORGANIZER_UNVERIFIED
+  ORGANIZER_VERIFIED
+  ADMIN
+  COMEDIAN_UNVERIFIED
+  COMEDIAN_VERIFIED
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CONFIRMED_UNPAID
+  CANCELLED
+  FAILED
+}
+
+model PlatformConfig {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     Json
+  updatedAt DateTime @updatedAt
+}

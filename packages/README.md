@@ -1,7 +1,7 @@
 # Comedy Connect - Monorepo
 
-> **Architecture Status**: Phase 1 & 2 Complete ✅  
-> Backend and frontend are now separated with dual-mode support.
+> **Architecture Status**: Backend API Reference Sweep Complete ✅  
+> All frontend components have been updated to use the versioned `/api/v1/` prefix.
 
 ## 🏗️ Architecture
 
@@ -116,7 +116,7 @@ NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
 curl http://localhost:4000/api/health
 
 # Get shows
-curl http://localhost:4000/api/shows
+curl http://localhost:4000/api/v1/shows
 
 # Check session
 curl http://localhost:4000/api/auth/session

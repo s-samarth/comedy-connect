@@ -266,6 +266,26 @@ export class ShowService {
                 throw new ValidationError("Cannot increase capacity for a published show with bookings")
             }
 
+            // Block capacity reductions below sold tickets
+            if (data.totalTickets !== undefined) {
+                // Calculate actual sold tickets (sum of quantity)
+                const bookingStats = await prisma.booking.aggregate({
+                    where: {
+                        showId: show.id,
+                        status: { in: ["CONFIRMED", "CONFIRMED_UNPAID"] }
+                    },
+                    _sum: {
+                        quantity: true
+                    }
+                })
+
+                const soldTickets = bookingStats._sum.quantity || 0
+
+                if (data.totalTickets < soldTickets) {
+                    throw new ValidationError(`Cannot reduce capacity below sold tickets (${soldTickets})`)
+                }
+            }
+
             // Block comedian removal (handled in update logic below by check logic)
             if (data.comedianIds !== undefined) {
                 const currentComedianIds = show.showComedians.map(sc => sc.comedianId)

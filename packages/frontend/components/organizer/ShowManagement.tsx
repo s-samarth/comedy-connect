@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import ImageUpload from "@/components/ui/ImageUpload"
+import ShowPreviewModal from "./ShowPreviewModal"
 
 interface Show {
   id: string
@@ -71,6 +72,13 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     durationMinutes: "60"
   })
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all")
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewData, setPreviewData] = useState<any>(null)
+
+  const handlePreview = (data: any) => {
+    setPreviewData(data)
+    setShowPreview(true)
+  }
 
   const filteredShows = shows.filter(show => {
     const showDate = new Date(show.date)
@@ -577,6 +585,13 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
               </button>
               <button
                 type="button"
+                onClick={() => handlePreview(formData)}
+                className="px-4 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+              >
+                Preview
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   setShowForm(false)
                   setEditingShow(null)
@@ -738,6 +753,12 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                           Edit
                         </button>
                         <button
+                          onClick={() => handlePreview(show)}
+                          className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
+                        >
+                          Preview
+                        </button>
+                        <button
                           onClick={() => handleDelete(show.id)}
                           className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
                         >
@@ -762,6 +783,11 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
         </>
       )
       }
+      <ShowPreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={previewData || {}}
+      />
     </div >
   )
 }

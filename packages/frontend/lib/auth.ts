@@ -30,13 +30,7 @@ export async function getCurrentUser() {
         })
 
         if (user && user.role === 'ADMIN') {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            role: user.role
-          }
+          return user
         } else {
           if (!user) console.warn(`[Auth] Admin session valid for ${email} but user not found in DB`)
           else if (user.role !== 'ADMIN') console.warn(`[Auth] Admin session valid for ${email} but role is ${user.role}`)

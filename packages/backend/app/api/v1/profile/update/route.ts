@@ -45,9 +45,14 @@ export async function POST(request: NextRequest) {
             }
         })
 
+        // Fetch an admin to assign for approval (required by schema)
+        const admin = await prisma.user.findFirst({
+            where: { role: 'ADMIN' }
+        })
+
         // Update Comedian Profile if user is a comedian
         if (user.role.startsWith('COMEDIAN')) {
-            await prisma.comedianProfile.upsert({
+            const comedianProfile = await prisma.comedianProfile.upsert({
                 where: { userId: user.id },
                 update: {
                     stageName: stageName || undefined,
@@ -67,11 +72,29 @@ export async function POST(request: NextRequest) {
                     socialLinks: comedianSocialLinks || {},
                 }
             })
+
+            // Ensure Approval Request Exists
+            if (admin) {
+                await prisma.comedianApproval.upsert({
+                    where: {
+                        comedianId_adminId: {
+                            comedianId: comedianProfile.id,
+                            adminId: admin.id
+                        }
+                    },
+                    update: { status: 'PENDING' }, // Reset to PENDING on profile update
+                    create: {
+                        comedianId: comedianProfile.id,
+                        adminId: admin.id,
+                        status: 'PENDING'
+                    }
+                })
+            }
         }
 
         // Update Organizer Profile if user is an organizer
         if (user.role.startsWith('ORGANIZER')) {
-            await prisma.organizerProfile.upsert({
+            const organizerProfile = await prisma.organizerProfile.upsert({
                 where: { userId: user.id },
                 update: {
                     name: organizerName || undefined,
@@ -93,6 +116,24 @@ export async function POST(request: NextRequest) {
                     socialLinks: organizerSocialLinks || {},
                 }
             })
+
+            // Ensure Approval Request Exists
+            if (admin) {
+                await prisma.organizerApproval.upsert({
+                    where: {
+                        organizerId_adminId: {
+                            organizerId: organizerProfile.id,
+                            adminId: admin.id
+                        }
+                    },
+                    update: { status: 'PENDING' },
+                    create: {
+                        organizerId: organizerProfile.id,
+                        adminId: admin.id,
+                        status: 'PENDING'
+                    }
+                })
+            }
         }
 
         return NextResponse.json({

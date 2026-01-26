@@ -165,6 +165,7 @@ model Show {
   isPublished     Boolean          @default(false)
   isDisbursed     Boolean          @default(false)
   customPlatformFee Float?         // Overrides user and global settings
+  durationMinutes Int              @default(60)
   youtubeUrls     String[]         @default([])
   instagramUrls   String[]         @default([])
   createdAt       DateTime         @default(now())

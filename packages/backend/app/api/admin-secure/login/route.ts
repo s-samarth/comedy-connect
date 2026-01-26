@@ -39,7 +39,7 @@ export async function POST(request: Request) {
         }
 
         // 5. Create session
-        const sessionCookie = createAdminSessionCookie(email)
+        const sessionCookie = await createAdminSessionCookie(email)
 
         // Set cookie on response
         const response = NextResponse.json({ success: true })

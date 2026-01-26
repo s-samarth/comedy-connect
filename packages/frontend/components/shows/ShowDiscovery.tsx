@@ -12,6 +12,7 @@ interface Show {
   ticketPrice: number
   totalTickets: number
   posterImageUrl?: string
+  durationMinutes?: number
   createdAt: string
   creator: {
     email: string
@@ -233,7 +234,7 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
                 <div className="space-y-2 text-sm text-zinc-600 mb-4">
                   <div className="flex items-center">
                     <span className="font-medium">📅</span>
-                    <span className="ml-2">{formatDate(show.date)}</span>
+                    <span className="ml-2">{formatDate(show.date)} ({show.durationMinutes || 60} mins)</span>
                   </div>
                   <div className="flex items-center">
                     <span className="font-medium">📍</span>

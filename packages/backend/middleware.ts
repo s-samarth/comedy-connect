@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
 
   // Check for admin-secure-session cookie
   const adminCookie = request.cookies.get('admin-secure-session')?.value
-  const adminSession = validateAdminSession(adminCookie)
+  const adminSession = await validateAdminSession(adminCookie)
 
   // Protect admin routes (including API routes)
   if (pathname.startsWith("/api/v1/admin") || (pathname.startsWith("/admin") && !pathname.startsWith("/admin-secure"))) {

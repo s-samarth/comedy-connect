@@ -20,6 +20,7 @@ export interface CreateShowData {
     posterImageUrl?: string
     youtubeUrls?: string[]
     instagramUrls?: string[]
+    durationMinutes?: number
 }
 
 export interface UpdateShowData {
@@ -34,6 +35,7 @@ export interface UpdateShowData {
     youtubeUrls?: string[]
     instagramUrls?: string[]
     comedianIds?: string[]
+    durationMinutes?: number
 }
 
 /**
@@ -204,6 +206,7 @@ export class ShowService {
                     posterImageUrl: data.posterImageUrl,
                     youtubeUrls: data.youtubeUrls || [],
                     instagramUrls: data.instagramUrls || [],
+                    durationMinutes: data.durationMinutes || 60,
                     isPublished: false, // Shows are created as drafts by default
                     createdBy: userId
                 } as any
@@ -283,6 +286,7 @@ export class ShowService {
         if (data.posterImageUrl !== undefined) updateData.posterImageUrl = data.posterImageUrl
         if (data.youtubeUrls !== undefined) updateData.youtubeUrls = data.youtubeUrls
         if (data.instagramUrls !== undefined) updateData.instagramUrls = data.instagramUrls
+        if (data.durationMinutes !== undefined) updateData.durationMinutes = data.durationMinutes
 
         // Only allow these if not published with bookings
         if (!show.isPublished || !hasBookings) {

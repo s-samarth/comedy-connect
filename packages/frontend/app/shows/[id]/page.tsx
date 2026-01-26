@@ -150,7 +150,7 @@ export default async function ShowPage({ params }: PageProps) {
               <h1 className="text-4xl font-bold mb-2">{show.title}</h1>
               <div className="flex items-center gap-4 text-lg">
                 <span>📅 {new Date(show.date).toLocaleDateString()}</span>
-                <span>🕐 {new Date(show.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>🕐 {new Date(show.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} ({show.durationMinutes || 60} mins)</span>
               </div>
               <div className="mt-2 flex items-center gap-4">
                 <a

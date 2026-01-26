@@ -48,7 +48,7 @@ export async function POST(request: Request) {
         })
 
         // 5. Create session
-        const sessionCookie = createAdminSessionCookie(email)
+        const sessionCookie = await createAdminSessionCookie(email)
 
         const response = NextResponse.json({ success: true })
         response.cookies.set('admin-secure-session', sessionCookie, {

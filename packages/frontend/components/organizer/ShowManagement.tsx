@@ -15,6 +15,7 @@ interface Show {
   posterImageUrl?: string
   youtubeUrls?: string[]
   instagramUrls?: string[]
+  durationMinutes?: number
   createdAt: string
   creator: {
     email: string
@@ -66,7 +67,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     totalTickets: "",
     posterImageUrl: "",
     youtubeUrls: [] as string[],
-    instagramUrls: [] as string[]
+    instagramUrls: [] as string[],
+    durationMinutes: "60"
   })
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all")
 
@@ -143,7 +145,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           instagramUrls: currentInstagramUrls,
           posterImageUrl: formData.posterImageUrl || undefined,
           ticketPrice: parseInt(formData.ticketPrice),
-          totalTickets: parseInt(formData.totalTickets)
+          totalTickets: parseInt(formData.totalTickets),
+          durationMinutes: parseInt(formData.durationMinutes) || 60,
+          date: new Date(formData.date).toISOString()
         })
       })
 
@@ -161,7 +165,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           totalTickets: "",
           posterImageUrl: "",
           youtubeUrls: [],
-          instagramUrls: []
+          instagramUrls: [],
+          durationMinutes: "60"
         })
       } else {
         const error = await response.json()
@@ -186,7 +191,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
       totalTickets: show.totalTickets.toString(),
       posterImageUrl: show.posterImageUrl || "",
       youtubeUrls: show.youtubeUrls || [],
-      instagramUrls: show.instagramUrls || []
+      instagramUrls: show.instagramUrls || [],
+      durationMinutes: (show.durationMinutes || 60).toString()
     })
     setShowForm(true)
   }
@@ -344,6 +350,20 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                   required
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Duration (minutes) *
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  value={formData.durationMinutes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, durationMinutes: e.target.value }))}
                   className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -544,7 +564,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                     totalTickets: "",
                     posterImageUrl: "",
                     youtubeUrls: [],
-                    instagramUrls: []
+                    instagramUrls: [],
+                    durationMinutes: "60"
                   })
                 }}
                 className="px-4 py-2 bg-zinc-300 text-zinc-700 rounded hover:bg-zinc-400"
@@ -611,7 +632,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                 </div>
 
                 <div className="space-y-2 text-sm text-zinc-600 mb-4">
-                  <div>📅 {formatDate(show.date)}</div>
+                  <div>📅 {formatDate(show.date)} ({show.durationMinutes || 60} mins)</div>
                   <div>📍 {show.venue}</div>
                   <div>🎫 {formatPrice(show.ticketPrice)}</div>
                   <div>

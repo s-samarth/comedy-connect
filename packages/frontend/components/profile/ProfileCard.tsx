@@ -1,6 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import DeleteAccountModal from './DeleteAccountModal'
 
 interface ProfileCardProps {
   user: {
@@ -28,6 +30,7 @@ interface ProfileCardProps {
 
 export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) {
   const router = useRouter()
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   const getRoleDisplay = (role: string) => {
     switch (role) {
@@ -300,6 +303,21 @@ export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) 
               Become an Organizer
             </button>
           )}
+
+          {isOwner && user.role !== 'ADMIN' && (
+            <button
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="w-full mt-4 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 px-4 py-2 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-all text-sm font-semibold flex items-center justify-center gap-2"
+            >
+              <span>🗑️</span> Delete Account
+            </button>
+          )}
+
+          <DeleteAccountModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            userRole={user.role}
+          />
         </div>
       </div>
     </div>

@@ -32,6 +32,11 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 2.  **My Bookings**: Views list of past and upcoming bookings (`/bookings`).
 3.  **Account Settings**: Updates name/bio (`/profile/edit`).
 
+### Scenario C: Account Deletion
+1.  **Initiation**: In `/profile`, clicks "Delete Account".
+2.  **Confirmation**: A modal appears warning about irreversible loss of tickets and preferences.
+3.  **Completion**: On confirm, user is signed out and redirected to homepage. All user data is purged from DB.
+
 ---
 
 ## 2. Organizer User Flow
@@ -54,9 +59,12 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 3.  **Publish Show**:
     *   Reviews draft details.
     *   Clicks "Publish" -> Show becomes visible on public `/shows`.
-4.  **Manage Sales**:
+5.  **Manage Sales**:
     *   Views Dashboard (`/organizer/dashboard`).
     *   Sees Ticket Sales, Revenue, and Attendee List.
+6.  **Account Deletion (Restriction)**:
+    *   Can ONLY delete account if there are NO live, published shows.
+    *   If active shows exist, the deletion process is blocked with a specific warning.
 
 ---
 
@@ -74,6 +82,8 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 1.  **Profile Management**: Updates profile at `/comedian/profile`.
 2.  **Show Invites**: (Future) Receives requests to perform.
 3.  **Schedule**: Views shows they are booked for.
+4.  **Account Deletion (Restriction)**:
+    *   Same as Organizers: Blocked if booked for live, published shows.
 
 ---
 

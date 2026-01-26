@@ -42,6 +42,9 @@ The backend explicitly whitelists the frontend origins:
 - **Standard**: NextAuth.js automatically handles CSRF tokens for sensitive state-changing operations.
 - **Backend**: Verifies the origin and referer of incoming requests.
 
+### 4. Session Destruction (Account Deletion)
+When a user deletes their account via the Profile settings, the backend purges the user record which cascades to the active `Session` records in the database. Simultaneously, the frontend triggers a `signOut()` call to clear client-side auth cookies and redirect the user.
+
 ---
 
 ## 🛠️ Configuration

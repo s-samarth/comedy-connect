@@ -32,6 +32,23 @@ Initiates the OAuth sign-in flow (Google).
 
 ---
 
+## 👤 Profile (`/profile`)
+
+### `POST /api/v1/profile/update`
+Updates user profile information (Name, Bio, etc.).
+- **Auth Required**: Yes
+- **Body**: `UpdateProfileRequest`
+
+### `POST /api/v1/profile/delete`
+Permanently deletes the user account and all associated data.
+- **Auth Required**: Yes
+- **Logic**:
+    - **Blocked** if user is a verified creator with future published shows.
+    - **Restricted** for Admin users.
+- **Side Effects**: Deletes sessions, bookings, and owned shows/comedians.
+
+---
+
 ## 🎭 Shows (`/shows`)
 
 ### `GET /api/v1/shows`

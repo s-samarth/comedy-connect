@@ -444,7 +444,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
             {/* Social Media Links */}
             <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium text-zinc-900 mb-4">Show Social Media (Optional)</h4>
+              <h4 className="font-medium text-zinc-900 mb-4">Show Social Media (Optional - Max 1 YouTube, 2 Instagram)</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 mb-2">
@@ -461,13 +461,26 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                       type="button"
                       onClick={() => {
                         const input = document.getElementById('newYoutubeUrl') as HTMLInputElement;
-                        if (input.value.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            youtubeUrls: [...prev.youtubeUrls, input.value.trim()]
-                          }));
-                          input.value = "";
+                        const val = input.value.trim();
+                        if (!val) return;
+
+                        // Validation
+                        if (!val.startsWith('https://youtube.com') && !val.startsWith('https://www.youtube.com') && !val.startsWith('https://youtu.be')) {
+                          alert('Please enter a valid YouTube URL (starting with https://youtube.com or https://youtu.be)');
+                          return;
                         }
+
+                        // Limit Check
+                        if (formData.youtubeUrls.length >= 1) {
+                          alert('Maximum 1 YouTube video allowed');
+                          return;
+                        }
+
+                        setFormData(prev => ({
+                          ...prev,
+                          youtubeUrls: [...prev.youtubeUrls, val]
+                        }));
+                        input.value = "";
                       }}
                       className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
                     >
@@ -508,13 +521,26 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                       type="button"
                       onClick={() => {
                         const input = document.getElementById('newInstagramUrl') as HTMLInputElement;
-                        if (input.value.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            instagramUrls: [...prev.instagramUrls, input.value.trim()]
-                          }));
-                          input.value = "";
+                        const val = input.value.trim();
+                        if (!val) return;
+
+                        // Validation
+                        if (!val.startsWith('https://instagram.com') && !val.startsWith('https://www.instagram.com')) {
+                          alert('Please enter a valid Instagram URL (starting with https://instagram.com)');
+                          return;
                         }
+
+                        // Limit Check
+                        if (formData.instagramUrls.length >= 2) {
+                          alert('Maximum 2 Instagram reels allowed');
+                          return;
+                        }
+
+                        setFormData(prev => ({
+                          ...prev,
+                          instagramUrls: [...prev.instagramUrls, val]
+                        }));
+                        input.value = "";
                       }}
                       className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
                     >

@@ -23,7 +23,7 @@ The schema and migrations reside in:
 - **ComedianProfile**: Professional details for verified comedians.
 
 ### Events & Bookings
-- **Show**: Details of comedy events, ticket pricing, and venue info.
+- **Show**: Details of comedy events, ticket pricing, venue info, and duration.
 - **TicketInventory**: Real-time tracking of available and locked tickets.
 - **Booking**: Customer ticket purchases, platform fees, and payment status.
 

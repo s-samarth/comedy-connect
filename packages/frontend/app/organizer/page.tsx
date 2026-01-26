@@ -75,13 +75,6 @@ export default async function OrganizerPage() {
                     <h3 className="font-medium mb-2">Manage Shows</h3>
                     <p className="text-sm text-zinc-600">Create and manage your comedy shows</p>
                   </Link>
-                  <Link
-                    href="/organizer/comedians"
-                    className="block border border-zinc-200 rounded-lg p-4 hover:bg-zinc-50 hover:border-blue-300 transition-colors"
-                  >
-                    <h3 className="font-medium mb-2">Manage Comedians</h3>
-                    <p className="text-sm text-zinc-600">Add and manage comedian profiles</p>
-                  </Link>
                 </>
               ) : (
                 <div className="col-span-2 border border-zinc-200 rounded-lg p-4 bg-zinc-50">

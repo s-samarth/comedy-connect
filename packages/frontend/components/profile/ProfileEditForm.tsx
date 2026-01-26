@@ -204,13 +204,16 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">City</label>
-                        <input
-                            type="text"
+                        <select
                             name="city"
                             value={formData.city}
                             onChange={handleChange}
                             className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
-                        />
+                        >
+                            <option value="">Select city</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            {/* Add more cities as needed */}
+                        </select>
                     </div>
                 </div>
                 <div>

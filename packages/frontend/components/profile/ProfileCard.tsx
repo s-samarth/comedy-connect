@@ -283,7 +283,7 @@ export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) 
 
           {isOwner && !isProfileComplete && (
             <button
-              onClick={() => router.push('/onboarding')}
+              onClick={() => router.push('/profile/edit')}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
             >
               Complete Your Profile

@@ -24,7 +24,7 @@ In the decoupled architecture, the **Backend Service** manages all authenticatio
 ## 🛡️ Security Layers
 
 ### 1. Role-Based Access Control (RBAC)
-Middleware in the backend verifies the user's role stored in the database before proceeding with protected actions.
+Middleware in the backend verifies the user's role stored in the database before proceeding with protected actions. Unauthorized users are redirected to the sign-in page or role selection page.
 
 | Route Prefix | Required Role |
 | :--- | :--- |

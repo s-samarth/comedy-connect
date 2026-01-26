@@ -53,10 +53,12 @@ export async function getCurrentUser() {
   return null
 }
 
+import { redirect } from "next/navigation"
+
 export async function requireAuth() {
   const user = await getCurrentUser()
   if (!user) {
-    throw new Error("Authentication required")
+    redirect("/auth/signin")
   }
   return user
 }
@@ -64,7 +66,7 @@ export async function requireAuth() {
 export async function requireRole(role: UserRole) {
   const user = await requireAuth()
   if (user.role !== role) {
-    throw new Error(`Access denied. Required role: ${role}`)
+    redirect("/")
   }
   return user
 }
@@ -72,7 +74,7 @@ export async function requireRole(role: UserRole) {
 export async function requireOrganizer() {
   const user = await requireAuth()
   if (user.role !== "ADMIN" && !user.role.startsWith("ORGANIZER")) {
-    throw new Error("Access denied. Organizer role required")
+    redirect("/onboarding/role-selection")
   }
   return user
 }
@@ -80,7 +82,7 @@ export async function requireOrganizer() {
 export async function requireComedian() {
   const user = await requireAuth()
   if (user.role !== "ADMIN" && !user.role.startsWith("COMEDIAN")) {
-    throw new Error("Access denied. Comedian role required")
+    redirect("/onboarding/role-selection")
   }
   return user
 }

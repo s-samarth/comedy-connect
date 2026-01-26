@@ -169,11 +169,14 @@ export class BookingService {
             include: { ticketInventory: true }
         })
 
+
         if (!show || !show.ticketInventory) {
             throw new NotFoundError("Show or inventory")
         }
 
-        const platformFee = booking.totalAmount * 0.08 // 8% fallback if not set
+        // Fix Bug 2: Use stored platform fee instead of hardcoding 8%
+        // const platformFee = booking.totalAmount * 0.08 
+        const platformFee = booking.platformFee
 
         // Update booking status
         await bookingRepository.update(booking.id, {
@@ -182,75 +185,10 @@ export class BookingService {
             platformFee
         })
 
-        // Update ticket inventory (locking logic handled somewhat differently in old webhook, let's match it)
-        // Old webhook: available - quantity, locked - quantity. 
-        // Wait, the createBooking flow decrements available immediately in the transaction. 
-        // Let's re-read the old webhook logic.
-        // Old webhook logic: 
-        //   available: show.ticketInventory.available - booking.quantity,
-        //   locked: show.ticketInventory.locked - booking.quantity
-        // This implies that PENDING bookings might have increased 'locked' and kept 'available' same?
-        // BUT looking at `bookings/route.ts`:
-        //   available: { decrement: quantity }
-        // It decrements available immediately!
+        // Fix Bug 1: Remove double-decrement of inventory
+        // The inventory is already decremented during createBooking transaction.
+        // We do NOT need to decrement it again here.
 
-        // Let's look at `webhooks/razorpay/route.ts` carefully.
-        // It finds booking with status PENDING.
-        // Then updates inventory: available - quantity, locked - quantity.
-
-        // WAIT. If `createBooking` decrements available, why does webhook decrement it AGAIN?
-        // Ah, let's check `bookings/route.ts` again.
-        // It sets status to `CONFIRMED_UNPAID`.
-        // `webhooks/razorpay/route.ts` looks for `PENDING`.
-        // These seem to be different flows or I misunderstood something.
-
-        // In `bookings/route.ts`:
-        // status: BookingStatus.CONFIRMED_UNPAID
-
-        // In `webhooks/razorpay/route.ts`:
-        // where: { status: BookingStatus.PENDING }
-
-        // This suggests there are TWO ways bookings are created? 
-        // Or `bookings/route.ts` is for one flow (maybe manual/offline?) and there's another flow that creates PENDING bookings?
-        // OR `webhooks/razorpay/route.ts` handles a flow NOT initiated by `bookings/route.ts`?
-
-        // Let's look at `bookings/route.ts` again. It returns `CONFIRMED_UNPAID`.
-        // Maybe the Payment Gateway integration updates it to PENDING? 
-        // Or maybe the frontend calls another API?
-
-        // Wait, `webhooks/razorpay/route.ts` logic:
-        // `await prisma.ticketInventory.update({... available: show.ticketInventory.available - booking.quantity ...})`
-
-        // If `createBooking` already decremented available, decrementing it again would be double counting.
-        // Unless... `webhooks` handles a flow where `createBooking` was NOT called?
-
-        // Let's check `orders` API if it exists or where PENDING bookings come from.
-        // I'll assume for now `bookings/route.ts` is the main entry point.
-        // If so, `CONFIRMED_UNPAID` is the status.
-        // But webhook looks for `PENDING`.
-
-        // HYPOTHESIS: There is dead code or a separate flow I missed.
-        // OR `bookings/route.ts` USED to be different.
-
-        // Let's stick to refactoring what is there.
-        // `bookings/route.ts` -> `createBooking` -> `CONFIRMED_UNPAID`.
-
-        // `webhooks/razorpay/route.ts` -> handles `payment.captured`.
-        // It finds booking with `PENDING`. 
-        // If `bookings/route.ts` creates `CONFIRMED_UNPAID`, then the webhook will NEVER find the booking if it looks for `PENDING`.
-
-        // Let's check `packages/backend/app/api` listing again.
-        // maybe `app/api/orders`? No.
-
-        // I need to be careful here. If I change logic I might break things.
-        // If existing `bookings/route.ts` sets `CONFIRMED_UNPAID`, and existing `webhooks` sets `PENDING`, they might be disconnected.
-
-        // Let's re-read `webhooks/razorpay/route.ts`.
-        // It imports `BookingStatus`.
-        // `status: BookingStatus.PENDING`.
-
-        // Let's assume the user knows what they are doing and just refactor exactly as is.
-        // But I need to provide a service method that mimics the webhook logic.
 
         return booking
     }

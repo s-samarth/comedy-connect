@@ -2,6 +2,10 @@
 
 A comprehensive platform for discovering, booking, and managing live comedy shows in Hyderabad.
 
+> [!NOTE]
+> **Razorpay Integration**: Please note that Razorpay payment integration has not been completed yet and will be added in a future update. Current bookings are handled without actual payment processing.
+
+
 ## 🏗️ Architecture: Decoupled Monorepo
 
 Comedy Connect has been migrated to a **decoupled monorepo** architecture to support independent development of the Frontend and Backend services.
@@ -109,9 +113,10 @@ The frontend can be toggled between the **Internal Monolith API** and the **Stan
    CLOUDINARY_API_KEY="your-api-key"
    CLOUDINARY_API_SECRET="your-api-secret"
 
-   # Razorpay (for payments)
+   # Razorpay (Future integration - for payments)
    RAZORPAY_KEY_ID="your-razorpay-key-id"
    RAZORPAY_KEY_SECRET="your-razorpay-key-secret"
+
    ```
 
 5. **Set up the database**
@@ -335,7 +340,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [NextAuth.js](https://next-auth.js.org/) - Authentication
 - [Tailwind CSS](https://tailwindcss.com/) - CSS framework
 - [Cloudinary](https://cloudinary.com/) - Image management
-- [Razorpay](https://razorpay.com/) - Payment gateway
+- [Razorpay](https://razorpay.com/) - Payment gateway (Future)
 
 ## 📞 Support
 

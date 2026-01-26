@@ -43,7 +43,7 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: logs in via Google.
-2.  **Role Selection**: Redirected to `/onboarding`. Selects "I want to Organize Shows".
+2.  **Role Selection**: Redirected to `/onboarding`. Selects "I want to Organize Shows". (Checks if basic profile is complete, otherwise alerts).
 3.  **Profile Setup**: Fills details (Name, Bio, Social Links).
 4.  **Verification Wait**:
     *   Dashboard (`/organizer`) shows "Pending Verification" banner.
@@ -56,7 +56,9 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
     *   Fills: Title, Date, Venue, Price, Description, Banner Image.
     *   **Add Comedians**: Selects comedians from the platform or adds manually.
     *   **Submit**: Show created as DRAFT.
-3.  **Publish Show**:
+3.  **Preview Show**:
+    *   Clicks "Preview" to see the Show Details and Card as they will appear to the audience.
+4.  **Publish Show**:
     *   Reviews draft details.
     *   Clicks "Publish" -> Show becomes visible on public `/shows`.
 5.  **Manage Sales**:
@@ -72,7 +74,7 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: Logs in via Google.
-2.  **Role Selection**: Selects "I am a Comedian".
+2.  **Role Selection**: Selects "I am a Comedian". (Checks if basic profile is complete, otherwise alerts).
 3.  **Profile Creation**:
     *   Uploads Headshot, adds Bio, YouTube/Instagram links.
     *   Submits for verification.

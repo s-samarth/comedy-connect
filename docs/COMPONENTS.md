@@ -31,6 +31,10 @@ Modular React components organized by feature.
 - **`ShowDiscovery`**: Uses `useShows()` for lazy-loading and filtering comedy events.
 - **`ShowBooking`**: Handles the booking flow using `api.post()`.
 
+#### `components/organizer/`
+- **`ShowManagement`**: Main dashboard for creating and editing shows.
+- **`ShowPreviewModal`**: Previews the show details and card before publishing.
+
 #### `components/admin/`
 - **`AdminDashboard`**: Displays system metrics fetched via `useAdminStats()`.
 - **`CollectionManagement`**: Financial oversight for admin users.

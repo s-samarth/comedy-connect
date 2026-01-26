@@ -112,13 +112,13 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
 
 ## 🟡 Priority: P2 (Medium Impact)
 
-### 1. Unsafe Capacity Reductions
+### 1. Unsafe Capacity Reductions - ✅ FIXED
 - **Location**: `packages/backend/services/shows/show.service.ts:L262`
 - **Impact**: Overselling/Data corruption.
 - **Description**: The update logic blocks capacity *increases* for published shows with bookings but fails to block capacity *decreases* below the number of tickets already sold.
 - **Fix**: Add a check to ensure `newCapacity >= soldTickets`.
 
-### 2. Navigation & Discovery Page Omissions (Frontend)
+### 2. Navigation & Discovery Page Omissions (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/layout/Navbar.tsx` & `packages/frontend/app/shows/page.tsx`
 - **Impact**: Poor discoverability for organizers; inconvenient navigation for all users.
 - **Description**: 
@@ -128,7 +128,7 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
     1. Add a "Home" link to the `Navbar.tsx` navigation list.
     2. Implement the same "List a Show" button/action from the homepage into the `/shows/page.tsx` layout.
 
-### 3. Missing Profile Completion Check for Registration
+### 3. Missing Profile Completion Check for Registration - ✅ FIXED
 - **Location**: `packages/frontend/app/onboarding/role-selection/page.tsx`
 - **Impact**: Users can attempt to register for advanced roles (Organizer/Comedian) with incomplete base profiles, leading to data inconsistencies.
 - **Description**: The role selection page allows users to click "Get Started" for Organizer or Comedian roles regardless of whether their basic profile information (from the initial onboarding) is complete.
@@ -137,13 +137,13 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
     2. If incomplete, show a popup/alert: "first complete the profile then only you can register as an organiser or a comedian".
     3. Redirect the user to the profile page upon closing the alert or clicking the button.
 
-### 4. Admin Dashboard Pending Approvals Zero Count
+### 4. Admin Dashboard Pending Approvals Zero Count - ✅ FIXED
 - **Location**: `packages/backend/app/api/v1/profile/update/route.ts` & `packages/backend/app/api/v1/admin/stats/route.ts`
 - **Impact**: Admins are unaware of new pending requests, blocking platform growth.
 - **Description**: The admin dashboard shows "Pending Approvals: 0" even when new organizers/comedians register. This happens because the profile update/creation logic creates the Profile record but *fails to create* the corresponding `OrganizerApproval` or `ComedianApproval` record in the database. The stats endpoint queries these missing Approval tables.
 - **Fix**: Update the `profile/update` route to also create/upsert a `PENDING` record in the respective Approval table when a new Organizer or Comedian profile is created.
 
-### 5. Missing Show Preview Functionality (Frontend)
+### 5. Missing Show Preview Functionality (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/organizer/ShowManagement.tsx` (Draft/Show List)
 - **Impact**: Creators cannot verify the final look of their show page or card before publishing, leading to potential errors and repeated edits.
 - **Description**: There is currently no option to preview how a draft show will look to the audience (the full show details page) or how the poster will appear on the homepage card.

@@ -13,24 +13,35 @@ In the decoupled architecture, the **Backend Service** manages all authenticatio
   - Frontend redirects to `${BACKEND_URL}/api/auth/signin`.
   - Backend sets a `next-auth.session-token` cookie.
   - Subsequent requests from Frontend include `credentials: 'include'`.
+- **Middleware Enforcement**:
+  - The **Frontend App** runs a `middleware.ts` that intercepts all main routes.
+  - It checks the `onboardingCompleted` flag in the session token.
+  - If `false`, the user is strictly redirected to `/onboarding`.
+  - Excluded routes: `/api/*`, `/auth/*`, `/_next/*`, `/favicon.ico`.
 
 ### 2. Admin Secure Session (Administrative Users)
 - **Method**: Secure password-based session.
-- **Cookie**: `admin-secure-session`.
-- **Logic**: Used for high-stakes administrative actions to prevent session hijacking.
+- **Cookie**: `admin-secure-session` (Signed).
+- **Logic**: 
+  - Backend generates a cookie signed with `HMAC-SHA256` using `NEXTAUTH_SECRET`.
+  - Frontend cryptographically verifies this signature before granting access.
+  - Used for high-stakes administrative actions to prevent session hijacking and forgery.
 
 ---
 
 ## 🛡️ Security Layers
 
 ### 1. Role-Based Access Control (RBAC)
-Middleware in the backend verifies the user's role stored in the database before proceeding with protected actions.
+Middleware in the backend verifies the user's role stored in the database before proceeding with protected actions. Unauthorized users are redirected to the sign-in page or role selection page.
 
 | Route Prefix | Required Role |
 | :--- | :--- |
 | `/api/v1/admin/*` | `ADMIN` |
+| `/api/v1/organizer/profile` (POST) | Any Authenticated User (Onboarding) |
+| `/api/v1/onboarding` (POST) | Any Authenticated User |
+| `/onboarding` (Frontend) | Any Authenticated User |
 | `/api/v1/organizer/*` | `ORGANIZER_VERIFIED` or `ADMIN` |
-| `/api/v1/comedian/profile` (POST) | `COMEDIAN_UNVERIFIED` (to claim) |
+| `/api/v1/comedian/profile` (POST) | Any Authenticated User (Onboarding) |
 | `/api/v1/bookings` (POST) | Any Authenticated User |
 
 ### 2. CORS (Cross-Origin Resource Sharing)

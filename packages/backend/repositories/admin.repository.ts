@@ -62,6 +62,20 @@ export class AdminRepository {
     }
 
     /**
+     * Update booking fees when show fee changes
+     * Recalculates platform fee for all non-terminal bookings
+     */
+    async updateBookingsFees(showId: string, feePercentage: number) {
+        const factor = feePercentage / 100.0
+        return prisma.$executeRaw`
+            UPDATE "Booking"
+            SET "platformFee" = "totalAmount" * ${factor}
+            WHERE "showId" = ${showId}
+            AND "status" NOT IN ('CANCELLED', 'FAILED')
+        `
+    }
+
+    /**
      * Set disbursed status
      */
     async setDisbursed(showId: string, isDisbursed: boolean) {

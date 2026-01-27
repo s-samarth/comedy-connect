@@ -23,6 +23,9 @@ export default function Navbar() {
                     </Link>
 
                     <nav className="flex items-center space-x-6">
+                        <Link href="/" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
+                            Home
+                        </Link>
                         <Link href="/shows" className="text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">
                             Shows
                         </Link>

@@ -17,7 +17,8 @@ export default function OnboardingPage() {
     city: 'Hyderabad',
     watchedComedy: '',
     phone: '',
-    heardAboutUs: ''
+    heardAboutUs: '',
+    bio: ''
   })
 
   useEffect(() => {
@@ -40,7 +41,8 @@ export default function OnboardingPage() {
 
     try {
       await apiClient.post('/api/v1/onboarding', formData)
-      router.push('/')
+      // Force a hard redirect to refresh session/middleware state
+      window.location.href = '/'
     } catch (error: any) {
       setError(error.message?.replace('API Error:', '').trim() || 'Something went wrong')
     } finally {
@@ -191,15 +193,25 @@ export default function OnboardingPage() {
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
                 Phone number <span className="text-gray-400">(optional)</span>
               </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Your phone number"
-              />
+              <div className="mt-1 flex rounded-md shadow-sm">
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                  +91
+                </span>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '')
+                    if (val.length <= 10) setFormData(prev => ({ ...prev, phone: val }))
+                  }}
+                  pattern="[0-9]{10}"
+                  maxLength={10}
+                  className="flex-1 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="9876543210"
+                />
+              </div>
             </div>
 
             {/* Heard About Us - Optional */}
@@ -222,6 +234,22 @@ export default function OnboardingPage() {
                 <option value="google">Google search</option>
                 <option value="other">Other</option>
               </select>
+            </div>
+
+            {/* Bio - Optional */}
+            <div>
+              <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+                Bio (Publicly visible) <span className="text-gray-400">(optional)</span>
+              </label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleInputChange as any}
+                rows={3}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Tell us about yourself..."
+              />
             </div>
 
             <div className="pt-4">

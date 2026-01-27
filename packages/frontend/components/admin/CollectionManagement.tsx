@@ -12,7 +12,9 @@ interface Show {
     isDisbursed: boolean
     creator: {
         email: string
+        name?: string
         organizerProfile?: { name: string }
+        comedianProfile?: { stageName: string }
     }
     stats: {
         showRevenue: number      // Ticket price * Qty
@@ -217,7 +219,7 @@ export default function CollectionManagement() {
                                         <td className="sticky left-0 bg-white group-hover:bg-slate-50/50 px-6 py-4 border-r border-slate-100 transition-colors z-10">
                                             <div className="font-bold text-slate-900">{show.title}</div>
                                             <div className="text-[10px] text-slate-400 mt-0.5 font-bold uppercase tracking-tight">
-                                                By {show.creator.organizerProfile?.name || 'Unknown'} • {show.stats.ticketsSold} Sold
+                                                By {show.creator.organizerProfile?.name || show.creator.comedianProfile?.stageName || show.creator.name || 'Unknown'} • {show.stats.ticketsSold} Sold
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-semibold text-slate-600">

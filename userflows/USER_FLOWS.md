@@ -43,11 +43,16 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: logs in via Google.
-2.  **Role Selection**: Redirected to `/onboarding`. Selects "I want to Organize Shows".
-3.  **Profile Setup**: Fills details (Name, Bio, Social Links).
+2.  **Onboarding**: Redirected to `/onboarding`. Fills basic info: Name, Age, City, Watched Comedy, Bio (optional), Phone (optional).
+3.  **Role Selection**: After basic info, navigates to `/onboarding/role-selection`. Selects "I want to Organize Shows".
+4.  **Profile Setup**:
+    *   Fills details: Name, Bio, Social Links.
+    *   **Mandatory**: Contact Number (with validation).
+    *   **Media**: Adds YouTube (max 1) and Instagram (max 2) links.
 4.  **Verification Wait**:
     *   Dashboard (`/organizer`) shows "Pending Verification" banner.
     *   *Restriction*: Cannot create public shows.
+    *   **Rejection/Re-apply**: If rejected, user can update profile details to resubmit (Status resets to Pending).
 
 ### Scenario B: Show Management (Verified)
 1.  **Dashboard**: Sees "Verified" status.
@@ -56,9 +61,15 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
     *   Fills: Title, Date, Venue, Price, Description, Banner Image.
     *   **Add Comedians**: Selects comedians from the platform or adds manually.
     *   **Submit**: Show created as DRAFT.
-3.  **Publish Show**:
+    *   **Validation**: Google Maps links must be establishing valid `maps.app.goo.gl` or `google.com/maps` URLs.
+3.  **Preview Show**:
+    *   Clicks "Preview" to see the **High-Fidelity Show Details** (identical to public view).
+    *   Verifies poster, description, and layout in a modal.
+4.  **Publish Show**:
     *   Reviews draft details.
     *   Clicks "Publish" -> Show becomes visible on public `/shows`.
+    *   **Note**: Once published, critical fields (Title, Date, Venue, Duration) are **LOCKED** to prevent deception.
+    *   **Note**: Published shows cannot be unpublished by the creator (requires Admin intervention).
 5.  **Manage Sales**:
     *   Views Dashboard (`/organizer/dashboard`).
     *   Sees Ticket Sales, Revenue, and Attendee List.
@@ -72,9 +83,12 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: Logs in via Google.
-2.  **Role Selection**: Selects "I am a Comedian".
-3.  **Profile Creation**:
-    *   Uploads Headshot, adds Bio, YouTube/Instagram links.
+2.  **Onboarding**: Redirected to `/onboarding`. Fills basic info.
+3.  **Role Selection**: Redirected to `/onboarding/role-selection`. Selects "I am a Comedian".
+4.  **Profile Creation**:
+    *   Uploads Headshot, adds Bio.
+    *   **Mandatory**: Contact Number (with validation).
+    *   **Media**: Adds YouTube (max 1) and Instagram (max 2) links.
     *   Submits for verification.
 4.  **Status**: Dashboard (`/comedian`) shows verification status.
 

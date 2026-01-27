@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react"
 import ImageUpload from "@/components/ui/ImageUpload"
+import ShowPreviewModal from "./ShowPreviewModal"
+import ShowCard from "@/components/shows/ShowCard"
 
 interface Show {
   id: string
@@ -15,6 +17,7 @@ interface Show {
   posterImageUrl?: string
   youtubeUrls?: string[]
   instagramUrls?: string[]
+  durationMinutes?: number
   createdAt: string
   creator: {
     email: string
@@ -66,9 +69,25 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
     totalTickets: "",
     posterImageUrl: "",
     youtubeUrls: [] as string[],
-    instagramUrls: [] as string[]
+    instagramUrls: [] as string[],
+    durationMinutes: "60"
   })
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all")
+  const [showPreview, setShowPreview] = useState(false)
+  const [previewData, setPreviewData] = useState<any>(null)
+
+  const handlePreview = (data: any) => {
+    // Validate google maps link
+    if (data.googleMapsLink &&
+      !data.googleMapsLink.startsWith('https://maps.app.goo.gl') &&
+      !data.googleMapsLink.startsWith('https://google.com/maps') &&
+      !data.googleMapsLink.startsWith('https://www.google.com/maps')) {
+      alert("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)")
+      return;
+    }
+    setPreviewData(data)
+    setShowPreview(true)
+  }
 
   const filteredShows = shows.filter(show => {
     const showDate = new Date(show.date)
@@ -131,6 +150,15 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
         igInput.value = ""; // Clear input after capturing
       }
 
+      if (formData.googleMapsLink &&
+        !formData.googleMapsLink.startsWith('https://maps.app.goo.gl') &&
+        !formData.googleMapsLink.startsWith('https://google.com/maps') &&
+        !formData.googleMapsLink.startsWith('https://www.google.com/maps')) {
+        alert("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)")
+        setIsLoading(false);
+        return;
+      }
+
       const url = editingShow ? `/api/v1/shows/${editingShow.id}` : "/api/v1/shows"
       const method = editingShow ? "PUT" : "POST"
 
@@ -143,7 +171,9 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           instagramUrls: currentInstagramUrls,
           posterImageUrl: formData.posterImageUrl || undefined,
           ticketPrice: parseInt(formData.ticketPrice),
-          totalTickets: parseInt(formData.totalTickets)
+          totalTickets: parseInt(formData.totalTickets),
+          durationMinutes: parseInt(formData.durationMinutes) || 60,
+          date: new Date(formData.date).toISOString()
         })
       })
 
@@ -161,7 +191,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
           totalTickets: "",
           posterImageUrl: "",
           youtubeUrls: [],
-          instagramUrls: []
+          instagramUrls: [],
+          durationMinutes: "60"
         })
       } else {
         const error = await response.json()
@@ -176,17 +207,26 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
   const handleEdit = (show: Show) => {
     setEditingShow(show)
+
+    // Fix for timezone issue: datetime-local expects YYYY-MM-DDTHH:MM in local time
+    // toISOString() converts to UTC, causing the offset (e.g. -5:30 for IST)
+    // We need to construct a local ISO string manually or adjust for offset
+    const date = new Date(show.date);
+    const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);
+
     setFormData({
       title: show.title,
       description: show.description || "",
-      date: new Date(show.date).toISOString().slice(0, 16),
+      date: localISOTime,
       venue: show.venue,
       googleMapsLink: (show as any).googleMapsLink || "",
       ticketPrice: show.ticketPrice.toString(),
       totalTickets: show.totalTickets.toString(),
       posterImageUrl: show.posterImageUrl || "",
       youtubeUrls: show.youtubeUrls || [],
-      instagramUrls: show.instagramUrls || []
+      instagramUrls: show.instagramUrls || [],
+      durationMinutes: (show.durationMinutes || 60).toString()
     })
     setShowForm(true)
   }
@@ -324,27 +364,44 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Title *
+                  Title * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
                 </label>
                 <input
                   type="text"
                   required
+                  disabled={editingShow?.isPublished}
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Date & Time *
+                  Date & Time * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
                 </label>
                 <input
                   type="datetime-local"
                   required
+                  disabled={editingShow?.isPublished}
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-zinc-700 mb-2">
+                  Duration (minutes) * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
+                </label>
+                <input
+                  type="number"
+                  required
+                  min="1"
+                  disabled={editingShow?.isPublished}
+                  value={formData.durationMinutes}
+                  onChange={(e) => setFormData(prev => ({ ...prev, durationMinutes: e.target.value }))}
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
                 />
               </div>
             </div>
@@ -363,15 +420,16 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-2">
-                Venue *
+                Venue * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
               </label>
               <input
                 type="text"
                 required
+                disabled={editingShow?.isPublished}
                 value={formData.venue}
                 onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
                 placeholder="e.g., Comedy Club, Hyderabad"
-                className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
               />
             </div>
 
@@ -424,7 +482,7 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
             {/* Social Media Links */}
             <div className="border-t pt-4 mt-4">
-              <h4 className="font-medium text-zinc-900 mb-4">Show Social Media (Optional)</h4>
+              <h4 className="font-medium text-zinc-900 mb-4">Show Social Media (Optional - Max 1 YouTube, 2 Instagram)</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-zinc-700 mb-2">
@@ -441,13 +499,26 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                       type="button"
                       onClick={() => {
                         const input = document.getElementById('newYoutubeUrl') as HTMLInputElement;
-                        if (input.value.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            youtubeUrls: [...prev.youtubeUrls, input.value.trim()]
-                          }));
-                          input.value = "";
+                        const val = input.value.trim();
+                        if (!val) return;
+
+                        // Validation
+                        if (!val.startsWith('https://youtube.com') && !val.startsWith('https://www.youtube.com') && !val.startsWith('https://youtu.be')) {
+                          alert('Please enter a valid YouTube URL (starting with https://youtube.com or https://youtu.be)');
+                          return;
                         }
+
+                        // Limit Check
+                        if (formData.youtubeUrls.length >= 1) {
+                          alert('Maximum 1 YouTube video allowed');
+                          return;
+                        }
+
+                        setFormData(prev => ({
+                          ...prev,
+                          youtubeUrls: [...prev.youtubeUrls, val]
+                        }));
+                        input.value = "";
                       }}
                       className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
                     >
@@ -488,13 +559,26 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                       type="button"
                       onClick={() => {
                         const input = document.getElementById('newInstagramUrl') as HTMLInputElement;
-                        if (input.value.trim()) {
-                          setFormData(prev => ({
-                            ...prev,
-                            instagramUrls: [...prev.instagramUrls, input.value.trim()]
-                          }));
-                          input.value = "";
+                        const val = input.value.trim();
+                        if (!val) return;
+
+                        // Validation
+                        if (!val.startsWith('https://instagram.com') && !val.startsWith('https://www.instagram.com')) {
+                          alert('Please enter a valid Instagram URL (starting with https://instagram.com)');
+                          return;
                         }
+
+                        // Limit Check
+                        if (formData.instagramUrls.length >= 2) {
+                          alert('Maximum 2 Instagram reels allowed');
+                          return;
+                        }
+
+                        setFormData(prev => ({
+                          ...prev,
+                          instagramUrls: [...prev.instagramUrls, val]
+                        }));
+                        input.value = "";
                       }}
                       className="px-3 py-1 bg-zinc-600 text-white rounded hover:bg-zinc-700"
                     >
@@ -531,6 +615,13 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
               </button>
               <button
                 type="button"
+                onClick={() => handlePreview(formData)}
+                className="px-4 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200"
+              >
+                Preview
+              </button>
+              <button
+                type="button"
                 onClick={() => {
                   setShowForm(false)
                   setEditingShow(null)
@@ -544,7 +635,8 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                     totalTickets: "",
                     posterImageUrl: "",
                     youtubeUrls: [],
-                    instagramUrls: []
+                    instagramUrls: [],
+                    durationMinutes: "60"
                   })
                 }}
                 className="px-4 py-2 bg-zinc-300 text-zinc-700 rounded hover:bg-zinc-400"
@@ -590,131 +682,122 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filteredShows.map((show) => (
-              <div key={show.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg">{show.title}</h3>
+              <ShowCard
+                key={show.id}
+                show={show}
+                stats={
+                  show.stats && (
+                    <div className="flex justify-between items-center bg-zinc-50 p-2 rounded text-zinc-800 border border-zinc-200 mt-2 text-sm z-10 relative">
+                      <div>
+                        <span className="font-bold">{show.stats.ticketsSold}</span>{' '}
+                        <span className="text-xs text-zinc-500 uppercase">Sold</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-green-600">{formatPrice(show.stats.ticketsSold * show.ticketPrice)}</span>{' '}
+                        {/* Note: Revenue in stats might be pre-calculated, using simple mult or trust stats.revenue if available. 
+                                In ShowManagement code it was show.stats.revenue. */}
+                        <span className="text-xs text-zinc-500 uppercase">Rev</span>
+                      </div>
+                    </div>
+                  )
+                }
+                extraDetails={
+                  <>
+                    {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
+                      <div className="flex gap-3 pt-2 text-xs font-medium">
+                        {show.youtubeUrls && show.youtubeUrls.length > 0 && (
+                          <span className="text-red-600">📹 {show.youtubeUrls.length} Video{show.youtubeUrls.length > 1 ? 's' : ''}</span>
+                        )}
+                        {show.instagramUrls && show.instagramUrls.length > 0 && (
+                          <span className="text-pink-600">📱 {show.instagramUrls.length} Reel{show.instagramUrls.length > 1 ? 's' : ''}</span>
+                        )}
+                      </div>
+                    )}
+                    {
+                      (show.ticketInventory.available === 0) && (
+                        <div className="mt-2 text-red-600 font-bold text-sm">Sold Out</div>
+                      )
+                    }
+                    <div className="mt-2 flex items-center justify-between">
                       <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${show.isPublished
                         ? "bg-green-100 text-green-800"
                         : "bg-gray-100 text-gray-800"
                         }`}>
                         {show.isPublished ? "Published" : "Draft"}
                       </span>
-                    </div>
-                  </div>
-                  {show._count.bookings > 0 && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {show._count.bookings} booking{show._count.bookings > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-
-                <div className="space-y-2 text-sm text-zinc-600 mb-4">
-                  <div>📅 {formatDate(show.date)}</div>
-                  <div>📍 {show.venue}</div>
-                  <div>🎫 {formatPrice(show.ticketPrice)}</div>
-                  <div>
-                    🎟️ {show.ticketInventory.available} of {show.totalTickets} tickets available
-                  </div>
-                  {show.stats && (
-                    <div className="flex justify-between items-center bg-zinc-50 p-2 rounded text-zinc-800 border border-zinc-200 mt-2">
-                      <div>
-                        <span className="font-bold text-lg">{show.stats.ticketsSold}</span>{' '}
-                        <span className="text-xs text-zinc-500 uppercase">Sold</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-bold text-lg text-green-600">{formatPrice(show.stats.revenue)}</span>{' '}
-                        <span className="text-xs text-zinc-500 uppercase">Rev</span>
-                      </div>
-                    </div>
-                  )}
-                  {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
-                    <div className="flex gap-3 pt-2 text-xs font-medium">
-                      {show.youtubeUrls && show.youtubeUrls.length > 0 && (
-                        <span className="text-red-600">📹 {show.youtubeUrls.length} Video{show.youtubeUrls.length > 1 ? 's' : ''}</span>
-                      )}
-                      {show.instagramUrls && show.instagramUrls.length > 0 && (
-                        <span className="text-pink-600">📱 {show.instagramUrls.length} Reel{show.instagramUrls.length > 1 ? 's' : ''}</span>
+                      {show._count.bookings > 0 && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                          {show._count.bookings} bookings
+                        </span>
                       )}
                     </div>
-                  )}
-                </div>
-
-                {
-                  show.showComedians.length > 0 && (
-                    <div className="mb-4 border-t pt-2">
-                      <p className="text-sm font-medium text-zinc-700 mb-2">Comedian Lineup:</p>
-                      <div className="space-y-2">
-                        {show.showComedians.map(sc => (
-                          <div key={sc.comedian.id} className="bg-zinc-50 p-2 rounded">
-                            <p className="font-medium text-sm">{sc.comedian.name}</p>
-                            {((sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0) ||
-                              (sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0)) && (
-                                <div className="mt-1 flex gap-2 text-xs">
-                                  {sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0 && (
-                                    <span className="text-red-600 flex items-center gap-1">
-                                      📹 {sc.comedian.youtubeUrls.length} Video{sc.comedian.youtubeUrls.length > 1 ? 's' : ''}
-                                    </span>
-                                  )}
-                                  {sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0 && (
-                                    <span className="text-pink-600 flex items-center gap-1">
-                                      📱 {sc.comedian.instagramUrls.length} Reel{sc.comedian.instagramUrls.length > 1 ? 's' : ''}
-                                    </span>
-                                  )}
-                                  <a href={`/comedians/${sc.comedian.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue-600 hover:underline">
-                                    View Profile
-                                  </a>
-                                </div>
-                              )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
+                  </>
                 }
-
-                {isVerified && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t flex-wrap items-center">
-                    {!show.isPublished ? (
-                      <>
+                actionButtons={
+                  isVerified ? (
+                    <div className="flex flex-wrap gap-2 items-center justify-between">
+                      {!show.isPublished && (
                         <button
                           onClick={() => handlePublish(show.id)}
-                          className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                          className="flex-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded hover:bg-green-700 font-medium"
                         >
                           Publish
                         </button>
+                      )}
+                      {show.isPublished && (
                         <button
-                          onClick={() => handleEdit(show)}
-                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                          disabled
+                          title="Cannot unpublish a published show"
+                          className="flex-1 px-3 py-1.5 text-xs bg-zinc-400 text-white rounded cursor-not-allowed font-medium"
                         >
-                          Edit
+                          Unpublish
                         </button>
+                      )}
+
+                      {(() => {
+                        const isCompleted = new Date(new Date(show.date).getTime() + ((show.durationMinutes || 60) * 60000)) < new Date();
+                        return (
+                          <button
+                            onClick={() => !isCompleted && handleEdit(show)}
+                            disabled={isCompleted}
+                            className={`flex-1 px-3 py-1.5 text-xs rounded font-medium ${isCompleted
+                              ? "bg-zinc-300 text-zinc-500 cursor-not-allowed"
+                              : "bg-blue-600 text-white hover:bg-blue-700"
+                              }`}
+                          >
+                            {isCompleted ? "Completed" : "Edit"}
+                          </button>
+                        );
+                      })()}
+                      <button
+                        onClick={() => handlePreview(show)}
+                        className="flex-1 px-3 py-1.5 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 font-medium"
+                      >
+                        Preview
+                      </button>
+
+                      {!show.isPublished && (
                         <button
                           onClick={() => handleDelete(show.id)}
-                          className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          className="flex-1 px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 font-medium"
                         >
                           Delete
                         </button>
-                      </>
-                    ) : (
-                      <span className="text-sm text-zinc-500 italic flex items-center gap-1">
-                        🔒 Published - Actions disabled
-                      </span>
-                    )}
-                    {show._count.bookings > 0 && !show.isPublished && (
-                      <span className="ml-auto text-xs text-zinc-500 self-center">
-                        Locked (has bookings)
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+                    </div>
+                  ) : null
+                }
+              />
             ))}
           </div>
         </>
       )
       }
+      <ShowPreviewModal
+        isOpen={showPreview}
+        onClose={() => setShowPreview(false)}
+        data={previewData || {}}
+      />
     </div >
   )
 }

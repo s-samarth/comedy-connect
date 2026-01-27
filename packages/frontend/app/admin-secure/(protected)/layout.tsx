@@ -20,7 +20,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
     const cookieStore = await cookies()
     const sessionCookie = cookieStore.get('admin-secure-session')
 
-    const { valid, email } = validateAdminSession(sessionCookie?.value)
+    const { valid, email } = await validateAdminSession(sessionCookie?.value)
 
     if (!valid) {
         redirect('/admin-secure/login')

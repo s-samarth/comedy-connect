@@ -63,12 +63,18 @@ export async function POST(request: Request) {
     }
 
     // Update user role and mark onboarding as completed
+    // Only set to UNVERIFIED if not already VERIFIED
+    const updateData: any = {
+      onboardingCompleted: true
+    }
+
+    if (user.role !== UserRole.ORGANIZER_VERIFIED) {
+      updateData.role = UserRole.ORGANIZER_UNVERIFIED
+    }
+
     await prisma.user.update({
       where: { id: user.id },
-      data: {
-        role: UserRole.ORGANIZER_UNVERIFIED,
-        onboardingCompleted: true
-      }
+      data: updateData
     })
 
     // Create or update organizer profile

@@ -157,7 +157,7 @@ export default function FeeManagement() {
 
                       <div>
                         <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                          Platform Fee
+                          Booking Fee
                         </label>
                         <div className="relative flex items-center">
                           <input

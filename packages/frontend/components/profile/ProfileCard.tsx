@@ -283,7 +283,7 @@ export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) 
 
           {isOwner && !isProfileComplete && (
             <button
-              onClick={() => router.push('/onboarding')}
+              onClick={() => router.push('/profile/edit')}
               className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm font-medium"
             >
               Complete Your Profile
@@ -298,11 +298,9 @@ export default function ProfileCard({ user, isOwner = true }: ProfileCardProps) 
             </div>
           )}
 
-          {isOwner && user.role === 'AUDIENCE' && isProfileComplete && (
-            <button className="w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium">
-              Become an Organizer
-            </button>
-          )}
+          {/* 'Become an Organizer' button removed as per requirements */
+            /* allows users to stay as audience without prompt */
+          }
 
           {isOwner && user.role !== 'ADMIN' && (
             <button

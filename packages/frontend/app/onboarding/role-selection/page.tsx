@@ -24,6 +24,32 @@ export default async function RoleSelectionPage() {
         )
     }
 
+    // Check for profile completion
+    const isProfileComplete = user.name && user.phone && user.city && user.age;
+
+    if (!isProfileComplete) {
+        return (
+            <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-lg p-8 max-w-md w-full text-center">
+                    <div className="text-5xl mb-4">📋</div>
+                    <h2 className="text-2xl font-bold mb-4 text-zinc-900 dark:text-white">Profile Incomplete</h2>
+                    <p className="text-zinc-600 dark:text-zinc-400 mb-6">
+                        Please complete your basic profile (Age, Phone, City) before registering as an Organizer or Comedian.
+                    </p>
+                    <Link
+                        href="/onboarding"
+                        className="block w-full text-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                    >
+                        Complete Your Profile
+                    </Link>
+                    <p className="mt-4 text-sm text-zinc-500">
+                        <Link href="/" className="hover:underline">Back to Home</Link>
+                    </p>
+                </div>
+            </div>
+        )
+    }
+
     if (user.role.startsWith("COMEDIAN")) {
         return (
             <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center p-4">

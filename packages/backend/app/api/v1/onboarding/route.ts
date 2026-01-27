@@ -6,30 +6,30 @@ import { prisma } from '@/lib/prisma'
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
-    const { name, age, city, watchedComedy, phone, heardAboutUs } = body
+    const { name, age, city, watchedComedy, phone, heardAboutUs, bio } = body
 
     // Server-side validation
     if (!name || !age || !city || !watchedComedy) {
-      return NextResponse.json({ 
-        error: 'Missing required fields: name, age, city, and watchedComedy are required' 
+      return NextResponse.json({
+        error: 'Missing required fields: name, age, city, and watchedComedy are required'
       }, { status: 400 })
     }
 
     if (isNaN(Number(age)) || Number(age) < 1 || Number(age) > 120) {
-      return NextResponse.json({ 
-        error: 'Age must be a valid number between 1 and 120' 
+      return NextResponse.json({
+        error: 'Age must be a valid number between 1 and 120'
       }, { status: 400 })
     }
 
     if (!['yes', 'no'].includes(watchedComedy)) {
-      return NextResponse.json({ 
-        error: 'watchedComedy must be either "yes" or "no"' 
+      return NextResponse.json({
+        error: 'watchedComedy must be either "yes" or "no"'
       }, { status: 400 })
     }
 
@@ -42,13 +42,14 @@ export async function POST(request: NextRequest) {
         city: city.trim(),
         phone: phone?.trim() || null,
         heardAboutUs: heardAboutUs?.trim() || null,
+        bio: bio?.trim() || null,
         onboardingCompleted: true,
         updatedAt: new Date()
       }
     })
 
-    return NextResponse.json({ 
-      success: true, 
+    return NextResponse.json({
+      success: true,
       message: 'Onboarding completed successfully',
       user: {
         id: updatedUser.id,
@@ -60,8 +61,8 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Onboarding error:', error)
-    return NextResponse.json({ 
-      error: 'Internal server error' 
+    return NextResponse.json({
+      error: 'Internal server error'
     }, { status: 500 })
   }
 }

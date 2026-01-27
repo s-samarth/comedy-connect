@@ -19,12 +19,12 @@ export default async function ShowsPage() {
             </p>
           </div>
 
-          {user && user.role.startsWith("ORGANIZER") && (
+          {user && (
             <Link
-              href="/organizer/shows"
-              className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              href="/onboarding/role-selection"
+              className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition-all shadow-md hover:shadow-lg"
             >
-              List a Show
+              🎭 List a Show
             </Link>
           )}
         </div>

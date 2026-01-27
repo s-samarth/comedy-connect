@@ -51,13 +51,20 @@ export async function POST(request: Request) {
         }
 
         console.log("POST /api/comedian/profile: Updating user role for", user.id)
+
+        // Only set to UNVERIFIED if not already VERIFIED
+        const updateData: any = {
+            onboardingCompleted: true
+        }
+
+        if (user.role !== "COMEDIAN_VERIFIED") {
+            updateData.role = "COMEDIAN_UNVERIFIED"
+        }
+
         // Update user role and mark onboarding as completed
         await (prisma as any).user.update({
             where: { id: user.id },
-            data: {
-                role: "COMEDIAN_UNVERIFIED",
-                onboardingCompleted: true
-            }
+            data: updateData
         })
 
         console.log("POST /api/comedian/profile: Upserting comedian profile for", user.id)

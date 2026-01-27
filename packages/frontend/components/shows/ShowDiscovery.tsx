@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import ShowCard from "./ShowCard"
 
 interface Show {
   id: string
@@ -12,6 +13,7 @@ interface Show {
   ticketPrice: number
   totalTickets: number
   posterImageUrl?: string
+  durationMinutes?: number
   createdAt: string
   creator: {
     email: string
@@ -194,81 +196,11 @@ export default function ShowDiscovery({ user }: ShowDiscoveryProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredShows.map((show) => (
-            <Link
+            <ShowCard
               key={show.id}
+              show={show}
               href={`/shows/${show.id}`}
-              className="bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow block group"
-            >
-              {/* Poster or placeholder */}
-              <div className="h-48 bg-zinc-200 flex items-center justify-center overflow-hidden relative">
-                {show.posterImageUrl ? (
-                  <img
-                    src={show.posterImageUrl}
-                    alt={show.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                ) : (
-                  <div className="text-zinc-400 text-center">
-                    <div className="text-4xl mb-2">🎭</div>
-                    <p>No Poster</p>
-                  </div>
-                )}
-                {/* Sold Out Badge */}
-                {(show.ticketInventory?.available === 0 || (Array.isArray(show.ticketInventory) && show.ticketInventory[0]?.available === 0)) && (
-                  <div className="absolute top-3 right-3 bg-red-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                    Sold Out
-                  </div>
-                )}
-              </div>
-
-              <div className="p-6">
-                <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-zinc-900 group-hover:text-blue-600 transition-colors">
-                  {show.title}
-                </h3>
-
-                {show.description && (
-                  <p className="text-zinc-600 text-sm mb-3 line-clamp-2">{show.description}</p>
-                )}
-
-                <div className="space-y-2 text-sm text-zinc-600 mb-4">
-                  <div className="flex items-center">
-                    <span className="font-medium">📅</span>
-                    <span className="ml-2">{formatDate(show.date)}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <span className="font-medium">📍</span>
-                    <span className="ml-2">{show.venue}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="font-medium">🎫</span>
-                      <span className="ml-2">{formatPrice(show.ticketPrice)}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Comedians */}
-                {show.showComedians && show.showComedians.length > 0 && (
-                  <div>
-                    <div className="flex flex-wrap gap-2">
-                      {show.showComedians.slice(0, 3).map((showComedian) => (
-                        <span
-                          key={showComedian.comedian.id}
-                          className="inline-block px-2 py-1 bg-zinc-100 text-zinc-700 text-xs rounded"
-                        >
-                          {showComedian.comedian.name}
-                        </span>
-                      ))}
-                      {show.showComedians.length > 3 && (
-                        <span className="inline-block px-2 py-1 bg-zinc-100 text-zinc-700 text-xs rounded">
-                          +{show.showComedians.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Link>
+            />
           ))}
         </div>
       )}

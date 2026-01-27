@@ -20,7 +20,7 @@ export async function getCurrentUser() {
     const adminCookie = cookieStore.get('admin-secure-session')
 
     if (adminCookie) {
-      const { valid, email } = validateAdminSession(adminCookie.value)
+      const { valid, email } = await validateAdminSession(adminCookie.value)
 
       if (valid && email) {
         // Fetch user from DB to ensure we have ID and role
@@ -30,13 +30,7 @@ export async function getCurrentUser() {
         })
 
         if (user && user.role === 'ADMIN') {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            role: user.role
-          }
+          return user
         } else {
           if (!user) console.warn(`[Auth] Admin session valid for ${email} but user not found in DB`)
           else if (user.role !== 'ADMIN') console.warn(`[Auth] Admin session valid for ${email} but role is ${user.role}`)
@@ -53,10 +47,12 @@ export async function getCurrentUser() {
   return null
 }
 
+import { redirect } from "next/navigation"
+
 export async function requireAuth() {
   const user = await getCurrentUser()
   if (!user) {
-    throw new Error("Authentication required")
+    redirect("/auth/signin")
   }
   return user
 }
@@ -64,7 +60,7 @@ export async function requireAuth() {
 export async function requireRole(role: UserRole) {
   const user = await requireAuth()
   if (user.role !== role) {
-    throw new Error(`Access denied. Required role: ${role}`)
+    redirect("/")
   }
   return user
 }
@@ -72,7 +68,7 @@ export async function requireRole(role: UserRole) {
 export async function requireOrganizer() {
   const user = await requireAuth()
   if (user.role !== "ADMIN" && !user.role.startsWith("ORGANIZER")) {
-    throw new Error("Access denied. Organizer role required")
+    redirect("/onboarding/role-selection")
   }
   return user
 }
@@ -80,7 +76,7 @@ export async function requireOrganizer() {
 export async function requireComedian() {
   const user = await requireAuth()
   if (user.role !== "ADMIN" && !user.role.startsWith("COMEDIAN")) {
-    throw new Error("Access denied. Comedian role required")
+    redirect("/onboarding/role-selection")
   }
   return user
 }

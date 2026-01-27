@@ -184,13 +184,24 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Phone Number</label>
-                        <input
-                            type="text"
-                            name="phone"
-                            value={formData.phone}
-                            onChange={handleChange}
-                            className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
-                        />
+                        <div className="flex rounded-md shadow-sm">
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 sm:text-sm">
+                                +91
+                            </span>
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={formData.phone}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '')
+                                    if (val.length <= 10) setFormData(prev => ({ ...prev, phone: val }))
+                                }}
+                                pattern="[0-9]{10}"
+                                maxLength={10}
+                                className="flex-1 block w-full p-2 rounded-none rounded-r-md border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-black text-zinc-900 dark:text-white"
+                                placeholder="9876543210"
+                            />
+                        </div>
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">Age</label>
@@ -200,17 +211,22 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                             value={formData.age}
                             onChange={handleChange}
                             className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
+                            required
                         />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">City</label>
-                        <input
-                            type="text"
+                        <select
                             name="city"
                             value={formData.city}
                             onChange={handleChange}
                             className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
-                        />
+                            required
+                        >
+                            <option value="">Select city</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                            {/* Add more cities as needed */}
+                        </select>
                     </div>
                 </div>
                 <div>

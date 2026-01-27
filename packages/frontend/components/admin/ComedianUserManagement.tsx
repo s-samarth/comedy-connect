@@ -14,10 +14,12 @@ interface ComedianUser {
         socialLinks?: any
         customPlatformFee?: number
         createdAt: string
+        updatedAt: string
         approvals: Array<{
             id: string
             status: string
             createdAt: string
+            updatedAt: string
             admin: {
                 email: string
             }
@@ -133,7 +135,10 @@ export default function ComedianUserManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {comedians.map((comedian) => {
                         const latestApproval = comedian.comedianProfile?.approvals?.[0];
-                        const isRejected = comedian.role === 'COMEDIAN_UNVERIFIED' && latestApproval?.status === 'REJECTED';
+                        const profileUpdatedAt = comedian.comedianProfile?.updatedAt ? new Date(comedian.comedianProfile.updatedAt) : null;
+                        const rejectionAt = latestApproval?.status === 'REJECTED' ? new Date(latestApproval.updatedAt) : null;
+
+                        const isRejected = latestApproval?.status === 'REJECTED' && (!profileUpdatedAt || !rejectionAt || profileUpdatedAt <= rejectionAt);
 
                         return (
                             <div key={comedian.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col">

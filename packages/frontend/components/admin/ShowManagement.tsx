@@ -179,7 +179,7 @@ export function ShowManagement() {
                     Payment
                   </th>
                   <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
-                    Fee
+                    Platform Fee
                   </th>
                   <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
                     Finance

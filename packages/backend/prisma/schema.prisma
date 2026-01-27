@@ -165,6 +165,7 @@ model Show {
   isPublished     Boolean          @default(false)
   isDisbursed     Boolean          @default(false)
   customPlatformFee Float?         // Overrides user and global settings
+  durationMinutes Int              @default(60)
   youtubeUrls     String[]         @default([])
   instagramUrls   String[]         @default([])
   createdAt       DateTime         @default(now())
@@ -203,8 +204,8 @@ model Booking {
   userId      String
   quantity    Int
   totalAmount Float
-  platformFee Float         // The commission/cut taken from the ticket price
-  bookingFee  Float         @default(0.0) // The convenience fee added on top
+  platformFee Float         // Money (percentage of show revenue) that Comedy Connect takes from the Organisers or Comedians (deducted from earnings).
+  bookingFee  Float         @default(0.0) // Money that Comedy Connect takes per ticket booking from the Customer (added to ticket price). Total Cost = Ticket Price + Booking Fee.
   status      BookingStatus @default(PENDING)
   paymentId   String?
   createdAt   DateTime      @default(now())

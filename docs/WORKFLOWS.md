@@ -33,7 +33,10 @@ sequenceDiagram
    - Frontend POSTs to `${BACKEND_URL}/api/v1/bookings`.
    - Backend starts a Prisma Transaction.
    - Backend verifies `TicketInventory`.
-   - Backend creates `Booking` and decrements `TicketInventory`.
+   - Backend calculates fees: 
+     - **Platform Fee**: Percentage of revenue (default 8% or custom) deducted from Creator earnings.
+     - **Booking Fee**: Percentage surcharge added to the customer's cost, based on ticket price slabs in `PlatformConfig`.
+   - Backend creates `Booking` (status `CONFIRMED_UNPAID`) and decrements `available` tickets in `TicketInventory`.
    - Backend commits.
 6. **Confirmation**: Frontend receives success and renders ticket view.
 

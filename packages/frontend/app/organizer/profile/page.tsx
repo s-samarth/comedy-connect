@@ -34,11 +34,10 @@ export default async function OrganizerProfilePage() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-                isVerified 
-                  ? "bg-green-100 text-green-800" 
+              <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${isVerified
+                  ? "bg-green-100 text-green-800"
                   : "bg-yellow-100 text-yellow-800"
-              }`}>
+                }`}>
                 {isVerified ? "Verified" : "Pending Verification"}
               </span>
               <p className="text-sm text-zinc-600">
@@ -51,14 +50,14 @@ export default async function OrganizerProfilePage() {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
               <h3 className="font-medium text-yellow-800 mb-2">Verification Required</h3>
               <p className="text-sm text-yellow-700">
-                Complete your profile below and submit for admin verification. 
+                Complete your profile below and submit for admin verification.
                 You'll be able to list shows once approved.
               </p>
             </div>
           )}
 
-          <ProfileForm 
-            initialData={profile} 
+          <ProfileForm
+            initialData={profile}
             isVerified={isVerified}
             userId={user.id}
           />
@@ -70,17 +69,16 @@ export default async function OrganizerProfilePage() {
                 {profile.approvals.map((approval) => (
                   <div key={approval.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded">
                     <div>
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${
-                        approval.status === 'APPROVED' 
+                      <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${approval.status === 'APPROVED'
                           ? 'bg-green-100 text-green-800'
                           : approval.status === 'REJECTED'
-                          ? 'bg-red-100 text-red-800'
-                          : 'bg-yellow-100 text-yellow-800'
-                      }`}>
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-yellow-100 text-yellow-800'
+                        }`}>
                         {approval.status}
                       </span>
                       <span className="ml-2 text-sm text-zinc-600">
-                        by {approval.admin.email}
+                        by Admin
                       </span>
                     </div>
                     <span className="text-xs text-zinc-500">

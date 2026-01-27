@@ -90,7 +90,12 @@ export async function checkAdminPasswordSession(request: NextRequest): Promise<b
 // Email whitelist validation
 export function isAdminEmailWhitelisted(email: string): boolean {
   const adminEmails = process.env.ADMIN_EMAIL?.split(',').map(e => e.trim()) || []
-  return adminEmails.includes(email)
+  console.log(`[AuthDebug] Checking whitelist for: ${email}`)
+  console.log(`[AuthDebug] Configured ADMIN_EMAIL: ${process.env.ADMIN_EMAIL}`)
+  console.log(`[AuthDebug] Parsed adminEmails: ${JSON.stringify(adminEmails)}`)
+  const isWhitelisted = adminEmails.includes(email)
+  console.log(`[AuthDebug] Is whitelisted: ${isWhitelisted}`)
+  return isWhitelisted
 }
 
 // Create admin session cookie
@@ -103,16 +108,65 @@ export function createAdminSessionCookie(email: string): string {
   return JSON.stringify(session)
 }
 
+// Secure session signing using Web Crypto API (Edge compatible)
+const SESSION_SECRET = process.env.NEXTAUTH_SECRET || 'fallback-secret-for-dev'
+
+// Helper to convert string to ArrayBuffer
+function str2ab(str: string) {
+  return new TextEncoder().encode(str)
+}
+
 // Validate admin session from cookie
-export function validateAdminSession(cookieValue: string | undefined): { valid: boolean; email?: string } {
+export async function validateAdminSession(cookieValue: string | undefined): Promise<{ valid: boolean; email?: string }> {
   if (!cookieValue) return { valid: false }
 
+  const parts = cookieValue.split('.')
+  // If it's not a signed cookie (old format or invalid), try legacy parse or fail
+  if (parts.length !== 2) {
+    console.log("[AuthDebug] Invalid cookie format (expected payload.signature)")
+    return { valid: false }
+  }
+
+  const [payload, signature] = parts
+
   try {
-    const session = JSON.parse(cookieValue)
-    if (session.verified && session.expires > Date.now() && isAdminEmailWhitelisted(session.email)) {
-      return { valid: true, email: session.email }
+    // Import Web Crypto API if running in Node environment where strictly global crypto might be an issue (though Next.js usually polyfills)
+    // modifying to use global crypto which is standard in Next.js 15+
+
+    const key = await crypto.subtle.importKey(
+      'raw',
+      str2ab(SESSION_SECRET),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    )
+
+    // Convert hex signature back to Uint8Array
+    const sigArray = new Uint8Array(signature.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16)))
+
+    const isValidSignature = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      sigArray,
+      str2ab(payload)
+    )
+
+    if (!isValidSignature) {
+      console.error('[AdminSecurity] Invalid session signature detected!')
+      return { valid: false }
     }
-  } catch {
+
+    const session = JSON.parse(atob(payload))
+    console.log(`[AuthDebug] Validating session:`, JSON.stringify(session, null, 2))
+
+    if (session.verified && session.expires > Date.now() && isAdminEmailWhitelisted(session.email)) {
+      console.log(`[AuthDebug] Session valid`)
+      return { valid: true, email: session.email }
+    } else {
+      console.log(`[AuthDebug] Session invalid logic checks failed`)
+    }
+  } catch (error) {
+    console.error('[AdminSecurity] Session validation error:', error)
     return { valid: false }
   }
 

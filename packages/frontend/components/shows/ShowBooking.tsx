@@ -140,10 +140,18 @@ export default function ShowBooking({ show, user }: ShowBookingProps) {
               </div>
 
               {/* Total Amount - Only for Logged In Users */}
-              <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Amount:</span>
-                  <span className="text-2xl font-bold text-gray-900">₹{totalAmount}</span>
+              <div className="mb-6 p-4 bg-gray-50 rounded-lg space-y-2">
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span>Subtotal ({quantity} tickets):</span>
+                  <span>₹{show.ticketPrice * quantity}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm text-gray-600">
+                  <span>Booking Fee (8%):</span>
+                  <span>₹{(show.ticketPrice * quantity * 0.08).toFixed(2)}</span>
+                </div>
+                <div className="border-t border-gray-200 pt-2 flex justify-between items-center">
+                  <span className="text-gray-900 font-semibold">Total Amount:</span>
+                  <span className="text-2xl font-bold text-gray-900">₹{(show.ticketPrice * quantity * 1.08).toFixed(2)}</span>
                 </div>
               </div>
 

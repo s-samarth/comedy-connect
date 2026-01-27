@@ -15,10 +15,12 @@ interface Organizer {
     venue?: string
     customPlatformFee?: number
     createdAt: string
+    updatedAt: string
     approvals: Array<{
       id: string
       status: string
       createdAt: string
+      updatedAt: string
       admin: {
         email: string
       }
@@ -113,7 +115,10 @@ export default function OrganizerManagement() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {organizers.map((organizer) => {
             const latestApproval = organizer.organizerProfile?.approvals?.[0];
-            const isRejected = organizer.role === 'ORGANIZER_UNVERIFIED' && latestApproval?.status === 'REJECTED';
+            const profileUpdatedAt = organizer.organizerProfile?.updatedAt ? new Date(organizer.organizerProfile.updatedAt) : null;
+            const rejectionAt = latestApproval?.status === 'REJECTED' ? new Date(latestApproval.updatedAt) : null;
+
+            const isRejected = latestApproval?.status === 'REJECTED' && (!profileUpdatedAt || !rejectionAt || profileUpdatedAt <= rejectionAt);
 
             return (
               <div key={organizer.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col">
@@ -249,7 +254,7 @@ export default function OrganizerManagement() {
                   <h5 className="font-semibold text-blue-900 text-sm">Platform Fee Settings</h5>
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="block text-xs text-blue-700 uppercase font-medium mb-1">Custom Fee (%)</label>
+                      <label className="block text-xs text-blue-700 uppercase font-medium mb-1">Platform Commission (%)</label>
                       <input
                         type="number"
                         id="custom-fee-input"

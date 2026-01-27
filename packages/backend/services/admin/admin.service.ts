@@ -58,7 +58,12 @@ export class AdminService {
         if (fee !== null && (typeof fee !== 'number' || fee < 0 || fee > 100)) {
             throw new ValidationError("Invalid fee percentage (0-100 required)")
         }
-        return adminRepository.updatePlatformFee(showId, fee)
+
+        // Update the show setting
+        await adminRepository.updatePlatformFee(showId, fee)
+
+        // Also update all existing bookings to reflect this new fee
+        return adminRepository.updateBookingsFees(showId, fee)
     }
 
     /**

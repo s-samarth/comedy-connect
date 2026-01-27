@@ -130,7 +130,7 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
                             <div className="pt-2 pb-2 border-t border-white/5">
                                 <BreakdownRow label="Show Revenue" value={`₹${data.stats.showRevenue?.toLocaleString()}`} />
                             </div>
-                            <BreakdownRow label="Platform Commission (Fee)" value={`- ₹${data.stats.platformFee?.toLocaleString()}`} isNegative />
+                            <BreakdownRow label="Platform Fee" value={`- ₹${data.stats.platformFee?.toLocaleString()}`} isNegative />
                             <div className="pt-4 border-t border-white/5">
                                 <BreakdownRow label="Show Earnings (Profit)" value={`₹${data.stats.showEarnings?.toLocaleString()}`} isHighlight />
                             </div>

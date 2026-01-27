@@ -33,6 +33,9 @@ sequenceDiagram
    - Frontend POSTs to `${BACKEND_URL}/api/v1/bookings`.
    - Backend starts a Prisma Transaction.
    - Backend verifies `TicketInventory`.
+   - Backend calculates fees: 
+     - **Platform Fee** (Commission deducted from Organizer)
+     - **Booking Fee** (Customer's cost)
    - Backend creates `Booking` and decrements `TicketInventory`.
    - Backend commits.
 6. **Confirmation**: Frontend receives success and renders ticket view.

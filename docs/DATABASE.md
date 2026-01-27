@@ -25,7 +25,9 @@ The schema and migrations reside in:
 ### Events & Bookings
 - **Show**: Details of comedy events, ticket pricing, venue info, and duration.
 - **TicketInventory**: Real-time tracking of available and locked tickets.
-- **Booking**: Customer ticket purchases, platform fees, and payment status.
+- **Booking**: Customer ticket purchases.
+    - **Platform Fee**: Money (percentage of show revenue) taken from Organizers/Comedians. Often labeled as **Platform Commission** in Admin UI.
+    - **Booking Fee**: Money taken from the Customer per ticket (added to price).
 
 ### System Configuration
 - **PlatformConfig**: Global settings like default platform fees and convenience fee slabs.

@@ -106,7 +106,9 @@ export class BookingService {
     }
 
     /**
-     * Calculate platform fee (Commission)
+     * Calculate Platform Fee
+     * Money (percentage of show revenue) that Comedy Connect takes from the Organisers or Comedians.
+     * This is deducted from their earnings.
      */
     private calculatePlatformFee(show: any, totalAmount: number): number {
         let commPercentage = 0.08 // 8% default
@@ -125,7 +127,9 @@ export class BookingService {
     }
 
     /**
-     * Calculate booking fee (Convenience Fee)
+     * Calculate Booking Fee
+     * Money that Comedy Connect takes per ticket booking from the Customer.
+     * Usually a percentage of the ticket price added on top.
      */
     private async calculateBookingFee(tx: any, ticketPrice: number, totalAmount: number): Promise<number> {
         const slabsConfig = await tx.platformConfig.findUnique({

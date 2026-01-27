@@ -151,7 +151,7 @@ The frontend can be toggled between the **Internal Monolith API** and the **Stan
 - **ComedianProfile**: Extended profile for verified comedians
 - **Show**: Comedy show events with details and finance controls
 - **ShowComedian**: Many-to-many relationship between shows and comedians
-- **Booking**: Ticket booking records with fee breakdown
+- **Booking**: Ticket booking records with breakdown of **Platform Fee** (Organizer commission) and **Booking Fee** (Customer surcharge)
 - **TicketInventory**: Real-time ticket availability tracking
 
 ### User Roles

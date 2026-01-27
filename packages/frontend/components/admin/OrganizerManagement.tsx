@@ -254,7 +254,7 @@ export default function OrganizerManagement() {
                   <h5 className="font-semibold text-blue-900 text-sm">Platform Fee Settings</h5>
                   <div className="flex items-end gap-4">
                     <div className="flex-1">
-                      <label className="block text-xs text-blue-700 uppercase font-medium mb-1">Custom Fee (%)</label>
+                      <label className="block text-xs text-blue-700 uppercase font-medium mb-1">Platform Commission (%)</label>
                       <input
                         type="number"
                         id="custom-fee-input"

@@ -88,7 +88,9 @@ Unpublishes a show (reverts to draft).
 Creates a new ticket booking.
 - **Auth Required**: Yes
 - **Body**: `CreateBookingRequest`
-- **Logic**: Performs atomic inventory update and fee calculation.
+- **Logic**: Performs atomic inventory update and calculates:
+  - **Platform Fee**: The cut (commission) taken from the Organizer's earnings.
+  - **Booking Fee**: The surcharge added to the customer's total.
 
 ### `GET /api/v1/bookings`
 Lists all bookings for the authenticated user.

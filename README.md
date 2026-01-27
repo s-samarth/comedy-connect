@@ -8,7 +8,7 @@ A comprehensive platform for discovering, booking, and managing live comedy show
 
 ## 🏗️ Architecture: Decoupled Monorepo
 
-Comedy Connect has been migrated to a **decoupled monorepo** architecture to support independent development of the Frontend and Backend services.
+Comedy Connect has been migrated to a **decoupled monorepo** architecture to support independent development of the Frontend and Backend services. This allows for a **dual-mode operation** where the frontend can communicate with either the legacy internal API or the new standalone Backend Service.
 
 ### Project Structure
 

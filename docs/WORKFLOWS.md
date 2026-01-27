@@ -34,9 +34,9 @@ sequenceDiagram
    - Backend starts a Prisma Transaction.
    - Backend verifies `TicketInventory`.
    - Backend calculates fees: 
-     - **Platform Fee** (Commission deducted from Organizer)
-     - **Booking Fee** (Customer's cost)
-   - Backend creates `Booking` and decrements `TicketInventory`.
+     - **Platform Fee**: Percentage of revenue (default 8% or custom) deducted from Creator earnings.
+     - **Booking Fee**: Percentage surcharge added to the customer's cost, based on ticket price slabs in `PlatformConfig`.
+   - Backend creates `Booking` (status `CONFIRMED_UNPAID`) and decrements `available` tickets in `TicketInventory`.
    - Backend commits.
 6. **Confirmation**: Frontend receives success and renders ticket view.
 

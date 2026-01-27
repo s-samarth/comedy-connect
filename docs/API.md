@@ -45,6 +45,7 @@ Completes the initial user setup.
     - `phone` (string, optional)
     - `heardAboutUs` (string, optional)
     - `bio` (string, optional)
+    - `interests` (JSON, optional)
 - **Effect**: Sets `onboardingCompleted: true`.
 
 ---
@@ -62,7 +63,7 @@ Permanently deletes the user account and all associated data.
 - **Logic**:
     - **Blocked** if user is a verified creator with future published shows.
     - **Restricted** for Admin users.
-- **Side Effects**: Deletes sessions, bookings, and owned shows/comedians.
+- **Side Effects**: Deletes sessions, bookings, and owned shows/comedians via a transactional purge.
 
 ---
 
@@ -104,10 +105,12 @@ Unpublishes a show (reverts to draft).
 ### `POST /api/v1/bookings`
 Creates a new ticket booking.
 - **Auth Required**: Yes
-- **Body**: `CreateBookingRequest`
-- **Logic**: Performs atomic inventory update and calculates:
-  - **Platform Fee**: The cut (commission) taken from the Organizer's earnings.
-  - **Booking Fee**: The surcharge added to the customer's total.
+- **Body**: 
+    - `showId` (string, required)
+    - `quantity` (number, required, max 10)
+- **Logic**: Performs atomic inventory update using a transaction and calculates:
+  - **Platform Fee**: Percentage of revenue deducted from Creator (Organizer/Comedian) earnings.
+  - **Booking Fee**: Surcharge added to the customer's total, calculated based on `platformConfig` slabs.
 
 ### `GET /api/v1/bookings`
 Lists all bookings for the authenticated user.

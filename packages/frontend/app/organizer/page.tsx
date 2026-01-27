@@ -66,28 +66,19 @@ export default async function OrganizerPage() {
                 </p>
               </Link>
 
-              {isVerified ? (
-                <>
-                  <Link
-                    href="/organizer/shows"
-                    className="block border border-zinc-200 rounded-lg p-4 hover:bg-zinc-50 hover:border-blue-300 transition-colors"
-                  >
-                    <h3 className="font-medium mb-2">Manage Shows</h3>
-                    <p className="text-sm text-zinc-600">Create and manage your comedy shows</p>
-                  </Link>
-                </>
-              ) : (
-                <div className="col-span-2 border border-zinc-200 rounded-lg p-4 bg-zinc-50">
-                  <h3 className="font-medium mb-2">Complete Profile</h3>
-                  <p className="text-sm text-zinc-600">
-                    Submit your organizer profile for verification to start listing shows
-                  </p>
-                </div>
+              {isVerified && (
+                <Link
+                  href="/organizer/shows"
+                  className="block border border-zinc-200 rounded-lg p-4 hover:bg-zinc-50 hover:border-blue-300 transition-colors"
+                >
+                  <h3 className="font-medium mb-2">Manage Shows</h3>
+                  <p className="text-sm text-zinc-600">Create and manage your comedy shows</p>
+                </Link>
               )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

@@ -35,7 +35,9 @@ In the decoupled architecture, admin security is enforced at the **Backend** but
 2. **Action**: Review user bio and social links.
 3. **Decision**: Submit Approval/Rejection.
    - CALL: `POST /api/v1/admin/comedian-users` or `/api/v1/admin/organizers`.
-4. **Result**: User receives permissions to create and publish shows.
+4. **Result**: 
+   - **Approved**: User receives permissions to create and publish shows.
+   - **Rejected**: User must update their profile to be reconsidered. Once updated, they reappear in "Pending Approvals" with a "Pending" or "Pending Review" status.
 
 ### 3. Financial Oversight Flow
 **Goal:** Monitor revenue and disburse funds to creators.

@@ -33,13 +33,21 @@ export async function GET() {
       orderBy: { createdAt: 'desc' }
     })
 
-    // Filter out organizers who are unverified and rejected
+    // Filter out organizers who are unverified and rejected (if they haven't updated since)
     const filteredOrganizers = organizers.filter(organizer => {
       // Keep verified organizers
       if (organizer.role === UserRole.ORGANIZER_VERIFIED) return true;
 
       // Check latest approval status for unverified organizers
       const latestApproval = organizer.organizerProfile?.approvals?.[0];
+      const profileUpdatedAt = organizer.organizerProfile?.updatedAt ? new Date(organizer.organizerProfile.updatedAt) : null;
+      const rejectionAt = latestApproval?.status === ApprovalStatus.REJECTED ? new Date(latestApproval.updatedAt) : null;
+
+      // If rejected, only keep if profile was updated AFTER rejection
+      if (rejectionAt && profileUpdatedAt && profileUpdatedAt > rejectionAt) {
+        return true;
+      }
+
       if (latestApproval?.status === ApprovalStatus.REJECTED) {
         return false;
       }

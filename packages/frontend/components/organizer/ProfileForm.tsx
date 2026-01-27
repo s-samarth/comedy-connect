@@ -36,6 +36,7 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
       })
 
       if (response.ok) {
+        alert("Profile submitted successfully!")
         router.refresh()
       } else {
         const error = await response.json()
@@ -56,13 +57,23 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
   }
 
   const addYoutubeUrl = () => {
-    if (newYoutubeUrl.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        youtubeUrls: [...prev.youtubeUrls, newYoutubeUrl.trim()]
-      }))
-      setNewYoutubeUrl("")
+    if (formData.youtubeUrls.length >= 1) {
+      alert("You can only add 1 YouTube video")
+      return
     }
+    const url = newYoutubeUrl.trim()
+    if (!url) return
+
+    if (!url.startsWith("https://youtube.com") && !url.startsWith("https://www.youtube.com") && !url.startsWith("https://youtu.be")) {
+      alert("Please enter a valid YouTube URL starting with https://youtube.com or https://youtu.be")
+      return
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      youtubeUrls: [...prev.youtubeUrls, url]
+    }))
+    setNewYoutubeUrl("")
   }
 
   const removeYoutubeUrl = (index: number) => {
@@ -73,13 +84,23 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
   }
 
   const addInstagramUrl = () => {
-    if (newInstagramUrl.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        instagramUrls: [...prev.instagramUrls, newInstagramUrl.trim()]
-      }))
-      setNewInstagramUrl("")
+    if (formData.instagramUrls.length >= 2) {
+      alert("You can only add 2 Instagram reels")
+      return
     }
+    const url = newInstagramUrl.trim()
+    if (!url) return
+
+    if (!url.startsWith("https://instagram.com") && !url.startsWith("https://www.instagram.com")) {
+      alert("Please enter a valid Instagram URL starting with https://instagram.com")
+      return
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      instagramUrls: [...prev.instagramUrls, url]
+    }))
+    setNewInstagramUrl("")
   }
 
   const removeInstagramUrl = (index: number) => {
@@ -109,17 +130,28 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
 
       <div>
         <label htmlFor="contact" className="block text-sm font-medium text-zinc-700 mb-2">
-          Contact Information
+          Contact Information *
         </label>
-        <input
-          type="text"
-          id="contact"
-          name="contact"
-          value={formData.contact}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="Phone number or email"
-        />
+        <div className="flex items-center border border-zinc-300 rounded-md focus-within:ring-2 focus-within:ring-blue-500 overflow-hidden">
+          <span className="px-3 bg-zinc-100 text-zinc-500 border-r border-zinc-300">
+            +91
+          </span>
+          <input
+            type="tel"
+            id="contact"
+            name="contact"
+            required
+            pattern="[0-9]{10}"
+            maxLength={10}
+            value={formData.contact}
+            onChange={(e) => {
+              const value = e.target.value.replace(/\D/g, '')
+              setFormData(prev => ({ ...prev, contact: value }))
+            }}
+            className="w-full px-3 py-2 focus:outline-none"
+            placeholder="Phone number"
+          />
+        </div>
       </div>
 
       <div>
@@ -164,22 +196,28 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
           <label className="block text-sm font-medium text-zinc-700 mb-2">
             YouTube Videos
           </label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="url"
-              value={newYoutubeUrl}
-              onChange={(e) => setNewYoutubeUrl(e.target.value)}
-              placeholder="https://youtube.com/watch?v=..."
-              className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={addYoutubeUrl}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Add
-            </button>
-          </div>
+          {formData.youtubeUrls.length >= 1 ? (
+            <div className="bg-zinc-50 border border-zinc-200 text-zinc-500 rounded-md px-3 py-2 text-sm italic mb-2">
+              Only one YouTube video can be added. Remove the existing one to add a different link.
+            </div>
+          ) : (
+            <div className="flex gap-2 mb-2">
+              <input
+                type="url"
+                value={newYoutubeUrl}
+                onChange={(e) => setNewYoutubeUrl(e.target.value)}
+                placeholder="https://youtube.com/watch?v=..."
+                className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={addYoutubeUrl}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Add
+              </button>
+            </div>
+          )}
           {formData.youtubeUrls.length > 0 && (
             <div className="space-y-2">
               {formData.youtubeUrls.map((url: string, index: number) => (
@@ -203,22 +241,28 @@ export default function ProfileForm({ initialData, isVerified, userId }: Profile
           <label className="block text-sm font-medium text-zinc-700 mb-2">
             Instagram Reels
           </label>
-          <div className="flex gap-2 mb-2">
-            <input
-              type="url"
-              value={newInstagramUrl}
-              onChange={(e) => setNewInstagramUrl(e.target.value)}
-              placeholder="https://instagram.com/p/... or /reel/..."
-              className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button
-              type="button"
-              onClick={addInstagramUrl}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Add
-            </button>
-          </div>
+          {formData.instagramUrls.length >= 2 ? (
+            <div className="bg-zinc-50 border border-zinc-200 text-zinc-500 rounded-md px-3 py-2 text-sm italic mb-2">
+              Only 2 Instagram reels can be added. Remove one to add a different link.
+            </div>
+          ) : (
+            <div className="flex gap-2 mb-2">
+              <input
+                type="url"
+                value={newInstagramUrl}
+                onChange={(e) => setNewInstagramUrl(e.target.value)}
+                placeholder="https://instagram.com/p/... or /reel/..."
+                className="flex-1 px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                type="button"
+                onClick={addInstagramUrl}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Add
+              </button>
+            </div>
+          )}
           {formData.instagramUrls.length > 0 && (
             <div className="space-y-2">
               {formData.instagramUrls.map((url: string, index: number) => (

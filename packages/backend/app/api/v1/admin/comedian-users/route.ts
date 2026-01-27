@@ -33,13 +33,21 @@ export async function GET() {
             orderBy: { createdAt: 'desc' }
         })
 
-        // Filter out comedians who are unverified and rejected
+        // Filter out comedians who are unverified and rejected (if they haven't updated since)
         const filteredComedians = comedians.filter(comedian => {
             // Keep verified comedians
             if (comedian.role === UserRole.COMEDIAN_VERIFIED) return true;
 
             // Check latest approval status for unverified comedians
             const latestApproval = comedian.comedianProfile?.approvals?.[0];
+            const profileUpdatedAt = comedian.comedianProfile?.updatedAt ? new Date(comedian.comedianProfile.updatedAt) : null;
+            const rejectionAt = latestApproval?.status === ApprovalStatus.REJECTED ? new Date(latestApproval.updatedAt) : null;
+
+            // If rejected, only keep if profile was updated AFTER rejection
+            if (rejectionAt && profileUpdatedAt && profileUpdatedAt > rejectionAt) {
+                return true;
+            }
+
             if (latestApproval?.status === ApprovalStatus.REJECTED) {
                 return false;
             }

@@ -286,6 +286,9 @@ npm run test:security
 - [ ] Documentation is updated
 - [ ] No console.log statements in production code
 
+### 🐛 Reporting Bugs
+Please refer to [BUGS.MD](BUGS.MD) for strict guidelines on how to lodge bugs, priority definitions, and status tracking.
+
 ## 📚 Documentation
 
 Detailed documentation for different aspects of the project can be found in the `docs/` directory:

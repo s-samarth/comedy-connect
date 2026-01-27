@@ -82,7 +82,7 @@ No bugs found.
 - **Fix**: Add a check to ensure `newCapacity >= soldTickets`.
 
 ### 2. Navigation & Discovery Page Omissions (Frontend)
-- **Status**: OPEN
+- **Status**: FIXED
 - **Location**: `packages/frontend/components/layout/Navbar.tsx` & `packages/frontend/app/shows/page.tsx`
 - **Impact**: Poor discoverability for organizers; inconvenient navigation for all users.
 - **Description**: 

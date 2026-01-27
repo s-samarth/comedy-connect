@@ -157,44 +157,44 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
 
 ## 🔵 Priority: P3 (Low Impact / UX)
 
-### 1. Profile Deletion Side Effects
+### 1. Profile Deletion Side Effects - ✅ FIXED
 - **Location**: `packages/backend/app/api/v1/profile/delete/route.ts`
 - **Impact**: Unexpected data loss for other users.
 - **Description**: Deleting an organizer account also deletes all their shows and **all bookings** for those shows, leaving audience members without records of their purchase.
 - **Requirement**: If an organizer or comedian deletes their profile, their booked shows or Completed (but to be disbursed) shows must NOT be deleted from the database and records.
 - **Fix**: Implement a "soft-delete" mechanism or strict dependency check that prevents deletion if active/booked/unsettled shows exist.
 
-### 2. Non-Atomic Inventory Release
+### 2. Non-Atomic Inventory Release - ✅ FIXED
 - **Location**: `packages/backend/services/bookings/booking.service.ts:L277`
 - **Impact**: Potential race condition in ticket availability.
 - **Description**: Releasing tickets on payment failure uses a read-then-write approach instead of a Prisma atomic `increment`.
 - **Fix**: Use `prisma.ticketInventory.update({ data: { available: { increment: quantity } } })`.
 
-### 3. Admin Logout Redirect Fail
+### 3. Admin Logout Redirect Fail - ✅ FIXED
 - **Location**: `packages/backend/app/api/admin-secure/logout/route.ts`
 - **Impact**: Admin sees an error page instead of being redirected to login/home after logout.
 - **Description**: The logout endpoint uses `NextResponse.redirect` inside a `POST` handler, which defaults to HTTP 307 (Temporary Redirect). This preserves the `POST` method, causing the browser to try and `POST` to the login page (which fails). Additionally, the redirect is relative to the backend (port 4000), while the login page exists on the frontend (port 3000).
 - **Fix**: Use HTTP 303 (See Other) for the redirect and ensure the URL points to the frontend domain/port.
 
-### 4. Persistent 'Become an Organizer' Button (Frontend)
+### 4. Persistent 'Become an Organizer' Button (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/profile/ProfileCard.tsx`
 - **Impact**: Poor UX; users are encouraged to register as organizers even if they don't want to.
 - **Description**: After a user completes their basic profile, a "Become an Organizer" button appears. Per requirements, this option should not be presented automatically on the profile page once the profile is complete, to avoid clutter and unwanted role promotion.
 - **Fix**: Remove or hide the "Become an Organizer" button from the `ProfileCard` component for users who have completed their profile, or implement a more specific toggle/preference for this role.
 
-### 5. Non-Mandatory Contact Fields in Registration (Frontend)
+### 5. Non-Mandatory Contact Fields in Registration (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/app/onboarding/organizer/page.tsx` & `packages/frontend/app/onboarding/comedian/page.tsx`
 - **Impact**: Incomplete professional profiles for admin verification.
 - **Description**: The registration forms for both Organizers and Comedians include a "Contact Number" field, but it is currently optional. For verification purposes, providing a contact number should be mandatory.
 - **Fix**: Add the `required` attribute to the "Contact Number" input fields in both registration forms and ensure proper validation.
 
-### 6. Show Poster UI Inconsistency (Frontend)
+### 6. Show Poster UI Inconsistency (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/organizer/ShowManagement.tsx` vs `packages/frontend/components/shows/ShowDiscovery.tsx`
 - **Impact**: Organizers see a different representation of their show than what the audience sees, leading to a disconnected experience and poor preview capability.
 - **Description**: The show card/preview in the Organizer Dashboard ("Show Management" tab) uses a different layout, frame, and styling compared to the public-facing "Audience View" on the shows listing page.
 - **Fix**: Update the Organizer's `ShowManagement` component to use the same `ShowCard` component (or a variant with edit controls) as the `ShowDiscovery` page to ensure visual consistency.
 
-### 7. Ticket Sales Report Missing Columns & Actions Removal
+### 7. Ticket Sales Report Missing Columns & Actions Removal - ✅ FIXED
 - **Location**: `packages/frontend/app/comedian/sales/page.tsx` & `packages/frontend/app/organizer/sales/page.tsx`
 - **Impact**: Incomplete financial transparency for creators; "Actions" column is redundant.
 - **Description**: 
@@ -211,7 +211,7 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
 
 ## 🟢 Priority: P4 (Low Priority / Polish)
 
-### 1. Inconsistent Phone Number Validation & Formatting (Frontend)
+### 1. Inconsistent Phone Number Validation & Formatting (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/app/onboarding/page.tsx`, `packages/frontend/components/profile/ProfileEditForm.tsx`, and other phone input locations.
 - **Impact**: Poor UX and inconsistent data in the database.
 - **Description**: Phone number fields lack strict validation. They should be restricted to exactly 10 digits and have a static `+91` prefix displayed in the UI to guide the user.
@@ -219,13 +219,13 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
     1. Implement 10-digit numeric validation for all phone inputs.
     2. Add a static `+91` prefix (e.g., as an input group or label) next to the phone number fields.
 
-### 2. Unknown Artist in Collections Console (Frontend)
+### 2. Unknown Artist in Collections Console (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/admin/CollectionManagement.tsx`
 - **Impact**: Incomplete financial reporting; admins cannot easily identify the creator ofshows posted by comedians.
 - **Description**: In the Collections Console, the "Show / Artist" column displays "By Unknown" for shows created by Comedians. This is because the frontend currently only checks for `organizerProfile.name`, ignoring `comedianProfile`.
 - **Fix**: Update the display logic to fallback to `comedianProfile.stageName` or `user.name` if `organizerProfile` is missing.
 
-### 3. Google Maps Link Validation (Frontend)
+### 3. Google Maps Link Validation (Frontend) - ✅ FIXED
 - **Location**: `packages/frontend/components/organizer/ShowManagement.tsx` (Create Show Form)
 - **Impact**: Invalid maps links prevent users from finding the venue.
 - **Description**: The "Google Maps Link" field accepts any text. It should be restricted to valid Google Maps short links to ensure consistency and usability.

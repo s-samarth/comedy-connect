@@ -89,13 +89,24 @@ export default function ComedianOnboardingPage() {
                             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
                                 Contact Number
                             </label>
-                            <input
-                                type="tel"
-                                value={formData.contact}
-                                onChange={(e) => setFormData(prev => ({ ...prev, contact: e.target.value }))}
-                                placeholder="+91 9876543210"
-                                className="w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-zinc-700 dark:text-white"
-                            />
+                            <div className="flex rounded-md shadow-sm">
+                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 sm:text-sm">
+                                    +91
+                                </span>
+                                <input
+                                    type="tel"
+                                    required
+                                    value={formData.contact}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '')
+                                        if (val.length <= 10) setFormData(prev => ({ ...prev, contact: val }))
+                                    }}
+                                    pattern="[0-9]{10}"
+                                    maxLength={10}
+                                    placeholder="9876543210"
+                                    className="flex-1 w-full px-4 py-3 border border-zinc-300 dark:border-zinc-600 rounded-lg rounded-l-none focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-zinc-700 dark:text-white"
+                                />
+                            </div>
                         </div>
 
                         {/* Social Links */}

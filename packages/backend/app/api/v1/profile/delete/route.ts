@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
                 where: {
                     OR: [
                         { createdBy: user.id },
-                        { 
+                        {
                             showComedians: {
                                 some: {
                                     comedian: {
@@ -48,7 +48,26 @@ export async function POST(request: NextRequest) {
                     { status: 400 }
                 )
             }
+
+            // NEW: Check for ANY shows with bookings (past or present)
+            // This prevents deleting shows that users have purchased tickets for
+            const showsWithBookings = await prisma.show.findFirst({
+                where: {
+                    createdBy: user.id,
+                    bookings: {
+                        some: {} // Check if any booking exists
+                    }
+                }
+            })
+
+            if (showsWithBookings) {
+                return NextResponse.json(
+                    { error: "Cannot delete account because you have shows with ticket sales. Please contact support." },
+                    { status: 400 }
+                )
+            }
         }
+
 
         // 3. Perform Deletion in a Transaction
         await prisma.$transaction(async (tx) => {

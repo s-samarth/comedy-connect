@@ -212,8 +212,8 @@ export class BookingService {
                 await prisma.ticketInventory.update({
                     where: { showId: booking.showId },
                     data: {
-                        available: show.ticketInventory.available + booking.quantity,
-                        locked: show.ticketInventory.locked - booking.quantity
+                        available: { increment: booking.quantity },
+                        locked: { decrement: booking.quantity }
                     }
                 })
             }

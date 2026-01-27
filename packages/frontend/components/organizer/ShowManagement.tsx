@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import ImageUpload from "@/components/ui/ImageUpload"
 import ShowPreviewModal from "./ShowPreviewModal"
+import ShowCard from "@/components/shows/ShowCard"
 
 interface Show {
   id: string
@@ -139,6 +140,12 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
       if (igInput && igInput.value.trim()) {
         currentInstagramUrls.push(igInput.value.trim());
         igInput.value = ""; // Clear input after capturing
+      }
+
+      if (formData.googleMapsLink && !formData.googleMapsLink.startsWith('https://maps.app.goo.gl')) {
+        alert("Invalid Google Maps Link. It must start with https://maps.app.goo.gl")
+        setIsLoading(false);
+        return;
       }
 
       const url = editingShow ? `/api/v1/shows/${editingShow.id}` : "/api/v1/shows"
@@ -652,132 +659,102 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {filteredShows.map((show) => (
-              <div key={show.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-semibold text-lg">{show.title}</h3>
+              <ShowCard
+                key={show.id}
+                show={show}
+                stats={
+                  show.stats && (
+                    <div className="flex justify-between items-center bg-zinc-50 p-2 rounded text-zinc-800 border border-zinc-200 mt-2 text-sm z-10 relative">
+                      <div>
+                        <span className="font-bold">{show.stats.ticketsSold}</span>{' '}
+                        <span className="text-xs text-zinc-500 uppercase">Sold</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-bold text-green-600">{formatPrice(show.stats.ticketsSold * show.ticketPrice)}</span>{' '}
+                        {/* Note: Revenue in stats might be pre-calculated, using simple mult or trust stats.revenue if available. 
+                                In ShowManagement code it was show.stats.revenue. */}
+                        <span className="text-xs text-zinc-500 uppercase">Rev</span>
+                      </div>
+                    </div>
+                  )
+                }
+                extraDetails={
+                  <>
+                    {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
+                      <div className="flex gap-3 pt-2 text-xs font-medium">
+                        {show.youtubeUrls && show.youtubeUrls.length > 0 && (
+                          <span className="text-red-600">📹 {show.youtubeUrls.length} Video{show.youtubeUrls.length > 1 ? 's' : ''}</span>
+                        )}
+                        {show.instagramUrls && show.instagramUrls.length > 0 && (
+                          <span className="text-pink-600">📱 {show.instagramUrls.length} Reel{show.instagramUrls.length > 1 ? 's' : ''}</span>
+                        )}
+                      </div>
+                    )}
+                    {
+                      (show.ticketInventory.available === 0) && (
+                        <div className="mt-2 text-red-600 font-bold text-sm">Sold Out</div>
+                      )
+                    }
+                    <div className="mt-2 flex items-center justify-between">
                       <span className={`px-2 py-0.5 text-xs rounded-full font-medium ${show.isPublished
                         ? "bg-green-100 text-green-800"
                         : "bg-gray-100 text-gray-800"
                         }`}>
                         {show.isPublished ? "Published" : "Draft"}
                       </span>
-                    </div>
-                  </div>
-                  {show._count.bookings > 0 && (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
-                      {show._count.bookings} booking{show._count.bookings > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div>
-
-                <div className="space-y-2 text-sm text-zinc-600 mb-4">
-                  <div>📅 {formatDate(show.date)} ({show.durationMinutes || 60} mins)</div>
-                  <div>📍 {show.venue}</div>
-                  <div>🎫 {formatPrice(show.ticketPrice)}</div>
-                  <div>
-                    🎟️ {show.ticketInventory.available} of {show.totalTickets} tickets available
-                  </div>
-                  {show.stats && (
-                    <div className="flex justify-between items-center bg-zinc-50 p-2 rounded text-zinc-800 border border-zinc-200 mt-2">
-                      <div>
-                        <span className="font-bold text-lg">{show.stats.ticketsSold}</span>{' '}
-                        <span className="text-xs text-zinc-500 uppercase">Sold</span>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-bold text-lg text-green-600">{formatPrice(show.stats.revenue)}</span>{' '}
-                        <span className="text-xs text-zinc-500 uppercase">Rev</span>
-                      </div>
-                    </div>
-                  )}
-                  {((show.youtubeUrls && show.youtubeUrls.length > 0) || (show.instagramUrls && show.instagramUrls.length > 0)) && (
-                    <div className="flex gap-3 pt-2 text-xs font-medium">
-                      {show.youtubeUrls && show.youtubeUrls.length > 0 && (
-                        <span className="text-red-600">📹 {show.youtubeUrls.length} Video{show.youtubeUrls.length > 1 ? 's' : ''}</span>
-                      )}
-                      {show.instagramUrls && show.instagramUrls.length > 0 && (
-                        <span className="text-pink-600">📱 {show.instagramUrls.length} Reel{show.instagramUrls.length > 1 ? 's' : ''}</span>
+                      {show._count.bookings > 0 && (
+                        <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">
+                          {show._count.bookings} bookings
+                        </span>
                       )}
                     </div>
-                  )}
-                </div>
-
-                {
-                  show.showComedians.length > 0 && (
-                    <div className="mb-4 border-t pt-2">
-                      <p className="text-sm font-medium text-zinc-700 mb-2">Comedian Lineup:</p>
-                      <div className="space-y-2">
-                        {show.showComedians.map(sc => (
-                          <div key={sc.comedian.id} className="bg-zinc-50 p-2 rounded">
-                            <p className="font-medium text-sm">{sc.comedian.name}</p>
-                            {((sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0) ||
-                              (sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0)) && (
-                                <div className="mt-1 flex gap-2 text-xs">
-                                  {sc.comedian.youtubeUrls && sc.comedian.youtubeUrls.length > 0 && (
-                                    <span className="text-red-600 flex items-center gap-1">
-                                      📹 {sc.comedian.youtubeUrls.length} Video{sc.comedian.youtubeUrls.length > 1 ? 's' : ''}
-                                    </span>
-                                  )}
-                                  {sc.comedian.instagramUrls && sc.comedian.instagramUrls.length > 0 && (
-                                    <span className="text-pink-600 flex items-center gap-1">
-                                      📱 {sc.comedian.instagramUrls.length} Reel{sc.comedian.instagramUrls.length > 1 ? 's' : ''}
-                                    </span>
-                                  )}
-                                  <a href={`/comedians/${sc.comedian.id}`} target="_blank" rel="noopener noreferrer" className="ml-auto text-blue-600 hover:underline">
-                                    View Profile
-                                  </a>
-                                </div>
-                              )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
+                  </>
                 }
-
-                {isVerified && (
-                  <div className="flex gap-2 mt-4 pt-4 border-t flex-wrap items-center">
-                    {!show.isPublished ? (
-                      <>
+                actionButtons={
+                  isVerified ? (
+                    <div className="flex flex-wrap gap-2 items-center justify-between">
+                      {!show.isPublished && (
                         <button
                           onClick={() => handlePublish(show.id)}
-                          className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                          className="flex-1 px-3 py-1.5 text-xs bg-green-600 text-white rounded hover:bg-green-700 font-medium"
                         >
                           Publish
                         </button>
+                      )}
+                      {show.isPublished && (
                         <button
-                          onClick={() => handleEdit(show)}
-                          className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+                          onClick={() => handleUnpublish(show.id)}
+                          className="flex-1 px-3 py-1.5 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700 font-medium"
                         >
-                          Edit
+                          Unpublish
                         </button>
-                        <button
-                          onClick={() => handlePreview(show)}
-                          className="px-3 py-1 text-sm bg-purple-600 text-white rounded hover:bg-purple-700"
-                        >
-                          Preview
-                        </button>
+                      )}
+
+                      <button
+                        onClick={() => handleEdit(show)}
+                        className="flex-1 px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handlePreview(show)}
+                        className="flex-1 px-3 py-1.5 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 font-medium"
+                      >
+                        Preview
+                      </button>
+
+                      {!show.isPublished && (
                         <button
                           onClick={() => handleDelete(show.id)}
-                          className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                          className="flex-1 px-3 py-1.5 text-xs bg-red-600 text-white rounded hover:bg-red-700 font-medium"
                         >
                           Delete
                         </button>
-                      </>
-                    ) : (
-                      <span className="text-sm text-zinc-500 italic flex items-center gap-1">
-                        🔒 Published - Actions disabled
-                      </span>
-                    )}
-                    {show._count.bookings > 0 && !show.isPublished && (
-                      <span className="ml-auto text-xs text-zinc-500 self-center">
-                        Locked (has bookings)
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
+                      )}
+                    </div>
+                  ) : null
+                }
+              />
             ))}
           </div>
         </>

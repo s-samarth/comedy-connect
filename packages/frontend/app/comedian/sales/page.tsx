@@ -19,7 +19,8 @@ export default async function ComedianSalesPage() {
                 },
                 select: {
                     quantity: true,
-                    totalAmount: true
+                    totalAmount: true,
+                    platformFee: true
                 }
             }
         },
@@ -32,11 +33,15 @@ export default async function ComedianSalesPage() {
     const showsWithStats = shows.map(show => {
         const ticketsSold = show.bookings.reduce((sum, b) => sum + b.quantity, 0)
         const revenue = show.bookings.reduce((sum, b) => sum + b.totalAmount, 0)
+        const platformFee = show.bookings.reduce((sum, b) => sum + b.platformFee, 0)
+        const earnings = revenue - platformFee
         return {
             ...show,
             stats: {
                 ticketsSold,
                 revenue,
+                platformFee,
+                earnings,
                 bookingsCount: show.bookings.length
             }
         }
@@ -45,6 +50,7 @@ export default async function ComedianSalesPage() {
     // Calculate totals
     const totalTicketsSold = showsWithStats.reduce((sum, show) => sum + show.stats.ticketsSold, 0)
     const totalRevenue = showsWithStats.reduce((sum, show) => sum + show.stats.revenue, 0)
+    const totalEarnings = showsWithStats.reduce((sum, show) => sum + show.stats.earnings, 0)
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -76,18 +82,22 @@ export default async function ComedianSalesPage() {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div className="bg-white p-6 rounded-lg shadow border-l-4 border-blue-600">
                         <h3 className="text-sm font-medium text-zinc-500 uppercase">Total Shows</h3>
                         <p className="mt-2 text-3xl font-bold text-zinc-900">{shows.length}</p>
                     </div>
                     <div className="bg-white p-6 rounded-lg shadow border-l-4 border-purple-600">
-                        <h3 className="text-sm font-medium text-zinc-500 uppercase">Total Tickets Sold</h3>
+                        <h3 className="text-sm font-medium text-zinc-500 uppercase">Tickets Sold</h3>
                         <p className="mt-2 text-3xl font-bold text-zinc-900">{totalTicketsSold}</p>
                     </div>
                     <div className="bg-white p-6 rounded-lg shadow border-l-4 border-amber-600">
                         <h3 className="text-sm font-medium text-zinc-500 uppercase">Total Revenue</h3>
                         <p className="mt-2 text-3xl font-bold text-zinc-900">{formatPrice(totalRevenue)}</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-lg shadow border-l-4 border-green-600">
+                        <h3 className="text-sm font-medium text-zinc-500 uppercase">Net Earnings</h3>
+                        <p className="mt-2 text-3xl font-bold text-green-600">{formatPrice(totalEarnings)}</p>
                     </div>
                 </div>
 
@@ -115,6 +125,15 @@ export default async function ComedianSalesPage() {
                                     <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
                                         Revenue
                                     </th>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                                        Platform Fee
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                                        Earnings
+                                    </th>
+                                    <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                                        Status
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-zinc-200">
@@ -133,8 +152,22 @@ export default async function ComedianSalesPage() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-900 text-right font-medium">
                                             {show.stats.ticketsSold}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-bold">
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-zinc-900 text-right">
                                             {formatPrice(show.stats.revenue)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-red-500 text-right">
+                                            - {formatPrice(show.stats.platformFee)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-green-600 text-right font-bold">
+                                            {formatPrice(show.stats.earnings)}
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                                            <span className={`px-2 py-1 text-xs rounded-full font-medium ${show.isDisbursed
+                                                ? "bg-green-100 text-green-800"
+                                                : "bg-yellow-100 text-yellow-800"
+                                                }`}>
+                                                {show.isDisbursed ? "Disbursed" : "To Be Disbursed"}
+                                            </span>
                                         </td>
                                     </tr>
                                 ))}

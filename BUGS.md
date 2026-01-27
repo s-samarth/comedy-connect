@@ -149,8 +149,8 @@ This document outlines all identified bugs in the Comedy Connect platform, exclu
 - **Description**: There is currently no option to preview how a draft show will look to the audience (the full show details page) or how the poster will appear on the homepage card.
 - **Fix**: 
     1. Add a "Preview" button to the show management card controls.
-    2. Implement a preview modal or new tab that renders the `ShowDetails` page with the current draft data.
-    3. Add a smaller "Card Preview" element in the creation/edit flow to show how the poster and title will look in the main grid.
+    2. Implement a preview modal that uses the shared `ShowDetail` component for 1:1 visual parity with the public page.
+    3. Add layout adaptations (sticky banner, constrained scroll) for modal context.
 
 
 ---

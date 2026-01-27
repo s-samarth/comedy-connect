@@ -155,7 +155,7 @@ export default async function BookingsPage() {
                                                 <div className="bg-zinc-100 dark:bg-zinc-800 px-3 py-1 rounded">
                                                     <span className="text-zinc-600 dark:text-zinc-400">Total: </span>
                                                     <span className="font-semibold text-zinc-900 dark:text-white">
-                                                        ₹{booking.totalAmount}
+                                                        ₹{booking.totalAmount + booking.bookingFee}
                                                     </span>
                                                 </div>
                                                 <div className="text-zinc-500 text-xs">

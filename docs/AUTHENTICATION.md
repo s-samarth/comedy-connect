@@ -32,8 +32,9 @@ Middleware in the backend verifies the user's role stored in the database before
 | Route Prefix | Required Role |
 | :--- | :--- |
 | `/api/v1/admin/*` | `ADMIN` |
+| `/api/v1/organizer/profile` (POST) | Any Authenticated User (Onboarding) |
 | `/api/v1/organizer/*` | `ORGANIZER_VERIFIED` or `ADMIN` |
-| `/api/v1/comedian/profile` (POST) | `COMEDIAN_UNVERIFIED` (to claim) |
+| `/api/v1/comedian/profile` (POST) | Any Authenticated User (Onboarding) |
 | `/api/v1/bookings` (POST) | Any Authenticated User |
 
 ### 2. CORS (Cross-Origin Resource Sharing)

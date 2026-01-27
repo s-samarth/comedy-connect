@@ -20,10 +20,11 @@ export async function GET(request: NextRequest) {
             shows = await prisma.$queryRaw`
                 SELECT s.*, 
                        u.email as "creatorEmail",
-                       op.name as "creatorName"
+                       COALESCE(op.name, cp."stageName", u.name) as "creatorName"
                 FROM "Show" s
                 JOIN "User" u ON s."createdBy" = u.id
                 LEFT JOIN "OrganizerProfile" op ON u.id = op."userId"
+                LEFT JOIN "ComedianProfile" cp ON u.id = cp."userId"
                 WHERE s.id = ${showId}
             ` as any[]
 
@@ -50,8 +51,12 @@ export async function GET(request: NextRequest) {
                     creator: {
                         select: {
                             email: true,
+                            name: true,
                             organizerProfile: {
                                 select: { name: true }
+                            },
+                            comedianProfile: {
+                                select: { stageName: true }
                             }
                         }
                     }

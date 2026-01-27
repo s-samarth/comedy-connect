@@ -87,7 +87,7 @@ export default function ComedianOnboardingPage() {
                         {/* Contact */}
                         <div>
                             <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                                Contact Number
+                                Contact Number * (10 digits)
                             </label>
                             <div className="flex rounded-md shadow-sm">
                                 <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-zinc-300 dark:border-zinc-600 bg-zinc-50 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 sm:text-sm">

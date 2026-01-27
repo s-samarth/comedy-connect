@@ -63,12 +63,39 @@ export async function GET() {
         const totalRevenue = allBookings.reduce((sum: number, b: any) => sum + (b.totalAmount || 0) + (b.bookingFee || 0), 0)
 
         // 5. Pending Approvals
-        const pendingOrganizers = await prisma.organizerApproval.count({
-            where: { status: "PENDING" }
-        })
-        const pendingComedians = await prisma.comedianApproval.count({
-            where: { status: "PENDING" }
-        })
+        // 5. Pending Approvals
+        // Logic Update: Count based on UNVERIFIED roles, BUT exclude those who were REJECTED 
+        // and haven't updated their profile since (i.e., haven't re-applied).
+
+        // Count Pending Organizers
+        const pendingOrganizersResult = await prisma.$queryRaw`
+            SELECT COUNT(*) as count
+            FROM "User" u
+            JOIN "OrganizerProfile" op ON u.id = op."userId"
+            WHERE u.role = 'ORGANIZER_UNVERIFIED'
+            AND NOT EXISTS (
+                SELECT 1 FROM "OrganizerApproval" oa 
+                WHERE oa."organizerId" = op.id 
+                AND oa.status = 'REJECTED'
+                AND oa."createdAt" >= op."updatedAt"
+            )
+        ` as any[]
+        const pendingOrganizers = Number(pendingOrganizersResult[0]?.count || 0)
+
+        // Count Pending Comedians
+        const pendingComediansResult = await prisma.$queryRaw`
+            SELECT COUNT(*) as count
+            FROM "User" u
+            JOIN "ComedianProfile" cp ON u.id = cp."userId"
+            WHERE u.role = 'COMEDIAN_UNVERIFIED'
+            AND NOT EXISTS (
+                SELECT 1 FROM "ComedianApproval" ca 
+                WHERE ca."comedianId" = cp.id 
+                AND ca.status = 'REJECTED'
+                AND ca."createdAt" >= cp."updatedAt"
+            )
+        ` as any[]
+        const pendingComedians = Number(pendingComediansResult[0]?.count || 0)
 
         return NextResponse.json({
             metrics: {

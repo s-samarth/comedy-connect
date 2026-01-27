@@ -77,6 +77,14 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
   const [previewData, setPreviewData] = useState<any>(null)
 
   const handlePreview = (data: any) => {
+    // Validate google maps link
+    if (data.googleMapsLink &&
+      !data.googleMapsLink.startsWith('https://maps.app.goo.gl') &&
+      !data.googleMapsLink.startsWith('https://google.com/maps') &&
+      !data.googleMapsLink.startsWith('https://www.google.com/maps')) {
+      alert("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)")
+      return;
+    }
     setPreviewData(data)
     setShowPreview(true)
   }
@@ -142,8 +150,11 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
         igInput.value = ""; // Clear input after capturing
       }
 
-      if (formData.googleMapsLink && !formData.googleMapsLink.startsWith('https://maps.app.goo.gl')) {
-        alert("Invalid Google Maps Link. It must start with https://maps.app.goo.gl")
+      if (formData.googleMapsLink &&
+        !formData.googleMapsLink.startsWith('https://maps.app.goo.gl') &&
+        !formData.googleMapsLink.startsWith('https://google.com/maps') &&
+        !formData.googleMapsLink.startsWith('https://www.google.com/maps')) {
+        alert("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)")
         setIsLoading(false);
         return;
       }
@@ -196,10 +207,18 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
   const handleEdit = (show: Show) => {
     setEditingShow(show)
+
+    // Fix for timezone issue: datetime-local expects YYYY-MM-DDTHH:MM in local time
+    // toISOString() converts to UTC, causing the offset (e.g. -5:30 for IST)
+    // We need to construct a local ISO string manually or adjust for offset
+    const date = new Date(show.date);
+    const tzOffset = date.getTimezoneOffset() * 60000; // offset in milliseconds
+    const localISOTime = (new Date(date.getTime() - tzOffset)).toISOString().slice(0, 16);
+
     setFormData({
       title: show.title,
       description: show.description || "",
-      date: new Date(show.date).toISOString().slice(0, 16),
+      date: localISOTime,
       venue: show.venue,
       googleMapsLink: (show as any).googleMapsLink || "",
       ticketPrice: show.ticketPrice.toString(),
@@ -345,41 +364,44 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Title *
+                  Title * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
                 </label>
                 <input
                   type="text"
                   required
+                  disabled={editingShow?.isPublished}
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Date & Time *
+                  Date & Time * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
                 </label>
                 <input
                   type="datetime-local"
                   required
+                  disabled={editingShow?.isPublished}
                   value={formData.date}
                   onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Duration (minutes) *
+                  Duration (minutes) * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
                 </label>
                 <input
                   type="number"
                   required
                   min="1"
+                  disabled={editingShow?.isPublished}
                   value={formData.durationMinutes}
                   onChange={(e) => setFormData(prev => ({ ...prev, durationMinutes: e.target.value }))}
-                  className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
                 />
               </div>
             </div>
@@ -398,15 +420,16 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
 
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-2">
-                Venue *
+                Venue * {editingShow?.isPublished && <span className="text-xs text-amber-600 ml-1">(Locked)</span>}
               </label>
               <input
                 type="text"
                 required
+                disabled={editingShow?.isPublished}
                 value={formData.venue}
                 onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
                 placeholder="e.g., Comedy Club, Hyderabad"
-                className="w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border border-zinc-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${editingShow?.isPublished ? "bg-zinc-100 text-zinc-500 cursor-not-allowed" : ""}`}
               />
             </div>
 
@@ -723,19 +746,29 @@ export default function ShowManagement({ userId, isVerified }: ShowManagementPro
                       )}
                       {show.isPublished && (
                         <button
-                          onClick={() => handleUnpublish(show.id)}
-                          className="flex-1 px-3 py-1.5 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700 font-medium"
+                          disabled
+                          title="Cannot unpublish a published show"
+                          className="flex-1 px-3 py-1.5 text-xs bg-zinc-400 text-white rounded cursor-not-allowed font-medium"
                         >
                           Unpublish
                         </button>
                       )}
 
-                      <button
-                        onClick={() => handleEdit(show)}
-                        className="flex-1 px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 font-medium"
-                      >
-                        Edit
-                      </button>
+                      {(() => {
+                        const isCompleted = new Date(new Date(show.date).getTime() + ((show.durationMinutes || 60) * 60000)) < new Date();
+                        return (
+                          <button
+                            onClick={() => !isCompleted && handleEdit(show)}
+                            disabled={isCompleted}
+                            className={`flex-1 px-3 py-1.5 text-xs rounded font-medium ${isCompleted
+                              ? "bg-zinc-300 text-zinc-500 cursor-not-allowed"
+                              : "bg-blue-600 text-white hover:bg-blue-700"
+                              }`}
+                          >
+                            {isCompleted ? "Completed" : "Edit"}
+                          </button>
+                        );
+                      })()}
                       <button
                         onClick={() => handlePreview(show)}
                         className="flex-1 px-3 py-1.5 text-xs bg-purple-600 text-white rounded hover:bg-purple-700 font-medium"

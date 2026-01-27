@@ -297,20 +297,52 @@ export class ShowService {
             }
         }
 
+        // Check if show is completed (past based on end time) - cannot edit completed shows
+        const showEndTime = new Date(show.date.getTime() + (show.durationMinutes * 60000))
+        if (showEndTime < new Date() && userRole !== 'ADMIN') {
+            throw new ValidationError("Cannot edit a completed show")
+        }
+
         // Prepare update data
         const updateData: any = {}
-        if (data.title) updateData.title = data.title
+
+        // Critical fields logic
+        if (show.isPublished && userRole !== 'ADMIN') {
+            // Cannot change title, date, venue, duration once published
+            if (data.title && data.title !== show.title) {
+                throw new ValidationError("Cannot change title of a published show")
+            }
+            if (data.date && new Date(data.date).getTime() !== show.date.getTime()) {
+                throw new ValidationError("Cannot change date of a published show")
+            }
+            if (data.venue && data.venue !== show.venue) {
+                throw new ValidationError("Cannot change venue of a published show")
+            }
+            if (data.durationMinutes && data.durationMinutes !== show.durationMinutes) {
+                throw new ValidationError("Cannot change duration of a published show")
+            }
+        } else {
+            // Draft mode - allow editing everything
+            if (data.title) updateData.title = data.title
+            if (data.date) updateData.date = new Date(data.date)
+            if (data.venue) updateData.venue = data.venue
+            if (data.durationMinutes !== undefined) updateData.durationMinutes = data.durationMinutes
+        }
+
         if (data.description !== undefined) updateData.description = data.description
-        if (data.venue) updateData.venue = data.venue
         if (data.googleMapsLink) updateData.googleMapsLink = data.googleMapsLink
         if (data.posterImageUrl !== undefined) updateData.posterImageUrl = data.posterImageUrl
         if (data.youtubeUrls !== undefined) updateData.youtubeUrls = data.youtubeUrls
         if (data.instagramUrls !== undefined) updateData.instagramUrls = data.instagramUrls
-        if (data.durationMinutes !== undefined) updateData.durationMinutes = data.durationMinutes
 
-        // Only allow these if not published with bookings
+        // Only allow price/quantity changes if not published with bookings
         if (!show.isPublished || !hasBookings) {
-            if (data.date) updateData.date = new Date(data.date)
+            // If published (but no bookings), user can change price/tickets if needed, 
+            // OR if locked logic above implied strictness, we might limit it.
+            // Requirement said "Show title, Date and Time, Duration, Venue, should be locked post publishing". 
+            // It didn't explicitly mention Price/Tickets for published-no-booking. 
+            // Assuming existing logic handles Price/Tickets for published-with-booking.
+
             if (data.ticketPrice !== undefined) updateData.ticketPrice = data.ticketPrice
             if (data.totalTickets !== undefined) updateData.totalTickets = data.totalTickets
         }
@@ -427,6 +459,11 @@ export class ShowService {
         }
 
         // Unpublish the show
+        // Requirement: "The unpublish should be greyed out and block for the show creator for shows already published."
+        if (userRole !== 'ADMIN') {
+            throw new ValidationError("Cannot unpublish a show once it has been published. Please contact admin if critical.")
+        }
+
         return showRepository.update(showId, { isPublished: false })
     }
 }

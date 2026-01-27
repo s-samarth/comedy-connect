@@ -89,6 +89,12 @@ export async function middleware(request: NextRequest) {
     if (!token) {
       return pathname.startsWith('/api') ? errorResponse(401, 'Unauthenticated') : NextResponse.redirect(new URL("/", request.url))
     }
+
+    // EXCEPTION: Allow POST to /api/v1/organizer/profile for role upgrades (Audience -> Organizer)
+    if (pathname === "/api/v1/organizer/profile" && request.method === "POST") {
+      return response
+    }
+
     // Allow ORGANIZER_VERIFIED and ADMIN. ORGANIZER_UNVERIFIED can only access specific onboarding-like pages?
     // Requirement says: "Add role-based checks... to require ORGANIZER_VERIFIED"
     // However, pending verification organizers might need access to dashboard home. 
@@ -97,7 +103,12 @@ export async function middleware(request: NextRequest) {
 
     // Strict verification check for key routes, but allow basic access for unverified (to see "Pending" status)
     if (!role.startsWith("ORGANIZER") && role !== "ADMIN") {
-      return pathname.startsWith('/api') ? errorResponse(403, 'Forbidden') : NextResponse.redirect(new URL("/onboarding/role-selection", request.url))
+      // Allow COMEDIANS to access dashboard as it is a shared resource
+      if (role.startsWith("COMEDIAN") && pathname.includes("/dashboard")) {
+        // allow
+      } else {
+        return pathname.startsWith('/api') ? errorResponse(403, 'Forbidden') : NextResponse.redirect(new URL("/onboarding/role-selection", request.url))
+      }
     }
   }
 
@@ -105,6 +116,11 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/api/v1/comedian") || pathname.startsWith("/comedian")) {
     if (!token) {
       return pathname.startsWith('/api') ? errorResponse(401, 'Unauthenticated') : NextResponse.redirect(new URL("/", request.url))
+    }
+
+    // EXCEPTION: Allow POST to /api/v1/comedian/profile for role upgrades (Audience -> Comedian)
+    if (pathname === "/api/v1/comedian/profile" && request.method === "POST") {
+      return response
     }
 
     const role = (token as any).role as string

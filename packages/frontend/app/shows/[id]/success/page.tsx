@@ -109,7 +109,7 @@ export default async function BookingSuccessPage({ params, searchParams }: PageP
                             <div className="border-t pt-3 mt-3">
                                 <div className="flex justify-between items-center">
                                     <span className="font-semibold">Total Amount</span>
-                                    <span className="text-xl font-bold text-green-600">₹{booking.totalAmount}</span>
+                                    <span className="text-xl font-bold text-green-600">₹{booking.totalAmount + booking.bookingFee}</span>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-1">Payment to be collected at venue</p>
                             </div>

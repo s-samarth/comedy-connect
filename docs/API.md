@@ -68,10 +68,17 @@ Retrieves details for a specific show.
 ### `PUT /api/v1/shows/:id`
 Updates show details.
 - **Auth Required**: Yes (Owner or Admin).
+- **Restrictions**:
+  - **Completed Shows**: Cannot be edited (past end time).
+  - **Published Shows**: Critical fields (Title, Date, Venue, Duration) are locked unless updated by Admin.
 
 ### `POST /api/v1/shows/:id/publish`
 Publishes a draft show.
 - **Auth Required**: Yes (Owner).
+
+### `POST /api/v1/shows/:id/unpublish`
+Unpublishes a show (reverts to draft).
+- **Auth Required**: Yes (Admin only if already published). Creators can no longer unpublish active shows.
 
 ---
 
@@ -93,9 +100,9 @@ Lists all bookings for the authenticated user.
 ### `GET /api/v1/comedians`
 Lists comedian profiles.
 
-### `POST /api/v1/comedians`
-Creates a new comedian profile.
-- **Auth Required**: Yes (`ORGANIZER_VERIFIED`).
+### `POST /api/v1/comedian/profile`
+Creates or updates a comedian profile.
+- **Auth Required**: Any Authenticated User (Onboarding).
 
 ---
 
@@ -108,7 +115,7 @@ Creates a new comedian profile.
 Retrieves system-wide metrics (Revenue, Users, Active Shows).
 
 ### `GET /api/v1/admin/collections`
-Financial breakdown of show revenue and platform fees.
+Financial breakdown of show revenue and platform fees. Includes detailed Creator info (Organizer/Comedian).
 
 ### `POST /api/v1/admin/comedian-users`
 Manage comedian verification applications.

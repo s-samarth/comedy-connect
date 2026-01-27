@@ -51,6 +51,7 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 4.  **Verification Wait**:
     *   Dashboard (`/organizer`) shows "Pending Verification" banner.
     *   *Restriction*: Cannot create public shows.
+    *   **Rejection/Re-apply**: If rejected, user can update profile details to resubmit (Status resets to Pending).
 
 ### Scenario B: Show Management (Verified)
 1.  **Dashboard**: Sees "Verified" status.
@@ -59,11 +60,15 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
     *   Fills: Title, Date, Venue, Price, Description, Banner Image.
     *   **Add Comedians**: Selects comedians from the platform or adds manually.
     *   **Submit**: Show created as DRAFT.
+    *   **Validation**: Google Maps links must be establishing valid `maps.app.goo.gl` or `google.com/maps` URLs.
 3.  **Preview Show**:
-    *   Clicks "Preview" to see the Show Details and Card as they will appear to the audience.
+    *   Clicks "Preview" to see the **High-Fidelity Show Details** (identical to public view).
+    *   Verifies poster, description, and layout in a modal.
 4.  **Publish Show**:
     *   Reviews draft details.
     *   Clicks "Publish" -> Show becomes visible on public `/shows`.
+    *   **Note**: Once published, critical fields (Title, Date, Venue, Duration) are **LOCKED** to prevent deception.
+    *   **Note**: Published shows cannot be unpublished by the creator (requires Admin intervention).
 5.  **Manage Sales**:
     *   Views Dashboard (`/organizer/dashboard`).
     *   Sees Ticket Sales, Revenue, and Attendee List.

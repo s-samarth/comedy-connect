@@ -211,6 +211,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                             value={formData.age}
                             onChange={handleChange}
                             className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
+                            required
                         />
                     </div>
                     <div>
@@ -220,6 +221,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                             value={formData.city}
                             onChange={handleChange}
                             className="w-full p-2 border border-zinc-300 dark:border-zinc-700 rounded-md bg-white dark:bg-black text-zinc-900 dark:text-white"
+                            required
                         >
                             <option value="">Select city</option>
                             <option value="Hyderabad">Hyderabad</option>

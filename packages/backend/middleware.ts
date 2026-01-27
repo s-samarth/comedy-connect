@@ -56,8 +56,15 @@ export async function middleware(request: NextRequest) {
     return res
   }
 
-  // Fix Bug 5: Strict Onboarding Check
-  if (token && !pathname.startsWith('/onboarding') && !pathname.startsWith('/api/') && !pathname.startsWith('/auth') && !pathname.startsWith('/_next') && pathname !== '/api/auth/signout') {
+  // 5. Strict Onboarding Check
+  const isOnboardingRoute = pathname.startsWith('/onboarding')
+  const isExcludedRoute = pathname.startsWith('/api/') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/_next') ||
+    pathname === '/api/auth/signout' ||
+    pathname === '/favicon.ico'
+
+  if (token && !isOnboardingRoute && !isExcludedRoute) {
     if (!(token as any).onboardingCompleted) {
       return NextResponse.redirect(new URL("/onboarding", request.url))
     }

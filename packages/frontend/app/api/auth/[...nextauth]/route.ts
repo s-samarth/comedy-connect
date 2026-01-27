@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role
         token.id = (user as any).id
         token.name = user.name
+        token.onboardingCompleted = (user as any).onboardingCompleted ?? false
       } else if (token.id) {
         // Fetch fresh data from database when token is validated
         const dbUser = await prisma.user.findUnique({
@@ -51,7 +52,7 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           token.role = dbUser.role
           token.name = dbUser.name
-          token.onboardingCompleted = dbUser.onboardingCompleted
+          token.onboardingCompleted = dbUser.onboardingCompleted ?? false
         }
       }
       return token
@@ -74,7 +75,7 @@ export const authOptions: NextAuthOptions = {
         })
 
         if (dbUser) {
-          ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted
+          ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted ?? false
         }
       }
       return session

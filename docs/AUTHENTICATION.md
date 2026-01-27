@@ -13,6 +13,11 @@ In the decoupled architecture, the **Backend Service** manages all authenticatio
   - Frontend redirects to `${BACKEND_URL}/api/auth/signin`.
   - Backend sets a `next-auth.session-token` cookie.
   - Subsequent requests from Frontend include `credentials: 'include'`.
+- **Middleware Enforcement**:
+  - The **Frontend App** runs a `middleware.ts` that intercepts all main routes.
+  - It checks the `onboardingCompleted` flag in the session token.
+  - If `false`, the user is strictly redirected to `/onboarding`.
+  - Excluded routes: `/api/*`, `/auth/*`, `/_next/*`, `/favicon.ico`.
 
 ### 2. Admin Secure Session (Administrative Users)
 - **Method**: Secure password-based session.
@@ -33,6 +38,8 @@ Middleware in the backend verifies the user's role stored in the database before
 | :--- | :--- |
 | `/api/v1/admin/*` | `ADMIN` |
 | `/api/v1/organizer/profile` (POST) | Any Authenticated User (Onboarding) |
+| `/api/v1/onboarding` (POST) | Any Authenticated User |
+| `/onboarding` (Frontend) | Any Authenticated User |
 | `/api/v1/organizer/*` | `ORGANIZER_VERIFIED` or `ADMIN` |
 | `/api/v1/comedian/profile` (POST) | Any Authenticated User (Onboarding) |
 | `/api/v1/bookings` (POST) | Any Authenticated User |

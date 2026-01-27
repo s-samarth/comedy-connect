@@ -32,6 +32,23 @@ Initiates the OAuth sign-in flow (Google).
 
 ---
 
+## 🚀 Onboarding (`/onboarding`)
+
+### `POST /api/v1/onboarding`
+Completes the initial user setup.
+- **Auth Required**: Yes
+- **Body**: 
+    - `name` (string, required)
+    - `age` (number, required)
+    - `city` (string, required)
+    - `watchedComedy` (enum: "yes" | "no", required)
+    - `phone` (string, optional)
+    - `heardAboutUs` (string, optional)
+    - `bio` (string, optional)
+- **Effect**: Sets `onboardingCompleted: true`.
+
+---
+
 ## 👤 Profile (`/profile`)
 
 ### `POST /api/v1/profile/update`

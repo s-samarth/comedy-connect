@@ -41,7 +41,8 @@ export default function OnboardingPage() {
 
     try {
       await apiClient.post('/api/v1/onboarding', formData)
-      router.push('/')
+      // Force a hard redirect to refresh session/middleware state
+      window.location.href = '/'
     } catch (error: any) {
       setError(error.message?.replace('API Error:', '').trim() || 'Something went wrong')
     } finally {
@@ -238,7 +239,7 @@ export default function OnboardingPage() {
             {/* Bio - Optional */}
             <div>
               <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
-                Bio <span className="text-gray-400">(optional)</span>
+                Bio (Publicly visible) <span className="text-gray-400">(optional)</span>
               </label>
               <textarea
                 id="bio"

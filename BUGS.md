@@ -44,7 +44,7 @@ No bugs found.
 ## 🟠 Priority: P1 (High Impact)
 
 ### 1. Broken & Non-Mandatory Onboarding Flow
-- **Status**: OPEN
+- **Status**: FIXED
 - **Location**: `packages/backend/middleware.ts` & `packages/frontend/app/onboarding/page.tsx`
 - **Impact**: New users can bypass essential profile setup; inconsistent UX after form submission.
 - **Description**: 
@@ -55,7 +55,7 @@ No bugs found.
     2. Ensure the frontend `handleSubmit` in `onboarding/page.tsx` correctly handles a successful API response and performs a hard redirect or session refresh to clear the onboarding state.
 
 ### 2. Profile & Onboarding Form Inconsistency
-- **Status**: OPEN
+- **Status**: FIXED
 - **Location**: `packages/frontend/components/profile/ProfileEditForm.tsx` & `packages/frontend/app/onboarding/page.tsx`
 - **Impact**: Inconsistent user data; poor UX when completing profiles; potential data saving errors.
 - **Description**: 

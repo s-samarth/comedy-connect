@@ -43,8 +43,9 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: logs in via Google.
-2.  **Role Selection**: Redirected to `/onboarding`. Selects "I want to Organize Shows". (Checks if basic profile is complete, otherwise alerts).
-3.  **Profile Setup**:
+2.  **Onboarding**: Redirected to `/onboarding`. Fills basic info: Name, Age, City, Watched Comedy, Bio (optional), Phone (optional).
+3.  **Role Selection**: After basic info, navigates to `/onboarding/role-selection`. Selects "I want to Organize Shows".
+4.  **Profile Setup**:
     *   Fills details: Name, Bio, Social Links.
     *   **Mandatory**: Contact Number (with validation).
     *   **Media**: Adds YouTube (max 1) and Instagram (max 2) links.
@@ -82,8 +83,9 @@ This document outlines the comprehensive user flows for all roles in the Comedy 
 
 ### Scenario A: Onboarding
 1.  **Sign Up**: Logs in via Google.
-2.  **Role Selection**: Selects "I am a Comedian". (Checks if basic profile is complete, otherwise alerts).
-3.  **Profile Creation**:
+2.  **Onboarding**: Redirected to `/onboarding`. Fills basic info.
+3.  **Role Selection**: Redirected to `/onboarding/role-selection`. Selects "I am a Comedian".
+4.  **Profile Creation**:
     *   Uploads Headshot, adds Bio.
     *   **Mandatory**: Contact Number (with validation).
     *   **Media**: Adds YouTube (max 1) and Instagram (max 2) links.

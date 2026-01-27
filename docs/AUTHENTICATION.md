@@ -16,8 +16,11 @@ In the decoupled architecture, the **Backend Service** manages all authenticatio
 
 ### 2. Admin Secure Session (Administrative Users)
 - **Method**: Secure password-based session.
-- **Cookie**: `admin-secure-session`.
-- **Logic**: Used for high-stakes administrative actions to prevent session hijacking.
+- **Cookie**: `admin-secure-session` (Signed).
+- **Logic**: 
+  - Backend generates a cookie signed with `HMAC-SHA256` using `NEXTAUTH_SECRET`.
+  - Frontend cryptographically verifies this signature before granting access.
+  - Used for high-stakes administrative actions to prevent session hijacking and forgery.
 
 ---
 

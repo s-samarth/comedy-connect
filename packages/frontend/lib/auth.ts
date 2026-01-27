@@ -20,7 +20,7 @@ export async function getCurrentUser() {
     const adminCookie = cookieStore.get('admin-secure-session')
 
     if (adminCookie) {
-      const { valid, email } = validateAdminSession(adminCookie.value)
+      const { valid, email } = await validateAdminSession(adminCookie.value)
 
       if (valid && email) {
         // Fetch user from DB to ensure we have ID and role

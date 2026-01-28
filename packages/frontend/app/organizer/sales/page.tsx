@@ -30,10 +30,10 @@ export default async function OrganizerSalesPage() {
     })
 
     // Calculate aggregates
-    const showsWithStats = shows.map(show => {
-        const ticketsSold = show.bookings.reduce((sum, b) => sum + b.quantity, 0)
-        const revenue = show.bookings.reduce((sum, b) => sum + b.totalAmount, 0)
-        const platformFee = show.bookings.reduce((sum, b) => sum + b.platformFee, 0)
+    const showsWithStats = shows.map((show: any) => {
+        const ticketsSold = show.bookings.reduce((sum: number, b: any) => sum + b.quantity, 0)
+        const revenue = show.bookings.reduce((sum: number, b: any) => sum + b.totalAmount, 0)
+        const platformFee = show.bookings.reduce((sum: number, b: any) => sum + b.platformFee, 0)
         const earnings = revenue - platformFee
         return {
             ...show,
@@ -48,9 +48,9 @@ export default async function OrganizerSalesPage() {
     })
 
     // Calculate totals
-    const totalTicketsSold = showsWithStats.reduce((sum, show) => sum + show.stats.ticketsSold, 0)
-    const totalRevenue = showsWithStats.reduce((sum, show) => sum + show.stats.revenue, 0)
-    const totalEarnings = showsWithStats.reduce((sum, show) => sum + show.stats.earnings, 0)
+    const totalTicketsSold = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.ticketsSold, 0)
+    const totalRevenue = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.revenue, 0)
+    const totalEarnings = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.earnings, 0)
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {

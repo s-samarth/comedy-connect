@@ -48,9 +48,9 @@ export default async function ComedianSalesPage() {
     })
 
     // Calculate totals
-    const totalTicketsSold = showsWithStats.reduce((sum, show) => sum + show.stats.ticketsSold, 0)
-    const totalRevenue = showsWithStats.reduce((sum, show) => sum + show.stats.revenue, 0)
-    const totalEarnings = showsWithStats.reduce((sum, show) => sum + show.stats.earnings, 0)
+    const totalTicketsSold = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.ticketsSold, 0)
+    const totalRevenue = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.revenue, 0)
+    const totalEarnings = showsWithStats.reduce((sum: number, show: any) => sum + show.stats.earnings, 0)
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {

@@ -55,8 +55,8 @@ export default async function ShowPage({ params }: PageProps) {
       }
     })
 
-    const ticketsSold = bookings.reduce((sum, b) => sum + b.quantity, 0)
-    const revenue = bookings.reduce((sum, b) => sum + Number(b.totalAmount), 0)
+    const ticketsSold = bookings.reduce((sum: number, b: any) => sum + b.quantity, 0)
+    const revenue = bookings.reduce((sum: number, b: any) => sum + Number(b.totalAmount), 0)
 
     stats = {
       ticketsSold,

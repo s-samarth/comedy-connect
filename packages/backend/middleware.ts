@@ -13,7 +13,8 @@ const ADMIN_WHITELIST = [
 export async function middleware(request: NextRequest) {
   // CORS Handling
   const origin = request.headers.get('origin')
-  const isAllowedOrigin = origin === 'http://localhost:3000' || !origin
+  const allowedOrigin = process.env.ALLOWED_ORIGIN
+  const isAllowedOrigin = (allowedOrigin && origin === allowedOrigin) || !origin
 
   // Handle preflight requests
   if (request.method === 'OPTIONS') {

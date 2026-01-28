@@ -30,10 +30,10 @@ export default async function ComedianSalesPage() {
     })
 
     // Calculate aggregates
-    const showsWithStats = shows.map(show => {
-        const ticketsSold = show.bookings.reduce((sum, b) => sum + b.quantity, 0)
-        const revenue = show.bookings.reduce((sum, b) => sum + b.totalAmount, 0)
-        const platformFee = show.bookings.reduce((sum, b) => sum + b.platformFee, 0)
+    const showsWithStats = shows.map((show: any) => {
+        const ticketsSold = show.bookings.reduce((sum: number, b: any) => sum + b.quantity, 0)
+        const revenue = show.bookings.reduce((sum: number, b: any) => sum + b.totalAmount, 0)
+        const platformFee = show.bookings.reduce((sum: number, b: any) => sum + b.platformFee, 0)
         const earnings = revenue - platformFee
         return {
             ...show,

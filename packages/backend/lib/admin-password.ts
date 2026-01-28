@@ -10,6 +10,7 @@ export interface AdminSessionResult {
     user?: {
         role: string
         email: string
+        adminPasswordHash?: string | null
     }
     error?: string
 }
@@ -49,7 +50,11 @@ export async function verifyAdminSession(request: NextRequest): Promise<AdminSes
         return {
             valid: true,
             needsPassword,
-            user: { role: user.role, email: user.email }
+            user: {
+                role: user.role,
+                email: user.email,
+                adminPasswordHash: user.adminPasswordHash
+            }
         }
     } catch (error) {
         console.error('Verify admin session error:', error)

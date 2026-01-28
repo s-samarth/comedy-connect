@@ -2,14 +2,17 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     async rewrites() {
+        const apiUrl = process.env.API_URL
+        if (!apiUrl) throw new Error('API_URL environment variable is not defined')
+
         return [
             {
                 source: '/api/v1/:path*',
-                destination: `${process.env.API_URL || 'http://localhost:4000'}/api/v1/:path*`,
+                destination: `${apiUrl}/api/v1/:path*`,
             },
             {
                 source: '/api/admin-secure/:path*',
-                destination: `${process.env.API_URL || 'http://localhost:4000'}/api/admin-secure/:path*`,
+                destination: `${apiUrl}/api/admin-secure/:path*`,
             },
         ]
     },

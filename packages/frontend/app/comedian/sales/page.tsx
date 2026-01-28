@@ -137,7 +137,7 @@ export default async function ComedianSalesPage() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-zinc-200">
-                                {showsWithStats.map((show) => (
+                                {showsWithStats.map((show: any) => (
                                     <tr key={show.id} className="hover:bg-zinc-50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm font-medium text-zinc-900">{show.title}</div>

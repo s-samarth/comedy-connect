@@ -35,8 +35,8 @@ export default async function OrganizerProfilePage() {
           <div className="mb-6">
             <div className="flex items-center gap-4 mb-4">
               <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${isVerified
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                ? "bg-green-100 text-green-800"
+                : "bg-yellow-100 text-yellow-800"
                 }`}>
                 {isVerified ? "Verified" : "Pending Verification"}
               </span>
@@ -66,14 +66,14 @@ export default async function OrganizerProfilePage() {
             <div className="mt-8 pt-6 border-t">
               <h3 className="text-lg font-semibold mb-4">Verification History</h3>
               <div className="space-y-2">
-                {profile.approvals.map((approval) => (
+                {profile.approvals.map((approval: any) => (
                   <div key={approval.id} className="flex items-center justify-between p-3 bg-zinc-50 rounded">
                     <div>
                       <span className={`inline-block px-2 py-1 rounded text-xs font-medium ${approval.status === 'APPROVED'
-                          ? 'bg-green-100 text-green-800'
-                          : approval.status === 'REJECTED'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-green-100 text-green-800'
+                        : approval.status === 'REJECTED'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
                         }`}>
                         {approval.status}
                       </span>

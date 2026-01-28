@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useAuth } from '@/lib/hooks';
-import { Navbar } from '@/components/layout/navbar';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -49,7 +49,7 @@ export default function OrganizerDashboardPage() {
 
     return (
         <main className="min-h-screen bg-background pb-20">
-            <Navbar />
+
 
             <div className="container mx-auto px-4 pt-32 space-y-8">
                 {/* Header */}

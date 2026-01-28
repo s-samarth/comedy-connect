@@ -3,7 +3,7 @@
 import React from 'react';
 import { useSearchParams, useParams } from 'next/navigation';
 import { useShow } from '@/lib/hooks';
-import { Navbar } from '@/components/layout/navbar';
+
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Calendar, MapPin, Ticket, ArrowRight, Download } from 'lucide-react';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ export default function BookingSuccessPage() {
     if (isLoading || !show) {
         return (
             <main className="min-h-screen bg-background">
-                <Navbar />
+
                 <div className="container mx-auto px-4 pt-32 text-center">
                     <div className="animate-pulse space-y-4">
                         <div className="h-12 w-12 bg-muted rounded-full mx-auto" />

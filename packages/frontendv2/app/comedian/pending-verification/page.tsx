@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Navbar } from '@/components/layout/navbar';
+
 import { Button } from '@/components/ui/button';
 import { Clock, ShieldCheck, ArrowLeft, Mail } from 'lucide-react';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function ComedianPendingPage() {
     return (
         <main className="min-h-screen bg-background flex flex-col">
-            <Navbar />
+
 
             <div className="flex-grow flex items-center justify-center pt-32 pb-20 px-4">
                 <div className="max-w-xl w-full space-y-8 text-center">

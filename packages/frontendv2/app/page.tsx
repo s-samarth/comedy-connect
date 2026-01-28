@@ -1,4 +1,3 @@
-import { Navbar } from '@/components/layout/navbar';
 import { ShowList } from '@/components/shows/show-list';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, ShieldCheck, Zap } from 'lucide-react';
@@ -8,7 +7,6 @@ import Image from 'next/image';
 export default function Home() {
   return (
     <main className="min-h-screen bg-background">
-      <Navbar />
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">

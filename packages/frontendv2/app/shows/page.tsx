@@ -1,4 +1,3 @@
-import { Navbar } from '@/components/layout/navbar';
 import { ShowList } from '@/components/shows/show-list';
 import { Search, Filter, SlidersHorizontal } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 export default function ShowsPage() {
     return (
         <main className="min-h-screen bg-background">
-            <Navbar />
+
 
             <div className="container mx-auto px-4 pt-32 pb-20">
                 {/* Header */}

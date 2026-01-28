@@ -3,7 +3,7 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import { useShow, useAuth } from '@/lib/hooks';
-import { Navbar } from '@/components/layout/navbar';
+
 import { ShowBooking } from '@/components/shows/show-booking';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Calendar, MapPin, Users, Clock, Youtube, Instagram, ArrowLeft } from 'lucide-react';
@@ -21,7 +21,7 @@ export default function ShowDetailsPage() {
     if (isLoading) {
         return (
             <main className="min-h-screen bg-background">
-                <Navbar />
+
                 <div className="container mx-auto px-4 pt-32">
                     <Skeleton className="h-[400px] w-full rounded-3xl" />
                 </div>
@@ -32,7 +32,7 @@ export default function ShowDetailsPage() {
     if (error || !show) {
         return (
             <main className="min-h-screen bg-background">
-                <Navbar />
+
                 <div className="container mx-auto px-4 pt-32 text-center">
                     <h1 className="text-2xl font-bold">Show not found</h1>
                     <Link href="/shows">

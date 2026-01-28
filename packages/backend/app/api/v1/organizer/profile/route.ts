@@ -65,7 +65,8 @@ export async function POST(request: Request) {
     // Update user role and mark onboarding as completed
     // Only set to UNVERIFIED if not already VERIFIED
     const updateData: any = {
-      onboardingCompleted: true
+      onboardingCompleted: true,
+      phone: contact
     }
 
     if (user.role !== UserRole.ORGANIZER_VERIFIED) {

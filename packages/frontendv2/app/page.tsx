@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, ShieldCheck, Zap } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { FooterLinks } from '@/components/layout/FooterLinks';
+import { ListShowCTA } from '@/components/home/ListShowCTA';
 
 export default function Home() {
   return (
@@ -117,6 +119,10 @@ export default function Home() {
               <p className="text-muted-foreground">Know exactly who you're watching. Every comedian profile is verified by our team.</p>
             </div>
           </div>
+
+          <div className="flex justify-center pt-8">
+            <ListShowCTA />
+          </div>
         </div>
       </section>
 
@@ -151,10 +157,7 @@ export default function Home() {
             </div>
             <div>
               <h4 className="font-bold uppercase tracking-widest text-xs mb-6 text-primary">For Creators</h4>
-              <ul className="space-y-4 text-sm font-medium text-muted-foreground">
-                <li><Link href="/onboarding" className="hover:text-primary transition-colors">Join as Artist</Link></li>
-                <li><Link href="/organizer" className="hover:text-primary transition-colors">Organize Shows</Link></li>
-              </ul>
+              <FooterLinks />
             </div>
           </div>
           <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-muted-foreground uppercase tracking-widest">

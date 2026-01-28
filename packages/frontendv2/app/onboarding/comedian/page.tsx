@@ -27,9 +27,15 @@ export default function ComedianOnboardingPage() {
         youtube: ''
     });
 
+    // Use a ref to track if we've already prefilled the data to prevent overwriting user edits
+    const hasPrefilledRef = React.useRef(false);
+
     React.useEffect(() => {
         if (!isAuthLoading && !user) {
             router.push('/');
+        } else if (user?.phone && !hasPrefilledRef.current) {
+            setFormData(prev => ({ ...prev, contact: user.phone || '' }));
+            hasPrefilledRef.current = true;
         }
     }, [user, isAuthLoading, router]);
 
@@ -40,6 +46,12 @@ export default function ComedianOnboardingPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (formData.contact.length !== 10) {
+            setError('Contact number must be exactly 10 digits');
+            return;
+        }
+
         setIsSubmitting(true);
         setError(null);
 

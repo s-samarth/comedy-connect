@@ -6,6 +6,7 @@ import { ShowResponse, BookingResponse, SessionResponse } from '@comedy-connect/
 
 export interface User extends NonNullable<SessionResponse['user']> {
     onboardingCompleted?: boolean;
+    phone?: string;
     comedianProfile?: {
         stageName: string;
     };

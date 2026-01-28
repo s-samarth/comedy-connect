@@ -54,7 +54,8 @@ export async function POST(request: Request) {
 
         // Only set to UNVERIFIED if not already VERIFIED
         const updateData: any = {
-            onboardingCompleted: true
+            onboardingCompleted: true,
+            phone: contact
         }
 
         if (user.role !== "COMEDIAN_VERIFIED") {

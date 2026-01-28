@@ -108,14 +108,14 @@ function OnboardingForm() {
                 </div>
 
                 <Card className="bg-card border-border shadow-2xl rounded-3xl overflow-hidden">
-                    <CardHeader className="bg-muted/30 border-b border-border p-8">
+                    <CardHeader className="bg-muted/30 border-b border-border px-8 pt-0 pb-0">
                         <CardTitle className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
                             <Sparkles size={24} className="text-primary" />
                             Your Profile
                         </CardTitle>
                         <CardDescription className="font-medium">All marked fields (*) are mandatory.</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-8">
+                    <CardContent className="px-8 pb-8 pt-0">
                         <form onSubmit={handleSubmit} className="space-y-8">
                             {error && (
                                 <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-500 text-sm font-bold uppercase tracking-tight">

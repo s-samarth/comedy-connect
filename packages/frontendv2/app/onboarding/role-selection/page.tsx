@@ -7,9 +7,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Users, Mic2, CalendarRange, Check, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function RoleSelectionPage() {
-    const { user, isLoading: isAuthLoading } = useAuth();
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [dialogContent, setDialogContent] = React.useState({ title: '', description: '', action: '' });
+    const { user, isLoading: isAuthLoading, isOrganizer, isComedian } = useAuth();
     const router = useRouter();
 
     React.useEffect(() => {
@@ -45,12 +54,56 @@ export default function RoleSelectionPage() {
         }
     ];
 
-    const handleSelect = (role: string) => {
-        if (role === 'AUDIENCE') {
+    const handleSelect = (roleId: string) => {
+        if (roleId === 'AUDIENCE') {
             router.push('/');
-        } else {
-            router.push(`/onboarding/${role.toLowerCase()}`);
+            return;
         }
+
+        // Check for conflicts
+        if (roleId === 'COMEDIAN' && isOrganizer) {
+            setDialogContent({
+                title: 'You are an Organizer',
+                description: 'Your account is already registered as an Organizer. You can manage your shows from the dashboard.',
+                action: '/organizer/dashboard'
+            });
+            setDialogOpen(true);
+            return;
+        }
+
+        if (roleId === 'ORGANIZER' && isComedian) {
+            setDialogContent({
+                title: 'You are a Comedian',
+                description: 'Your account is already registered as a Comedian. You can manage your profile from the dashboard.',
+                action: '/comedian/dashboard'
+            });
+            setDialogOpen(true);
+            return;
+        }
+
+        // Logic for same role (optional, but good UX)
+        if (roleId === 'COMEDIAN' && isComedian) {
+            setDialogContent({
+                title: 'Welcome Back!',
+                description: 'You are already a registered Comedian.',
+                action: '/comedian/dashboard'
+            });
+            setDialogOpen(true);
+            return;
+        }
+
+        if (roleId === 'ORGANIZER' && isOrganizer) {
+            setDialogContent({
+                title: 'Welcome Back!',
+                description: 'You are already a registered Organizer.',
+                action: '/organizer/dashboard'
+            });
+            setDialogOpen(true);
+            return;
+        }
+
+
+        router.push(`/onboarding/${roleId.toLowerCase()}`);
     };
 
     if (isAuthLoading || !user) return null;
@@ -115,6 +168,25 @@ export default function RoleSelectionPage() {
                     ))}
                 </div>
             </div>
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="sm:max-w-md border-border bg-card">
+                    <DialogHeader>
+                        <DialogTitle className="text-2xl font-black uppercase italic tracking-tight">{dialogContent.title}</DialogTitle>
+                        <DialogDescription className="text-muted-foreground font-medium pt-2">
+                            {dialogContent.description}
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end pt-4">
+                        <Button
+                            className="w-full h-12 rounded-full font-bold uppercase tracking-widest gap-2"
+                            onClick={() => router.push(dialogContent.action)}
+                        >
+                            Go to Dashboard <ArrowRight size={16} />
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }

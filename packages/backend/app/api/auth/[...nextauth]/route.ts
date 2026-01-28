@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
 
         if (dbUser) {
           ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted
+            ; (session.user as any).phone = dbUser.phone
         }
 
         if (dbUser) {

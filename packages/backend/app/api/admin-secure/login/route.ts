@@ -46,8 +46,8 @@ export async function POST(request: Request) {
         // Using admin-secure-session to distinguish from previous attempts
         response.cookies.set('admin-secure-session', sessionCookie, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
+            secure: true, // Always secure for SameSite=None
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             path: '/'
         })
 

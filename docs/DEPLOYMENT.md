@@ -28,7 +28,7 @@ Repeat the import process specifically for the Backend:
 4. **Build & Development Settings**: 
    - Build Command: `npx prisma generate && next build`
    - Install Command: `npm install`
-5. **Environment Variables**: Add all variables from `packages/backend/.env.example`.
+5. **Environment Variables**: Add all variables from `packages/backend/.env.prod`.
    - `DATABASE_URL`: Your production PG URL.
    - `NEXTAUTH_URL`: `https://api.comedyconnect.in`
    - `NEXTAUTH_SECRET`: A long random string.
@@ -76,7 +76,7 @@ Configure stable subdomains for your `develop` branch deployments in Vercel Sett
 *   **Backend**: `https://dev-api.comedyconnect.in` (Git Branch: `develop`)
 
 ### 2. Environment Variables (Preview Mode)
-In `Settings` -> `Environment Variables`, add these specific values and check **ONLY "Preview"** (uncheck Production).
+In `Settings` -> `Environment Variables`, add values from `packages/backend/.env.dev` and `packages/frontend/.env.dev`, checking **ONLY "Preview"** (uncheck Production).
 
 **Frontend (`comedy-connect`)**:
 *   `API_URL`: `https://dev-api.comedyconnect.in`

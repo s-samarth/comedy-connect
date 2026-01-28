@@ -240,6 +240,18 @@ npm run test:security
 - **Security**: RBAC and Auth enforcement
 - **Schema**: Database integrity validation
 
+## 🗄️ Database Environments
+
+Comedy Connect employs a **3-tier Database Strategy** to ensure data integrity and separation of concerns.
+
+| Environment | Purpose | Config File | Usage |
+| :--- | :--- | :--- | :--- |
+| **Development** | Local features, experiments | `.env` / `.env.local` | `npm run dev` (Localhost) |
+| **Test / Pre-prod** | Staging, integration testing | `.env.dev` | `npm run build` (Deployed to `dev.comedyconnect.in`) |
+| **Production** | Live real-world data | `.env.prod` | `npm run build` (Deployed to `comedyconnect.in`) |
+
+> **Critical**: Never use the Production Database URL in Development or Test environments to prevent data corruption.
+
 ## 🚀 Deployment
 
 ### Environment Setup

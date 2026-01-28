@@ -5,7 +5,8 @@ This guide explains how to run the decoupled Comedy Connect monorepo on your loc
 ## 🛠️ Prerequisites
 - **Node.js**: v18 or v20+
 - **Database**: PostgreSQL instance running (Local or Cloud)
-- **Environment**: Root `.env` file with proper credentials (see `packages/backend/.env.example`)
+- **Environment**: Root `.env` file with proper credentials (see `packages/backend/.env.example`).
+  > **Note**: Local development uses `.env` or `.env.local`. Do not use `.env.prod` or `.env.dev` locally to avoid affecting deployed environments.
 
 ---
 

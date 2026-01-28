@@ -10,6 +10,12 @@ The database is managed exclusively by the **Backend Package** (`packages/backen
 The schema and migrations reside in:
 `packages/backend/prisma/schema.prisma`
 
+### Database Environments
+We maintain strict separation between environments:
+1.  **Production** (`.env.prod`): Live data.
+2.  **Pre-Production** (`.env.dev`): Staging/Test data.
+3.  **Development** (`.env`): Local playground data.
+
 ---
 
 ## 📊 Core Models

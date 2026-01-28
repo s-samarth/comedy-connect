@@ -58,6 +58,17 @@ No bugs found.
 
 ---
 
+### 2. Image Upload Fails for Large Files (>4.5MB) in Production
+- **Status**: OPEN
+- **Location**: `packages/frontend/components/ui/ImageUpload.tsx` / Next.js Server Actions
+- **Impact**: Users cannot upload high-quality images (e.g., 4.5MB PNGs) in production, disrupting show creation and profile updates. Alert "Upload failed" appears.
+- **Description**: Working on localhost but failing in production. Con![alt text](image.png)firmed to be hitting the Vercel Serverless Function payload limit (4.5MB).
+- **Fix**: 
+    1. Short-term: Attempt to increase `bodySizeLimit` in `next.config.ts` (attempted).
+    2. Long-term (Robust): Refactor `ImageUpload` to perform **Client-Side Uploads** directly to Cloudinary (using Signed Upload Presets or a signature endpoint), bypassing the Vercel server lambda entirely.
+
+---
+
 ## 🔵 Priority: P3 (Low Impact / UX)
 
 ### 1. Profile Deletion Side Effects

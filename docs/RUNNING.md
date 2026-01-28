@@ -57,6 +57,7 @@ In this mode, the frontend calls the standalone backend service on port 4000.
 # packages/frontend/.env.local
 NEXT_PUBLIC_USE_NEW_BACKEND=true
 NEXT_PUBLIC_BACKEND_URL=http://localhost:4000
+API_URL=http://localhost:4000
 ```
 
 ---

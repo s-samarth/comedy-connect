@@ -1,4 +1,61 @@
 import bcrypt from 'bcryptjs'
+import { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
+import { prisma } from '@/lib/prisma'
+
+// Admin session verification result type
+export interface AdminSessionResult {
+    valid: boolean
+    needsPassword?: boolean
+    user?: {
+        role: string
+        email: string
+    }
+    error?: string
+}
+
+// Verify admin session and checking for password setup
+export async function verifyAdminSession(request: NextRequest): Promise<AdminSessionResult> {
+    try {
+        const token = await getToken({
+            req: request,
+            secret: process.env.NEXTAUTH_SECRET
+        })
+
+        if (!token || !token.email) {
+            return { valid: false, error: 'unauthorized' }
+        }
+
+        // Get user from database to check role and password status
+        const user = await prisma.user.findUnique({
+            where: { email: token.email }
+        })
+
+        if (!user) {
+            return { valid: false, error: 'user_not_found' }
+        }
+
+        if (user.role !== 'ADMIN') {
+            return {
+                valid: false,
+                error: 'not_admin',
+                user: { role: user.role, email: user.email }
+            }
+        }
+
+        // Check if admin password is set
+        const needsPassword = !user.adminPasswordHash
+
+        return {
+            valid: true,
+            needsPassword,
+            user: { role: user.role, email: user.email }
+        }
+    } catch (error) {
+        console.error('Verify admin session error:', error)
+        return { valid: false, error: 'server_error' }
+    }
+}
 
 // Admin password utilities
 export async function hashAdminPassword(password: string): Promise<string> {

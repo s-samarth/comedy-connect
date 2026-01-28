@@ -88,7 +88,7 @@ export default async function BookingsPage() {
                     </div>
                 ) : (
                     <div className="space-y-4">
-                        {bookings.map((booking) => {
+                        {bookings.map((booking: any) => {
                             const isPastShow = new Date(booking.show.date) < new Date()
 
                             return (

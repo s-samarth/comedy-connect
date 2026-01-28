@@ -22,6 +22,7 @@ export interface ShowResponse {
     ticketPrice: number
     totalTickets: number
     posterImageUrl: string | null
+    durationMinutes: number | null
     isPublished: boolean
     isDisbursed: boolean
     customPlatformFee: number | null

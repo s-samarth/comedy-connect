@@ -30,11 +30,11 @@ Repeat the import process specifically for the Backend:
    - Install Command: `npm install`
 5. **Environment Variables**: Add all variables from `packages/backend/.env.example`.
    - `DATABASE_URL`: Your production PG URL.
-   - `NEXTAUTH_URL`: `https://your-api-url.vercel.app`
+   - `NEXTAUTH_URL`: `https://api.comedyconnect.in`
    - `NEXTAUTH_SECRET`: A long random string.
    - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
    - `ADMIN_EMAIL`: The email address allowed to access the admin panel.
-   - `ALLOWED_ORIGIN`: `https://your-frontend-url.vercel.app` (The Frontend URL).
+   - `ALLOWED_ORIGIN`: `https://comedyconnect.in` (The Frontend URL).
    - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`: Required for image uploads.
 6. Click **"Deploy"**.
 
@@ -49,8 +49,8 @@ Repeat the import process for the Frontend:
 3. **Root Directory**: Select `packages/frontend`.
 4. **Environment Variables**:
    - `NEXT_PUBLIC_USE_NEW_BACKEND`: `true`
-   - `NEXT_PUBLIC_BACKEND_URL`: `https://your-api-url.vercel.app` (The Backend URL).
-   - `API_URL`: `https://your-api-url.vercel.app` (Required for API Rewrites).
+   - `NEXT_PUBLIC_BACKEND_URL`: `https://api.comedyconnect.in` (The Backend URL).
+   - `API_URL`: `https://api.comedyconnect.in` (Required for API Rewrites).
    - `ADMIN_EMAIL`: Same as Backend, used for session validation.
 5. Click **"Deploy"**.
 
@@ -101,7 +101,7 @@ Ensure all the following variables are set in your Vercel Project Settings for p
 | Variable | Description | Example / Note |
 | :--- | :--- | :--- |
 | `DATABASE_URL` | PostgreSQL Connection String | From Neon/Supabase/RDS |
-| `NEXTAUTH_URL` | The URL of this Backend | `https://comedy-connect-backend.vercel.app` |
+| `NEXTAUTH_URL` | The URL of this Backend | `https://api.comedyconnect.in` |
 | `NEXTAUTH_SECRET` | Secret for session encryption | Long random string (Same as Frontend) |
 | `ALLOWED_ORIGIN` | Allowed CORS Origin (The Frontend URL) | `https://comedyconnect.in` |
 | `ADMIN_EMAIL` | Email allowed to access Admin Panel | `user@example.com` |
@@ -127,9 +127,9 @@ Ensure all the following variables are set in your Vercel Project Settings for p
 | `DATABASE_URL` | PostgreSQL Connection String | Same as Backend (for NextAuth Adapter) |
 | `NEXTAUTH_URL` | The URL of this Frontend | `https://comedyconnect.in` |
 | `NEXTAUTH_SECRET` | Secret for session encryption | **MUST match Backend** |
-| `API_URL` | URL of the Backend API | `https://comedy-connect-backend.vercel.app` |
+| `API_URL` | URL of the Backend API | `https://api.comedyconnect.in` |
 | `NEXT_PUBLIC_USE_NEW_BACKEND`| Enable Decoupled Mode | `true` |
-| `NEXT_PUBLIC_BACKEND_URL` | Backend URL for Client-side calls | `https://comedy-connect-backend.vercel.app` |
+| `NEXT_PUBLIC_BACKEND_URL` | Backend URL for Client-side calls | `https://api.comedyconnect.in` |
 | `ADMIN_EMAIL` | Email allowed to access Admin Panel | Same as Backend |
 | `GOOGLE_CLIENT_ID` | Google OAuth Client ID | Same as Backend |
 | `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Same as Backend |
@@ -161,7 +161,7 @@ If the build fails with "Prisma Client not found", ensure your **Build Command**
 
 ### Authentication Redirects
 If Google OAuth fails, ensure the **Authorized Redirect URI** in your Google Cloud Console includes the Backend URL:
-`https://your-api-url.vercel.app/api/auth/callback/google`
+`https://api.comedyconnect.in/api/auth/callback/google`
 
 ### Cross-Origin Cookies
 Verify that both projects are on the same root domain (e.g., `api.example.com` and `app.example.com`) for the best cookie compatibility. The backend is configured to use `SameSite: 'none'; Secure` in production to support cross-domain usage.

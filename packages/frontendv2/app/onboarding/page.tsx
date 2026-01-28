@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/lib/hooks';
 import { api } from '@/lib/api/client';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,22 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Sparkles, User, MapPin, Phone, Info } from 'lucide-react';
+import { Loader2, Sparkles, User, MapPin, Phone, Info, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 
 export default function OnboardingPage() {
+    return (
+        <React.Suspense fallback={
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <Loader2 className="animate-spin text-primary" size={48} />
+            </div>
+        }>
+            <OnboardingForm />
+        </React.Suspense>
+    );
+}
+
+function OnboardingForm() {
     const { user, isLoading: isAuthLoading } = useAuth();
     const router = useRouter();
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -49,6 +61,9 @@ export default function OnboardingPage() {
         setFormData(prev => ({ ...prev, watchedComedy: value }));
     };
 
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/';
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -59,8 +74,8 @@ export default function OnboardingPage() {
                 ...formData,
                 age: parseInt(formData.age)
             });
-            // Force a hard redirect to refresh session
-            window.location.href = '/onboarding/role-selection';
+            // Force a hard redirect to refresh session and go to destination
+            window.location.href = callbackUrl;
         } catch (err: any) {
             setError(err.message || 'Something went wrong');
             setIsSubmitting(false);
@@ -207,6 +222,28 @@ export default function OnboardingPage() {
                                         <Label htmlFor="no" className="font-bold">Not yet!</Label>
                                     </div>
                                 </RadioGroup>
+                            </div>
+
+                            {/* Heard About Us */}
+                            <div className="space-y-3 pt-2">
+                                <Label htmlFor="heardAboutUs" className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                    <Megaphone size={14} /> Where did you hear about us? (Optional)
+                                </Label>
+                                <select
+                                    id="heardAboutUs"
+                                    name="heardAboutUs"
+                                    value={formData.heardAboutUs}
+                                    onChange={handleChange}
+                                    className="h-12 w-full px-4 rounded-full bg-muted/30 border border-border focus:outline-none focus:border-primary font-bold text-sm appearance-none"
+                                >
+                                    <option value="">Select an option</option>
+                                    <option value="friends">Friends</option>
+                                    <option value="instagram">Instagram</option>
+                                    <option value="youtube">YouTube</option>
+                                    <option value="comics">From comedians</option>
+                                    <option value="google">Google search</option>
+                                    <option value="other">Other</option>
+                                </select>
                             </div>
 
                             {/* Bio */}

@@ -86,13 +86,14 @@ export function Navbar() {
                             </Button>
                         </div>
                     ) : (
-                        <Button
-                            size="sm"
-                            className="bg-primary text-primary-foreground hover:bg-primary/90"
-                            onClick={() => window.location.href = '/api/auth/signin'}
-                        >
-                            Sign In
-                        </Button>
+                        <Link href="/auth/signin">
+                            <Button
+                                size="sm"
+                                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                            >
+                                Sign In
+                            </Button>
+                        </Link>
                     )}
                 </div>
 
@@ -153,12 +154,13 @@ export function Navbar() {
                                 </Button>
                             </>
                         ) : (
-                            <Button
-                                className="w-full bg-primary text-primary-foreground"
-                                onClick={() => window.location.href = '/api/auth/signin'}
-                            >
-                                Sign In
-                            </Button>
+                            <Link href="/auth/signin" onClick={() => setIsMenuOpen(false)}>
+                                <Button
+                                    className="w-full bg-primary text-primary-foreground"
+                                >
+                                    Sign In
+                                </Button>
+                            </Link>
                         )}
                     </div>
                 </div>

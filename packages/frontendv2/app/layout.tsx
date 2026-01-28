@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import OnboardingGuard from "@/components/auth/OnboardingGuard";
 import { Toaster } from 'sonner';
 
 import { NavbarWrapper } from "@/components/layout/NavbarWrapper";
@@ -31,11 +30,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >
-        <OnboardingGuard>
+        <>
           <NavbarWrapper />
           {children}
           <Toaster position="top-center" richColors />
-        </OnboardingGuard>
+        </>
       </body>
     </html>
   );

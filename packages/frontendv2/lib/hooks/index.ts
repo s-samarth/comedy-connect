@@ -10,6 +10,8 @@ export interface User extends NonNullable<SessionResponse['user']> {
     comedianProfile?: {
         stageName: string;
     };
+    age?: number;
+    city?: string;
     organizerProfile?: {
         name: string;
     };
@@ -89,6 +91,22 @@ export function useBookings() {
 
     return {
         bookings: data?.bookings || [],
+        isLoading,
+        error,
+        mutate,
+    };
+}
+/**
+ * Custom hook for fetching sales reports (for Comedians & Organizers)
+ */
+export function useSales() {
+    const { data, error, isLoading, mutate } = useSWR<{ shows: any[] }>(
+        '/api/v1/organizer/sales',
+        () => api.get<{ shows: any[] }>('/api/v1/organizer/sales')
+    );
+
+    return {
+        sales: data?.shows || [],
         isLoading,
         error,
         mutate,

@@ -174,6 +174,7 @@ function OnboardingForm() {
                                         onChange={handleChange}
                                         className="h-12 w-full px-4 rounded-full bg-muted/30 border border-border focus:outline-none focus:border-primary font-bold text-sm appearance-none"
                                     >
+                                        <option value="">Select city</option>
                                         <option value="Hyderabad">Hyderabad</option>
                                     </select>
                                 </div>

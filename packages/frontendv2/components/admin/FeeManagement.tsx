@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api/client"
-import { Trash, Loader2 } from "lucide-react"
+import { Trash2, Loader2, DollarSign, Info, ShieldAlert, BadgePercent, TrendingUp, Plus, Clock } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 
 interface FeeSlab {
     minPrice: number
@@ -28,6 +31,7 @@ export default function FeeManagement() {
 
     const fetchFeeConfig = async () => {
         try {
+            setIsLoading(true)
             const data = await api.get<any>("/api/v1/admin/fees")
             if (data?.feeConfig) {
                 setFeeConfig(data.feeConfig)
@@ -35,6 +39,7 @@ export default function FeeManagement() {
             }
         } catch (error) {
             console.error("Failed to fetch fee config:", error)
+            toast.error("Failed to load fee configuration")
         } finally {
             setIsLoading(false)
         }
@@ -47,8 +52,9 @@ export default function FeeManagement() {
         try {
             const data = await api.post<any>("/api/v1/admin/fees", { slabs: formData })
             setFeeConfig(data.feeConfig)
+            toast.success("Platform revenue settings updated")
         } catch (error: any) {
-            alert(error.message?.replace('API Error:', '').trim() || "Failed to update fee configuration")
+            toast.error(error.message?.replace('API Error:', '').trim() || "Failed to update configuration")
         } finally {
             setIsSaving(false)
         }
@@ -74,135 +80,153 @@ export default function FeeManagement() {
 
     if (isLoading) {
         return (
-            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8 space-y-4 animate-pulse">
-                <div className="h-6 bg-slate-200 rounded w-1/4"></div>
-                <div className="h-32 bg-slate-100 rounded-lg"></div>
+            <div className="space-y-8">
+                <div className="h-24 bg-muted animate-pulse rounded-[2.5rem]" />
+                <div className="h-96 bg-muted animate-pulse rounded-[2.5rem]" />
             </div>
         )
     }
 
     return (
-        <div className="max-w-4xl mx-auto py-4">
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h2 className="text-xl font-bold text-slate-900">Platform Revenue Settings</h2>
-                    <p className="text-slate-500 text-sm">Configure dynamic booking fees based on ticket price slabs.</p>
+        <div className="space-y-12 pb-20">
+            {/* Context Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+                <div className="space-y-2">
+                    <p className="text-muted-foreground text-sm font-medium italic max-w-xl">
+                        Design dynamic revenue structures through price-based commission slabs. Automated per-ticket handling for the entire ecosystem.
+                    </p>
                 </div>
                 {feeConfig && (
-                    <div className="text-right">
-                        <p className="text-xs text-slate-400">Last updated</p>
-                        <p className="text-sm font-medium text-slate-700">{new Date(feeConfig.lastUpdated).toLocaleDateString()}</p>
+                    <div className="flex items-center gap-3 bg-muted/30 border border-border px-4 py-2 rounded-2xl">
+                        <Clock size={14} className="text-muted-foreground" />
+                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            Last Modified <span className="text-primary ml-1">{new Date(feeConfig.lastUpdated).toLocaleDateString()}</span>
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-6 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
-                    <h3 className="font-semibold text-slate-900">Active Booking Fee Slabs For Ticket Prices(Per Ticket Cost)</h3>
-                    <button
-                        type="button"
-                        onClick={addSlab}
-                        className="text-sm px-3 py-1.5 bg-white border border-slate-300 rounded-md text-slate-700 hover:bg-slate-50 font-medium transition-colors shadow-sm"
-                    >
-                        + Add Tier
-                    </button>
+            {/* Explainer / Warning */}
+            <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
+                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                    <BadgePercent size={120} className="text-primary" />
                 </div>
+                <div className="bg-background/80 p-4 rounded-3xl border border-primary/20">
+                    <ShieldAlert size={28} className="text-primary" />
+                </div>
+                <div className="flex-1 space-y-1">
+                    <h3 className="font-black italic uppercase tracking-tighter text-lg">Platform Revenue Governance</h3>
+                    <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-2xl">
+                        Adjusting these parameters will immediately affect the platform's cut from all upcoming transactions. Always ensure slabs are continuous and do not overlap to prevent billing logic anomalies.
+                    </p>
+                </div>
+            </div>
 
-                <form onSubmit={handleSubmit}>
-                    <div className="divide-y divide-slate-100">
+            <form onSubmit={handleSubmit} className="space-y-10">
+                <div className="bg-card border border-border rounded-[3rem] shadow-2xl overflow-hidden">
+                    <div className="p-8 md:p-10 bg-muted/10 border-b border-border flex justify-between items-center">
+                        <div className="flex items-center gap-4">
+                            <TrendingUp className="text-primary" size={20} />
+                            <h3 className="font-black italic uppercase tracking-tighter text-xl">Dynamic Commission Tiers</h3>
+                        </div>
+                        <Button
+                            type="button"
+                            onClick={addSlab}
+                            className="rounded-xl font-black uppercase tracking-widest text-[9px] h-10 px-6 gap-2 bg-background border border-border text-foreground hover:bg-muted shadow-lg"
+                        >
+                            <Plus size={14} /> Add Revenue Tier
+                        </Button>
+                    </div>
+
+                    <div className="divide-y divide-border">
                         {formData.length === 0 ? (
-                            <div className="p-12 text-center text-slate-500">
-                                No fee slabs configured. Add a tier to start collecting fees.
+                            <div className="py-24 text-center space-y-4">
+                                <DollarSign size={40} className="mx-auto text-muted-foreground opacity-20" />
+                                <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">No active revenue slabs found</p>
                             </div>
                         ) : (
                             formData.map((slab, index) => (
-                                <div key={index} className="p-6 hover:bg-slate-50/50 transition-colors group">
-                                    <div className="flex items-start gap-6">
-                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div>
-                                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                                                    Min Price (₹)
+                                <div key={index} className="px-8 md:px-12 py-10 hover:bg-primary/5 transition-all duration-500 group">
+                                    <div className="flex flex-col md:flex-row items-end gap-8">
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                    Min Ticket Price (₹)
                                                 </label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-slate-400">₹</span>
+                                                <div className="relative group/input">
+                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black italic text-primary/40 group-focus-within/input:text-primary transition-colors italic">₹</div>
                                                     <input
                                                         type="number"
-                                                        min="0"
-                                                        step="0.01"
                                                         value={slab.minPrice}
                                                         onChange={(e) => updateSlab(index, 'minPrice', parseFloat(e.target.value))}
-                                                        className="w-full pl-7 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                        className="w-full bg-background border border-border rounded-2xl pl-10 pr-4 py-4 text-sm font-black italic focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                                     />
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                                                    Max Price (₹)
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                    Max Ticket Price (₹)
                                                 </label>
-                                                <div className="relative">
-                                                    <span className="absolute left-3 top-2.5 text-slate-400">₹</span>
+                                                <div className="relative group/input">
+                                                    <div className="absolute left-4 top-1/2 -translate-y-1/2 font-black italic text-primary/40 group-focus-within/input:text-primary transition-colors italic">₹</div>
                                                     <input
                                                         type="number"
-                                                        min="0"
-                                                        step="0.01"
                                                         value={slab.maxPrice}
                                                         onChange={(e) => updateSlab(index, 'maxPrice', parseFloat(e.target.value))}
-                                                        className="w-full pl-7 pr-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                        className="w-full bg-background border border-border rounded-2xl pl-10 pr-4 py-4 text-sm font-black italic focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                                     />
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-                                                    Booking Fee
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                                    Platform Commission (%)
                                                 </label>
-                                                <div className="relative flex items-center">
+                                                <div className="relative group/input">
                                                     <input
                                                         type="number"
-                                                        min="0"
-                                                        max="100"
                                                         step="0.1"
                                                         value={Number((slab.fee * 100).toFixed(1))}
                                                         onChange={(e) => updateSlab(index, 'fee', parseFloat(e.target.value) / 100)}
-                                                        className="w-full pl-3 pr-8 py-2 bg-white border border-slate-200 rounded-lg text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                                        className="w-full bg-primary/5 border border-primary/20 rounded-2xl pl-4 pr-10 py-4 text-sm font-black italic text-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                                     />
-                                                    <span className="absolute right-3 text-slate-400 font-medium">%</span>
+                                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 font-black italic text-primary/40">%</div>
                                                 </div>
-                                                <p className="text-xs text-slate-400 mt-1">
-                                                    Applies to range ₹{slab.minPrice} - ₹{slab.maxPrice}
-                                                </p>
                                             </div>
                                         </div>
 
-                                        <button
+                                        <Button
                                             type="button"
+                                            variant="ghost"
+                                            size="icon"
                                             onClick={() => removeSlab(index)}
-                                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors mt-6 opacity-0 group-hover:opacity-100"
-                                            aria-label="Remove slab"
+                                            className="h-14 w-14 rounded-2xl text-muted-foreground hover:bg-destructive/5 hover:text-destructive opacity-40 group-hover:opacity-100 transition-all border border-transparent hover:border-destructive/10"
                                         >
-                                            <Trash className="w-5 h-5" />
-                                        </button>
+                                            <Trash2 size={20} />
+                                        </Button>
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
 
-                    <div className="p-6 bg-slate-50 border-t border-slate-200 flex justify-end">
-                        <button
+                    <div className="p-10 md:p-12 bg-muted/20 border-t border-border flex justify-between items-center">
+                        <div className="flex items-center gap-4 text-muted-foreground opacity-60">
+                            <Info size={16} />
+                            <p className="text-[10px] font-black uppercase tracking-widest italic">Changes take effect globally on save</p>
+                        </div>
+                        <Button
                             type="submit"
                             disabled={isSaving}
-                            className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-100 transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
+                            className="rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 px-10 shadow-2xl bg-primary text-primary-foreground hover:scale-105 transition-transform gap-3"
                         >
-                            {isSaving && (
-                                <Loader2 className="animate-spin h-4 w-4 text-white" />
-                            )}
-                            {isSaving ? "Saving Changes..." : "Save Configuration"}
-                        </button>
+                            {isSaving ? <Loader2 className="animate-spin w-4 h-4" /> : <DollarSign size={16} />}
+                            {isSaving ? "Synchronizing..." : "Save Configuration"}
+                        </Button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     )
 }

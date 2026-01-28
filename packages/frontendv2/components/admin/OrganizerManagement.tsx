@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { api } from "@/lib/api/client"
-import { X, MapPin, Phone } from "lucide-react"
+import { Building2, Mail, MapPin, Phone, ShieldCheck, XCircle, CheckCircle2, AlertTriangle, Users, Search, X } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { toast } from "sonner"
 
 interface Organizer {
     id: string
@@ -34,6 +37,7 @@ export default function OrganizerManagement() {
     const [isLoading, setIsLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
     const [reviewOrganizer, setReviewOrganizer] = useState<Organizer | null>(null)
+    const [searchQuery, setSearchQuery] = useState("")
 
     useEffect(() => {
         fetchOrganizers()
@@ -41,10 +45,12 @@ export default function OrganizerManagement() {
 
     const fetchOrganizers = async () => {
         try {
+            setIsLoading(true)
             const data = await api.get<any>("/api/v1/admin/organizers")
             setOrganizers(data.organizers || [])
         } catch (error) {
             console.error("Failed to fetch organizers:", error)
+            toast.error("Failed to load organizer directory")
         } finally {
             setIsLoading(false)
         }
@@ -52,13 +58,13 @@ export default function OrganizerManagement() {
 
     const handleAction = async (organizerId: string, action: 'APPROVE' | 'REJECT' | 'REVOKE') => {
         setActionLoading(organizerId)
-
         try {
             await api.post("/api/v1/admin/organizers", { organizerId, action })
-            await fetchOrganizers() // Refresh the list
-            setReviewOrganizer(null) // Close modal if open
+            toast.success(`Organizer status updated: ${action.toLowerCase()}`)
+            await fetchOrganizers()
+            setReviewOrganizer(null)
         } catch (error: any) {
-            alert(error.message?.replace('API Error:', '').trim() || "Failed to process action")
+            toast.error(error.message?.replace('API Error:', '').trim() || "Failed to process action")
         } finally {
             setActionLoading(null)
         }
@@ -68,127 +74,130 @@ export default function OrganizerManagement() {
         setActionLoading(organizerId)
         try {
             await api.post("/api/v1/admin/organizers", { organizerId, action: 'UPDATE_FEE', customPlatformFee })
+            toast.success("Platform commission updated")
             await fetchOrganizers()
             setReviewOrganizer(null)
         } catch (error: any) {
-            alert(error.message?.replace('API Error:', '').trim() || "Failed to update fee")
+            toast.error(error.message?.replace('API Error:', '').trim() || "Failed to update fee")
         } finally {
             setActionLoading(null)
         }
     }
 
+    const filteredOrganizers = organizers.filter(o =>
+        o.organizerProfile?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        o.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+
     if (isLoading) {
         return (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {[1, 2, 3].map((i) => (
-                    <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-100 p-6 animate-pulse">
-                        <div className="h-4 bg-slate-200 rounded w-1/4 mb-4"></div>
-                        <div className="h-6 bg-slate-200 rounded w-1/2 mb-4"></div>
-                        <div className="space-y-2">
-                            <div className="h-4 bg-slate-200 rounded w-full"></div>
-                            <div className="h-4 bg-slate-200 rounded w-3/4"></div>
-                        </div>
-                    </div>
+                    <div key={i} className="h-64 bg-muted animate-pulse rounded-[2.5rem]" />
                 ))}
             </div>
         )
     }
 
     return (
-        <div>
-            {/* Header */}
-            <div className="mb-6">
-                <h2 className="text-lg font-medium text-slate-900">Registered Organizers</h2>
-                <p className="text-slate-500 text-sm">Review application details and approve valid organizers.</p>
+        <div className="space-y-8">
+            {/* Header Controls */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <p className="text-muted-foreground text-sm font-medium max-w-xl italic">
+                    Verify venue credentials, oversee organizer performance, and manage platform commission rates for events.
+                </p>
+                <div className="relative w-full md:w-80 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={16} />
+                    <input
+                        type="text"
+                        placeholder="Filter by organizer name or email..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-muted/20 border border-border rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                </div>
             </div>
 
-            {organizers.length === 0 ? (
-                <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-slate-100">
-                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
-                    </div>
-                    <p className="text-slate-600 font-medium">No organizers found</p>
-                    <p className="text-slate-400 text-sm mt-1">Wait for users to sign up as organizers.</p>
+            {filteredOrganizers.length === 0 ? (
+                <div className="bg-card border border-dashed border-border rounded-[2.5rem] p-20 text-center space-y-4">
+                    <Building2 size={48} className="mx-auto text-muted-foreground opacity-20" />
+                    <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">No organizers found in directory</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {organizers.map((organizer) => {
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {filteredOrganizers.map((organizer) => {
                         const latestApproval = organizer.organizerProfile?.approvals?.[0];
                         const profileUpdatedAt = organizer.organizerProfile?.updatedAt ? new Date(organizer.organizerProfile.updatedAt) : null;
                         const rejectionAt = latestApproval?.status === 'REJECTED' ? new Date(latestApproval.updatedAt) : null;
-
                         const isRejected = latestApproval?.status === 'REJECTED' && (!profileUpdatedAt || !rejectionAt || profileUpdatedAt <= rejectionAt);
 
                         return (
-                            <div key={organizer.id} className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col">
-                                <div className="p-6 flex-1">
-                                    {/* Status Badge */}
-                                    <div className="flex justify-between items-start mb-4">
-                                        <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
-                                            <span className="text-blue-600 font-bold text-lg">{organizer.organizerProfile?.name?.charAt(0) || "?"}</span>
+                            <div key={organizer.id} className="bg-card border border-border rounded-[2.5rem] p-7 shadow-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500 flex flex-col">
+                                <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
+
+                                <div className="space-y-6 relative z-10 flex-1">
+                                    <div className="flex justify-between items-start">
+                                        <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shadow-lg">
+                                            <Building2 size={24} className="text-primary" />
                                         </div>
-                                        <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${organizer.role === 'ORGANIZER_VERIFIED'
-                                            ? "bg-green-100 text-green-700 border border-green-200"
-                                            : isRejected
-                                                ? "bg-red-100 text-red-700 border border-red-200"
-                                                : "bg-amber-100 text-amber-700 border border-amber-200"
+                                        <Badge className={`font-black uppercase tracking-widest text-[9px] ${organizer.role === 'ORGANIZER_VERIFIED' ? "bg-emerald-500/10 text-emerald-600" :
+                                            isRejected ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
                                             }`}>
-                                            {organizer.role === 'ORGANIZER_VERIFIED' ? 'Verified' : isRejected ? 'Rejected' : 'Pending Review'}
-                                        </span>
+                                            {organizer.role === 'ORGANIZER_VERIFIED' ? 'Verified' : isRejected ? 'Rejected' : 'Pending'}
+                                        </Badge>
                                     </div>
 
-                                    <h3 className="text-lg font-bold text-slate-900 mb-1">{organizer.organizerProfile?.name || "Unknown Organizer"}</h3>
-                                    <p className="text-sm text-slate-500 mb-4">{organizer.email}</p>
-
-                                    <div className="space-y-2 text-sm text-slate-600 mb-6">
-                                        <div className="flex items-start gap-2">
-                                            <MapPin className="w-4 h-4 text-slate-400 mt-0.5" />
-                                            <span className="flex-1">{organizer.organizerProfile?.venue || "No venue listed"}</span>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <Phone className="w-4 h-4 text-slate-400 mt-0.5" />
-                                            <span className="flex-1">{organizer.organizerProfile?.contact || "No contact info"}</span>
+                                    <div>
+                                        <h3 className="font-black italic uppercase tracking-tighter text-xl leading-none">
+                                            {organizer.organizerProfile?.name || "Unknown Organizer"}
+                                        </h3>
+                                        <div className="flex items-center gap-2 mt-2 text-muted-foreground font-bold uppercase tracking-tight text-[10px]">
+                                            <Mail size={12} />
+                                            {organizer.email}
                                         </div>
                                     </div>
 
-                                    {/* View Details Button */}
-                                    <button
-                                        onClick={() => setReviewOrganizer(organizer)}
-                                        className="w-full py-2 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-lg text-sm font-medium transition-colors border border-slate-200"
-                                    >
-                                        View Full Profile
-                                    </button>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                            <MapPin size={14} className="text-primary/60" />
+                                            <span className="truncate">{organizer.organizerProfile?.venue || "No venue listed"}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                                            <Phone size={14} className="text-primary/60" />
+                                            <span>{organizer.organizerProfile?.contact || "No contact info"}</span>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                {/* Quick Actions Footer (Only for pending) */}
-                                <div className="p-4 bg-slate-50 border-t border-slate-100 grid grid-cols-1 gap-3">
+                                <div className="mt-8 pt-6 border-t border-border flex gap-3 relative z-10">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-11 border-border bg-background hover:bg-muted"
+                                        onClick={() => setReviewOrganizer(organizer)}
+                                    >
+                                        Review Details
+                                    </Button>
+
                                     {organizer.role === 'ORGANIZER_UNVERIFIED' ? (
-                                        <div className="grid grid-cols-2 gap-3">
-                                            <button
-                                                onClick={() => handleAction(organizer.id, 'REJECT')}
-                                                disabled={actionLoading === organizer.id || isRejected}
-                                                className={`py-2 px-3 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-medium hover:bg-red-50 hover:text-red-700 hover:border-red-200 transition-colors disabled:opacity-50 ${isRejected ? 'hidden' : ''}`}
-                                            >
-                                                Reject
-                                            </button>
-                                            <button
-                                                onClick={() => handleAction(organizer.id, 'APPROVE')}
-                                                disabled={actionLoading === organizer.id}
-                                                className={`py-2 px-3 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50 ${isRejected ? 'col-span-2' : ''}`}
-                                            >
-                                                {isRejected ? 'Reconsider & Verify' : 'Approve'}
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleAction(organizer.id, 'REVOKE')}
+                                        <Button
+                                            size="sm"
+                                            className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-11 shadow-lg"
                                             disabled={actionLoading === organizer.id}
-                                            className="py-2 px-3 bg-white border border-slate-300 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-100 transition-colors disabled:opacity-50"
+                                            onClick={() => handleAction(organizer.id, 'APPROVE')}
                                         >
-                                            Revoke Status
-                                        </button>
+                                            {isRejected ? 'Verify' : 'Approve'}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-11 text-destructive hover:bg-destructive/5 hover:text-destructive transition-all opacity-40 hover:opacity-100"
+                                            disabled={actionLoading === organizer.id}
+                                            onClick={() => handleAction(organizer.id, 'REVOKE')}
+                                        >
+                                            Revoke Access
+                                        </Button>
                                     )}
                                 </div>
                             </div>
@@ -199,132 +208,141 @@ export default function OrganizerManagement() {
 
             {/* Review Modal */}
             {reviewOrganizer && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b border-slate-100 flex justify-between items-start sticky top-0 bg-white z-10">
-                            <div>
-                                <h3 className="text-xl font-bold text-slate-900">Review Application</h3>
-                                <p className="text-sm text-slate-500">Submitted on {reviewOrganizer.organizerProfile?.createdAt ? new Date(reviewOrganizer.organizerProfile.createdAt).toLocaleDateString() : 'N/A'}</p>
-                            </div>
-                            <button
-                                onClick={() => setReviewOrganizer(null)}
-                                className="p-1 hover:bg-slate-100 rounded-full transition-colors"
-                            >
-                                <X className="w-6 h-6 text-slate-400" />
-                            </button>
-                        </div>
+                <div className="fixed inset-0 bg-background/80 backdrop-blur-xl flex items-center justify-center p-4 z-50">
+                    <div className="bg-card border border-border rounded-[3rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative anim-enter">
+                        <button
+                            onClick={() => setReviewOrganizer(null)}
+                            className="absolute top-8 right-8 p-2 hover:bg-muted rounded-full transition-colors z-20"
+                        >
+                            <X className="w-6 h-6 text-muted-foreground" />
+                        </button>
 
-                        <div className="p-6 space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center text-2xl font-bold text-blue-600">
-                                    {reviewOrganizer.organizerProfile?.name?.charAt(0) || "?"}
+                        <div className="p-10 md:p-14 overflow-y-auto custom-scrollbar space-y-12">
+                            {/* Header Section */}
+                            <div className="flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left">
+                                <div className="w-32 h-32 rounded-[2rem] bg-primary/5 flex items-center justify-center border-4 border-background shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                                    <Building2 size={48} className="text-primary" />
                                 </div>
-                                <div>
-                                    <h4 className="text-lg font-bold text-slate-900">{reviewOrganizer.organizerProfile?.name || "Unknown"}</h4>
-                                    <p className="text-slate-500">{reviewOrganizer.email}</p>
-                                    <span className={`inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${reviewOrganizer.role === 'ORGANIZER_VERIFIED'
-                                        ? "bg-green-100 text-green-700"
-                                        : "bg-amber-100 text-amber-700"
-                                        }`}>
-                                        {reviewOrganizer.role === 'ORGANIZER_VERIFIED' ? 'Verified Account' : 'Pending Verification'}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                <div className="p-4 bg-slate-50 rounded-xl space-y-3">
-                                    <h5 className="font-semibold text-slate-900 text-sm">Organization Details</h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="text-xs text-slate-500 uppercase font-medium">Venue Address</p>
-                                            <p className="text-slate-800">{reviewOrganizer.organizerProfile?.venue || "Not provided"}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs text-slate-500 uppercase font-medium">Contact Number</p>
-                                            <p className="text-slate-800">{reviewOrganizer.organizerProfile?.contact || "Not provided"}</p>
-                                        </div>
-                                    </div>
+                                <div className="space-y-4">
                                     <div>
-                                        <p className="text-xs text-slate-500 uppercase font-medium">Description</p>
-                                        <p className="text-slate-800 mt-1 leading-relaxed">{reviewOrganizer.organizerProfile?.description || "No description provided."}</p>
+                                        <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none">
+                                            {reviewOrganizer.organizerProfile?.name}
+                                        </h3>
+                                        <p className="text-primary font-bold uppercase tracking-widest text-xs mt-2">{reviewOrganizer.email}</p>
+                                    </div>
+                                    <div className="flex flex-wrap justify-center md:justify-start gap-2">
+                                        <Badge className="bg-primary/10 text-primary uppercase font-black tracking-widest text-[10px] px-3">Organiser Account</Badge>
+                                        <Badge variant="outline" className="uppercase font-black tracking-widest text-[10px] px-3">{reviewOrganizer.role.replace('_', ' ')}</Badge>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Custom Platform Fee Setting */}
-                                <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl space-y-3">
-                                    <h5 className="font-semibold text-blue-900 text-sm">Platform Fee Settings</h5>
-                                    <div className="flex items-end gap-4">
-                                        <div className="flex-1">
-                                            <label className="block text-xs text-blue-700 uppercase font-medium mb-1">Platform Commission (%)</label>
-                                            <input
-                                                type="number"
-                                                id="custom-fee-input"
-                                                defaultValue={(reviewOrganizer.organizerProfile as any)?.customPlatformFee ?? 8}
-                                                step="0.1"
-                                                min="0"
-                                                max="100"
-                                                className="w-full px-3 py-2 bg-white border border-blue-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <button
-                                            onClick={() => {
-                                                const val = (document.getElementById('custom-fee-input') as HTMLInputElement).value;
-                                                handleUpdateFee(reviewOrganizer.id, parseFloat(val));
-                                            }}
-                                            disabled={actionLoading === reviewOrganizer.id}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
-                                        >
-                                            Update Fee
-                                        </button>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                                <div className="md:col-span-2 space-y-10">
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Venue Description
+                                        </h4>
+                                        <p className="text-muted-foreground leading-relaxed font-medium">
+                                            {reviewOrganizer.organizerProfile?.description || "No professional description has been provided for this organizer profile."}
+                                        </p>
                                     </div>
-                                    <p className="text-[10px] text-blue-500">
-                                        Default is 8%. This will apply to all platform commissions for this organizer.
-                                    </p>
-                                </div>
 
-                                {reviewOrganizer.organizerProfile?.approvals && reviewOrganizer.organizerProfile.approvals.length > 0 && (
-                                    <div className="border border-slate-100 rounded-xl p-4">
-                                        <h5 className="font-semibold text-slate-900 text-sm mb-3">History</h5>
+                                    <div className="grid grid-cols-2 gap-8">
                                         <div className="space-y-2">
-                                            {reviewOrganizer.organizerProfile.approvals.map((approval) => (
-                                                <div key={approval.id} className="flex items-center text-sm gap-2">
-                                                    <span className={`w-2 h-2 rounded-full ${approval.status === 'APPROVED' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                    <span className="font-medium text-slate-700">{approval.status}</span>
-                                                    <span className="text-slate-400">by {approval.admin.email}</span>
-                                                    <span className="text-slate-400 ml-auto">{new Date(approval.createdAt).toLocaleDateString()}</span>
-                                                </div>
-                                            ))}
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                Venue Address
+                                            </h4>
+                                            <p className="text-xs font-black italic uppercase tracking-tight">{reviewOrganizer.organizerProfile?.venue || "N/A"}</p>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                Contact Access
+                                            </h4>
+                                            <p className="text-xs font-black italic uppercase tracking-tight">{reviewOrganizer.organizerProfile?.contact || "N/A"}</p>
                                         </div>
                                     </div>
-                                )}
+
+                                    {reviewOrganizer.organizerProfile?.approvals && reviewOrganizer.organizerProfile.approvals.length > 0 && (
+                                        <div className="space-y-4 pt-4 border-t border-border">
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verification Trail</h4>
+                                            <div className="space-y-3">
+                                                {reviewOrganizer.organizerProfile.approvals.map((approval) => (
+                                                    <div key={approval.id} className="flex items-center gap-3 p-3 bg-muted/20 border border-border rounded-2xl">
+                                                        <ShieldCheck className={`w-4 h-4 ${approval.status === 'APPROVED' ? 'text-emerald-500' : 'text-destructive'}`} />
+                                                        <div className="text-[10px] font-bold uppercase">
+                                                            {approval.status} <span className="text-muted-foreground mx-1">/</span> {approval.admin.email}
+                                                        </div>
+                                                        <div className="text-[9px] text-muted-foreground ml-auto">{new Date(approval.createdAt).toLocaleDateString()}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 space-y-6">
+                                        <div className="space-y-2">
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Platform Commission</h4>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    id="custom-fee-input"
+                                                    type="number"
+                                                    defaultValue={(reviewOrganizer.organizerProfile as any)?.customPlatformFee ?? 8}
+                                                    step="0.1"
+                                                    className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm font-black focus:ring-2 focus:ring-primary outline-none"
+                                                />
+                                                <Button
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        const val = (document.getElementById('custom-fee-input') as HTMLInputElement).value;
+                                                        handleUpdateFee(reviewOrganizer.id, parseFloat(val));
+                                                    }}
+                                                    className="rounded-xl h-9 px-4 font-black uppercase tracking-widest text-[9px] shadow-lg"
+                                                >
+                                                    Update
+                                                </Button>
+                                            </div>
+                                            <p className="text-[9px] text-primary/60 font-bold uppercase tracking-tight italic">Platform baseline is 8%</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Admin Console</h4>
+                                        <div className="space-y-2">
+                                            <Button
+                                                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 shadow-xl"
+                                                onClick={() => handleAction(reviewOrganizer.id, 'APPROVE')}
+                                                disabled={actionLoading === reviewOrganizer.id}
+                                            >
+                                                <CheckCircle2 size={16} /> Approve Application
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                className="w-full rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 border-border"
+                                                onClick={() => handleAction(reviewOrganizer.id, 'REJECT')}
+                                                disabled={actionLoading === reviewOrganizer.id}
+                                            >
+                                                <XCircle size={16} /> Mark as Ineligible
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end gap-3 rounded-b-2xl">
-                            <button
+                        <div className="p-8 md:p-10 border-t border-border bg-muted/20 flex justify-between items-center mt-auto">
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest italic">
+                                Verification Required for platform access
+                            </p>
+                            <Button
+                                variant="ghost"
+                                className="rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-muted"
                                 onClick={() => setReviewOrganizer(null)}
-                                className="px-4 py-2 bg-white text-slate-700 border border-slate-300 rounded-lg hover:bg-slate-50 font-medium"
                             >
-                                Close
-                            </button>
-                            {reviewOrganizer.role === 'ORGANIZER_UNVERIFIED' && (
-                                <>
-                                    <button
-                                        onClick={() => handleAction(reviewOrganizer.id, 'REJECT')}
-                                        disabled={actionLoading === reviewOrganizer.id}
-                                        className="px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg hover:bg-red-50 font-medium disabled:opacity-50"
-                                    >
-                                        Reject Application
-                                    </button>
-                                    <button
-                                        onClick={() => handleAction(reviewOrganizer.id, 'APPROVE')}
-                                        disabled={actionLoading === reviewOrganizer.id}
-                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-sm disabled:opacity-50"
-                                    >
-                                        {actionLoading === reviewOrganizer.id ? 'Processing...' : 'Approve Organizer'}
-                                    </button>
-                                </>
-                            )}
+                                Dismiss Review
+                            </Button>
                         </div>
                     </div>
                 </div>

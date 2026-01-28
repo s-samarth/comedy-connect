@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/hooks';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, LogOut, LayoutDashboard, Layout } from 'lucide-react';
+import { Menu, X, User, LogOut, LayoutDashboard, Layout, Ticket, ShieldCheck } from 'lucide-react';
 
 export function Navbar() {
     const { user, isAuthenticated, isLoading } = useAuth();
@@ -69,6 +69,20 @@ export function Navbar() {
                                     </Button>
                                 </Link>
                             )}
+                            {user?.role === 'ADMIN' && (
+                                <Link href="/admin">
+                                    <Button variant="ghost" size="sm" className="gap-2">
+                                        <LayoutDashboard size={16} />
+                                        <span>Admin Panel</span>
+                                    </Button>
+                                </Link>
+                            )}
+                            <Link href="/bookings">
+                                <Button variant="ghost" size="sm" className="gap-2">
+                                    <Ticket size={16} />
+                                    <span>My Bookings</span>
+                                </Button>
+                            </Link>
                             <Link href="/profile">
                                 <Button variant="ghost" size="sm" className="gap-2">
                                     <User size={16} />
@@ -138,6 +152,20 @@ export function Navbar() {
                                         </Button>
                                     </Link>
                                 )}
+                                {user?.role === 'ADMIN' && (
+                                    <Link href="/admin" onClick={() => setIsMenuOpen(false)}>
+                                        <Button variant="ghost" className="w-full justify-start gap-2">
+                                            <ShieldCheck size={18} />
+                                            Admin Panel
+                                        </Button>
+                                    </Link>
+                                )}
+                                <Link href="/bookings" onClick={() => setIsMenuOpen(false)}>
+                                    <Button variant="ghost" className="w-full justify-start gap-2">
+                                        <Ticket size={18} />
+                                        My Bookings
+                                    </Button>
+                                </Link>
                                 <Link href="/profile" onClick={() => setIsMenuOpen(false)}>
                                     <Button variant="ghost" className="w-full justify-start gap-2">
                                         <User size={18} />

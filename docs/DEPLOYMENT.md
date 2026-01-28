@@ -4,8 +4,8 @@ This guide explains how to deploy the decoupled Comedy Connect architecture to *
 
 ## 🏗️ Architecture Overview
 Vercel allows you to deploy multiple projects from a single GitHub repository. We will create **two** separate Vercel projects:
-1. `comedy-connect-api` (The Backend)
-2. `comedy-connect-ui` (The Frontend)
+1. `comedy-connect-backend` (The Backend)
+2. `comedy-connect` (The Frontend)
 
 ---
 
@@ -22,7 +22,7 @@ Vercel allows you to deploy multiple projects from a single GitHub repository. W
 
 Repeat the import process specifically for the Backend:
 
-1. **Project Name**: `comedy-connect-api`.
+1. **Project Name**: `comedy-connect-backend`.
 2. **Framework Preset**: Next.js.
 3. **Root Directory**: Select `packages/backend`.
 4. **Build & Development Settings**: 
@@ -44,7 +44,7 @@ Repeat the import process specifically for the Backend:
 
 Repeat the import process for the Frontend:
 
-1. **Project Name**: `comedy-connect-ui`.
+1. **Project Name**: `comedy-connect`.
 2. **Framework Preset**: Next.js.
 3. **Root Directory**: Select `packages/frontend`.
 4. **Environment Variables**:
@@ -66,11 +66,37 @@ Once both are deployed, ensure the variables cross-reference correctly:
 
 ---
 
+## 🧪 Step 5: Configuring Pre-Production Environment
+
+To verify changes before they go to production, set up a **Pre-prod** environment connected to your `develop` branch.
+
+### 1. Domain Setup
+Configure stable subdomains for your `develop` branch deployments in Vercel Settings -> Domains.
+*   **Frontend**: `https://dev.comedyconnect.in` (Git Branch: `develop`)
+*   **Backend**: `https://dev-api.comedyconnect.in` (Git Branch: `develop`)
+
+### 2. Environment Variables (Preview Mode)
+In `Settings` -> `Environment Variables`, add these specific values and check **ONLY "Preview"** (uncheck Production).
+
+**Frontend (`comedy-connect`)**:
+*   `API_URL`: `https://dev-api.comedyconnect.in`
+*   `NEXT_PUBLIC_BACKEND_URL`: `https://dev-api.comedyconnect.in`
+*   `NEXTAUTH_URL`: `https://dev.comedyconnect.in`
+
+**Backend (`comedy-connect-backend`)**:
+*   `ALLOWED_ORIGIN`: `https://dev.comedyconnect.in`
+*   `NEXTAUTH_URL`: `https://dev-api.comedyconnect.in`
+*   `DATABASE_URL`: **Important**: Use a separate "Staging/Dev" database URL to prevent production data corruption.
+
+After configuring, **Redeploy** the latest commit on `develop` to verify the connection.
+
+---
+
 ## 📋 Environment Variables Reference
 
 Ensure all the following variables are set in your Vercel Project Settings for proper functionality.
 
-### Backend (`comedy-connect-api`)
+### Backend (`comedy-connect-backend`)
 
 | Variable | Description | Example / Note |
 | :--- | :--- | :--- |
@@ -94,7 +120,7 @@ Ensure all the following variables are set in your Vercel Project Settings for p
 | `EMAIL_FROM` | Sender Email Address | `noreply@comedyconnect.com` |
 | `ADMIN_ALLOWED_IPS` | Optional whitelist of Admin IPs | Comma separated IPs |
 
-### Frontend (`comedy-connect-ui`)
+### Frontend (`comedy-connect`)
 
 | Variable | Description | Example / Note |
 | :--- | :--- | :--- |

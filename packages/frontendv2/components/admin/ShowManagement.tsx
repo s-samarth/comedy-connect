@@ -117,11 +117,11 @@ export function ShowManagement() {
     if (loading) return (
         <div className="space-y-4">
             {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white rounded-xl shadow-sm border border-slate-100 p-4 animate-pulse flex gap-4">
-                    <div className="w-24 h-24 bg-slate-200 rounded-lg"></div>
+                <div key={i} className="bg-white/[0.02] border border-white/[0.05] rounded-xl p-4 animate-pulse flex gap-4">
+                    <div className="w-24 h-24 bg-white/[0.05] rounded-lg"></div>
                     <div className="flex-1 space-y-2 py-1">
-                        <div className="h-4 bg-slate-200 rounded w-1/3"></div>
-                        <div className="h-4 bg-slate-200 rounded w-1/4"></div>
+                        <div className="h-4 bg-white/[0.05] rounded w-1/3"></div>
+                        <div className="h-4 bg-white/[0.05] rounded w-1/4"></div>
                     </div>
                 </div>
             ))}
@@ -135,81 +135,81 @@ export function ShowManagement() {
             {/* Header & Filters */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 className="text-lg font-medium text-slate-900">Show Moderation</h2>
-                    <p className="text-slate-500 text-sm">Monitor content and manage live events.</p>
+                    <h2 className="text-xl font-bold italic uppercase tracking-tight">Show Moderation</h2>
+                    <p className="text-body-standard text-xs">Monitor content and manage live events.</p>
                 </div>
-                <div className="flex bg-slate-100 p-1 rounded-lg self-start">
+                <div className="flex bg-white/[0.03] border border-white/[0.05] p-1 rounded-xl self-start">
                     {(['ALL', 'PUBLISHED', 'DRAFT', 'COMPLETED'] as const).map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-4 py-1.5 text-sm font-medium rounded-md transition-all ${filter === f
-                                ? 'bg-white text-slate-900 shadow-sm'
-                                : 'text-slate-500 hover:text-slate-700'
+                            className={`px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all ${filter === f
+                                ? 'bg-primary text-primary-foreground shadow-sm'
+                                : 'text-meta-label hover:text-white'
                                 }`}
                         >
-                            {f.charAt(0) + f.slice(1).toLowerCase()}
+                            {f}
                         </button>
                     ))}
                 </div>
             </div>
 
             {filteredShows.length === 0 ? (
-                <div className="bg-white rounded-xl shadow-sm p-12 text-center border border-slate-100">
-                    <p className="text-slate-600 font-medium">No shows found</p>
+                <div className="bg-white/[0.01] border border-dashed border-white/[0.05] rounded-2xl p-16 text-center">
+                    <p className="text-meta-label font-bold uppercase tracking-widest text-xs">No shows found</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-white/[0.01] border border-white/[0.05] rounded-2xl overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-slate-200" style={{ minWidth: '1100px' }}>
-                            <thead className="bg-slate-50">
+                        <table className="min-w-full divide-y divide-white/[0.05]" style={{ minWidth: '1100px' }}>
+                            <thead className="bg-white/[0.02]">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Event
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Organizer
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Date
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Status
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Payment
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Platform Fee
                                     </th>
-                                    <th className="px-6 py-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Finance
                                     </th>
-                                    <th className="px-6 py-3 text-right text-[10px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50 border-b border-slate-200">
+                                    <th className="px-6 py-4 text-right text-xs font-bold text-meta-label uppercase tracking-widest border-b border-white/[0.05]">
                                         Action
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-slate-200">
+                            <tbody className="bg-transparent divide-y divide-white/[0.05]">
                                 {filteredShows.map((show) => (
-                                    <tr key={show.id} className="hover:bg-slate-50 transition-colors">
+                                    <tr key={show.id} className="hover:bg-white/[0.02] transition-colors">
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-4">
-                                                <a href={`/shows/${show.id}`} target="_blank" rel="noopener noreferrer" className="block w-12 h-16 bg-slate-100 rounded-md overflow-hidden flex-shrink-0 relative hover:opacity-80 transition-opacity">
+                                                <a href={`/shows/${show.id}`} target="_blank" rel="noopener noreferrer" className="block w-12 h-16 bg-white/[0.05] rounded-md overflow-hidden flex-shrink-0 relative hover:opacity-80 transition-opacity">
                                                     {show.posterImageUrl ? (
                                                         <img src={show.posterImageUrl} alt="" className="w-full h-full object-cover" />
                                                     ) : (
-                                                        <div className="absolute inset-0 flex items-center justify-center text-slate-300">
+                                                        <div className="absolute inset-0 flex items-center justify-center text-white/10">
                                                             <ImageIcon className="w-6 h-6" />
                                                         </div>
                                                     )}
                                                 </a>
                                                 <div>
-                                                    <a href={`/shows/${show.id}`} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-900 line-clamp-1 hover:text-blue-600 transition-colors">
+                                                    <a href={`/shows/${show.id}`} target="_blank" rel="noopener noreferrer" className="text-base font-semibold text-white line-clamp-1 hover:text-primary transition-colors">
                                                         {show.title}
                                                     </a>
-                                                    <div className="text-xs text-slate-500 mt-0.5 flex flex-col gap-0.5">
-                                                        <span className="font-medium text-slate-700">
+                                                    <div className="text-[11px] text-meta-label mt-0.5 flex flex-col gap-0.5">
+                                                        <span className="font-medium text-emerald-400">
                                                             ₹{show.stats?.revenue?.toLocaleString('en-IN') || 0} Revenue
                                                         </span>
                                                         <span>
@@ -220,18 +220,18 @@ export function ShowManagement() {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-slate-900 font-medium">
+                                            <div className="text-base text-white font-medium">
                                                 {show.creator.organizerProfile?.name || "Unknown"}
                                             </div>
-                                            <div className="text-xs text-slate-500">
+                                            <div className="text-[11px] text-meta-label">
                                                 {show.creator.email}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-slate-900">
+                                            <div className="text-sm text-white">
                                                 {new Date(show.date).toLocaleDateString()}
                                             </div>
-                                            <div className="text-xs text-slate-500 truncate max-w-[150px]">
+                                            <div className="text-[11px] text-meta-label truncate max-w-[150px]">
                                                 {show.venue}
                                             </div>
                                         </td>
@@ -256,22 +256,22 @@ export function ShowManagement() {
                                                 value={show.isDisbursed ? 'DISBURSED' : 'TO_BE_DISBURSED'}
                                                 onChange={(e) => handleSetDisbursed(show.id, e.target.value === 'DISBURSED')}
                                                 disabled={actionLoading === show.id + '-payment'}
-                                                className={`text-[10px] font-black uppercase tracking-tight rounded-md px-2 py-1 border transition-colors ${show.isDisbursed
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100'
-                                                    } focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-sm`}
+                                                className={`text-xs font-black uppercase tracking-tight rounded-md px-2 py-1 border transition-colors ${show.isDisbursed
+                                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
+                                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
+                                                    } focus:outline-none focus:ring-1 focus:ring-primary shadow-sm outline-none`}
                                             >
-                                                <option value="TO_BE_DISBURSED">To Be Disbursed</option>
-                                                <option value="DISBURSED">Disbursed</option>
+                                                <option value="TO_BE_DISBURSED" className="bg-zinc-950">To Be Disbursed</option>
+                                                <option value="DISBURSED" className="bg-zinc-950">Disbursed</option>
                                             </select>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {show.isDisbursed ? (
                                                 <div className="flex items-center gap-1">
-                                                    <span className="text-xs font-black text-slate-700">
+                                                    <span className="text-sm font-black text-white">
                                                         {show.customPlatformFee ?? 8}%
                                                     </span>
-                                                    <span className="text-[9px] bg-slate-100 text-slate-400 px-1 py-0.5 rounded font-black border border-slate-200 uppercase tracking-tighter">FIXED</span>
+                                                    <span className="text-[10px] bg-white/[0.05] text-meta-label px-1 py-0.5 rounded font-black border border-white/[0.05] uppercase tracking-tighter">FIXED</span>
                                                 </div>
                                             ) : (
                                                 <ShowFeeEditor
@@ -284,7 +284,7 @@ export function ShowManagement() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <button
                                                 onClick={() => setSelectedShowFinanceId(show.id)}
-                                                className="inline-flex items-center gap-1 text-[10px] font-black text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md border border-blue-100 transition-all uppercase tracking-tight"
+                                                className="inline-flex items-center gap-1 text-xs font-black text-primary hover:bg-primary/10 px-2 py-1 rounded-md border border-primary/20 transition-all uppercase tracking-tight"
                                             >
                                                 View
                                             </button>
@@ -296,9 +296,9 @@ export function ShowManagement() {
                                                         <button
                                                             onClick={() => handleAction(show.id, show.isPublished ? 'UNPUBLISH' : 'PUBLISH')}
                                                             disabled={actionLoading === show.id}
-                                                            className={`px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-tight transition-colors border shadow-sm ${show.isPublished
-                                                                ? 'text-orange-600 bg-orange-50 border-orange-100 hover:bg-orange-100'
-                                                                : 'text-emerald-600 bg-emerald-50 border-emerald-100 hover:bg-emerald-100'
+                                                            className={`px-2 py-1 rounded-md text-xs font-black uppercase tracking-tight transition-colors border shadow-sm ${show.isPublished
+                                                                ? 'text-orange-400 bg-orange-400/10 border-orange-400/20 hover:bg-orange-400/20'
+                                                                : 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20 hover:bg-emerald-400/20'
                                                                 } disabled:opacity-50`}
                                                         >
                                                             {actionLoading === show.id
@@ -311,13 +311,13 @@ export function ShowManagement() {
                                                         <button
                                                             onClick={() => handleAction(show.id, 'DELETE')}
                                                             disabled={actionLoading === show.id}
-                                                            className="px-2 py-1 bg-red-50 text-red-600 border border-red-100 hover:bg-red-100 rounded-md text-[10px] font-black uppercase tracking-tight transition-colors disabled:opacity-50 shadow-sm"
+                                                            className="px-2 py-1 bg-red-400/10 text-red-400 border border-red-400/20 hover:bg-red-400/20 rounded-md text-xs font-black uppercase tracking-tight transition-colors disabled:opacity-50 shadow-sm"
                                                         >
                                                             Delete
                                                         </button>
                                                     </>
                                                 ) : (
-                                                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter px-2">No Actions</span>
+                                                    <span className="text-xs font-bold text-meta-label uppercase tracking-tighter px-2">No Actions</span>
                                                 )}
                                             </div>
                                         </td>
@@ -381,15 +381,15 @@ function ShowFeeEditor({ showId, initialFee, onUpdate }: {
                             setIsDirty(true)
                         }}
                         disabled={isSaving}
-                        className="w-16 px-2 py-1 text-xs border border-slate-200 rounded focus:ring-1 focus:ring-blue-500 focus:outline-none disabled:opacity-50"
+                        className="w-16 px-2 py-1 text-sm bg-black border border-white/[0.05] rounded focus:ring-1 focus:ring-primary focus:outline-none disabled:opacity-50 text-white"
                     />
-                    <span className="text-xs text-slate-400">%</span>
+                    <span className="text-xs text-meta-label">%</span>
                 </div>
                 {isDirty && (
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded shadow-sm hover:bg-blue-700 disabled:opacity-50"
+                        className="text-[11px] bg-primary text-black font-bold px-2 py-0.5 rounded shadow-sm hover:bg-primary/90 disabled:opacity-50"
                     >
                         {isSaving ? '...' : 'Save'}
                     </button>
@@ -398,11 +398,11 @@ function ShowFeeEditor({ showId, initialFee, onUpdate }: {
 
             {initialFee !== null && initialFee !== undefined && !isDirty && (
                 <div className="flex flex-col">
-                    <span className="text-[10px] bg-blue-100 text-blue-700 px-1 rounded font-bold uppercase tracking-tighter">Override</span>
+                    <span className="text-[11px] bg-primary/10 text-primary px-1 rounded font-bold uppercase tracking-tighter text-center">Override</span>
                     <button
                         onClick={handleReset}
                         disabled={isSaving}
-                        className="text-[9px] text-slate-400 hover:text-red-500 underline mt-0.5 text-left"
+                        className="text-[10px] text-meta-label hover:text-red-400 underline mt-1 text-left"
                     >
                         {isSaving ? '...' : 'Reset'}
                     </button>

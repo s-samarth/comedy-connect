@@ -135,13 +135,13 @@ export default function ComedianManagement() {
     return (
         <div className="space-y-8">
             {/* Context Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                <div className="flex bg-muted/30 p-1 rounded-2xl border border-border w-full md:w-auto">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex bg-white/[0.03] p-1 rounded-xl border border-white/[0.05] w-full md:w-auto">
                     <button
                         onClick={() => setActiveTab('applications')}
-                        className={`flex-1 md:flex-none px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl flex items-center justify-center gap-2 ${activeTab === 'applications'
-                            ? 'bg-primary text-primary-foreground shadow-lg'
-                            : 'hover:bg-muted text-muted-foreground'
+                        className={`flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase tracking-widest transition-all rounded-lg flex items-center justify-center gap-2 ${activeTab === 'applications'
+                            ? 'bg-primary text-black'
+                            : 'text-meta-label hover:text-white'
                             }`}
                     >
                         <FileText size={14} />
@@ -149,9 +149,9 @@ export default function ComedianManagement() {
                     </button>
                     <button
                         onClick={() => setActiveTab('registry')}
-                        className={`flex-1 md:flex-none px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl flex items-center justify-center gap-2 ${activeTab === 'registry'
-                            ? 'bg-primary text-primary-foreground shadow-lg'
-                            : 'hover:bg-muted text-muted-foreground'
+                        className={`flex-1 md:flex-none px-6 py-2 text-xs font-bold uppercase tracking-widest transition-all rounded-lg flex items-center justify-center gap-2 ${activeTab === 'registry'
+                            ? 'bg-primary text-black'
+                            : 'text-meta-label hover:text-white'
                             }`}
                     >
                         <Users size={14} />
@@ -159,34 +159,34 @@ export default function ComedianManagement() {
                     </button>
                 </div>
 
-                <div className="relative w-full md:w-72 group">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={16} />
+                <div className="relative w-full md:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-meta-label" size={14} />
                     <input
                         type="text"
                         placeholder="Search artists..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-muted/20 border border-border rounded-2xl pl-12 pr-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                        className="w-full bg-white/[0.03] border border-white/[0.05] rounded-xl pl-10 pr-4 py-2 text-sm font-medium focus:outline-none focus:border-primary/30 transition-all"
                     />
                 </div>
             </div>
 
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-64 bg-muted animate-pulse rounded-[2.5rem]" />
+                        <div key={i} className="h-48 bg-white/[0.02] border border-white/[0.05] animate-pulse rounded-2xl" />
                     ))}
                 </div>
             ) : activeTab === 'applications' ? (
                 /* Applications View */
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {filteredApplications.length === 0 ? (
-                        <div className="bg-card border border-dashed border-border rounded-[2.5rem] p-20 text-center space-y-4">
-                            <User size={48} className="mx-auto text-muted-foreground opacity-20" />
-                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">No pending applications found</p>
+                        <div className="bg-white/[0.01] border border-dashed border-white/[0.05] rounded-2xl p-16 text-center space-y-4">
+                            <User size={32} className="mx-auto text-meta-label" />
+                            <p className="text-meta-label font-bold uppercase tracking-widest text-xs">No pending applications found</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredApplications.map((comedian) => {
                                 const latestApproval = comedian.comedianProfile?.approvals?.[0];
                                 const profileUpdatedAt = comedian.comedianProfile?.updatedAt ? new Date(comedian.comedianProfile.updatedAt) : null;
@@ -194,13 +194,11 @@ export default function ComedianManagement() {
                                 const isRejected = latestApproval?.status === 'REJECTED' && (!profileUpdatedAt || !rejectionAt || profileUpdatedAt <= rejectionAt);
 
                                 return (
-                                    <div key={comedian.id} className="bg-card border border-border rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                                        <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
-
-                                        <div className="flex flex-col h-full space-y-6 relative z-10">
+                                    <div key={comedian.id} className="bg-white/[0.01] border border-white/[0.05] rounded-2xl p-6 relative overflow-hidden group hover:border-white/[0.1] transition-all duration-300">
+                                        <div className="flex flex-col h-full space-y-4 relative z-10">
                                             <div className="flex justify-between items-start">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-border shadow-lg">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/[0.05]">
                                                         {(comedian.comedianProfile?.profileImageUrl || comedian.image) ? (
                                                             <img
                                                                 src={comedian.comedianProfile?.profileImageUrl || comedian.image}
@@ -208,45 +206,45 @@ export default function ComedianManagement() {
                                                                 className="w-full h-full object-cover"
                                                             />
                                                         ) : (
-                                                            <div className="w-full h-full bg-muted flex items-center justify-center">
-                                                                <User size={24} className="text-muted-foreground opacity-20" />
+                                                            <div className="w-full h-full bg-white/[0.05] flex items-center justify-center">
+                                                                <User size={18} className="text-muted-foreground/20" />
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-black italic uppercase tracking-tighter text-lg leading-none">
+                                                        <h3 className="font-bold italic uppercase tracking-tight text-lg leading-none">
                                                             {comedian.comedianProfile?.stageName || comedian.name || "Anonymous Artist"}
                                                         </h3>
-                                                        <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">
+                                                        <p className="text-[11px] font-medium text-meta-label mt-1 uppercase tracking-widest">
                                                             {comedian.email}
                                                         </p>
                                                     </div>
                                                 </div>
-                                                <Badge className={`font-black uppercase tracking-widest text-[9px] ${comedian.role === 'COMEDIAN_VERIFIED' ? "bg-emerald-500/10 text-emerald-600" :
-                                                    isRejected ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
+                                                <Badge className={`font-bold uppercase tracking-widest text-[10px] border-none ${comedian.role === 'COMEDIAN_VERIFIED' ? "bg-emerald-500/10 text-emerald-400" :
+                                                    isRejected ? "bg-destructive/10 text-destructive/70" : "bg-primary/10 text-primary"
                                                     }`}>
                                                     {comedian.role === 'COMEDIAN_VERIFIED' ? 'Verified' : isRejected ? 'Rejected' : 'Pending'}
                                                 </Badge>
                                             </div>
 
-                                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">
+                                            <p className="text-sm text-body-standard line-clamp-2 leading-relaxed font-medium">
                                                 {comedian.comedianProfile?.bio || "No profile bio provided yet."}
                                             </p>
 
-                                            <div className="mt-auto pt-4 flex gap-3">
+                                            <div className="mt-auto pt-2 flex gap-2">
                                                 <Button
-                                                    variant="outline"
+                                                    variant="ghost"
                                                     size="sm"
-                                                    className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-10 border-border hover:bg-muted"
+                                                    className="flex-1 rounded-lg font-bold uppercase tracking-widest text-[10px] h-9 bg-white/[0.03] hover:bg-white/[0.08]"
                                                     onClick={() => setReviewComedian(comedian)}
                                                 >
-                                                    Review Profile
+                                                    Review
                                                 </Button>
 
                                                 {comedian.role === 'COMEDIAN_UNVERIFIED' ? (
                                                     <Button
                                                         size="sm"
-                                                        className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-10 shadow-lg"
+                                                        className="flex-1 rounded-lg font-bold uppercase tracking-widest text-[10px] h-9 shadow-sm"
                                                         disabled={actionLoading === comedian.id}
                                                         onClick={() => handleAction(comedian.id, 'APPROVE')}
                                                     >
@@ -256,7 +254,7 @@ export default function ComedianManagement() {
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
-                                                        className="flex-1 rounded-xl font-black uppercase tracking-widest text-[9px] h-10 opacity-40 hover:opacity-100"
+                                                        className="flex-1 rounded-lg font-bold uppercase tracking-widest text-[10px] h-9 opacity-40 hover:opacity-100"
                                                         disabled={actionLoading === comedian.id}
                                                         onClick={() => handleAction(comedian.id, 'REVOKE')}
                                                     >
@@ -273,49 +271,47 @@ export default function ComedianManagement() {
                 </div>
             ) : (
                 /* Registry View */
-                <div className="space-y-8">
+                <div className="space-y-6">
                     {filteredRegistry.length === 0 ? (
-                        <div className="bg-card border border-dashed border-border rounded-[2.5rem] p-20 text-center space-y-4">
-                            <Users size={48} className="mx-auto text-muted-foreground opacity-20" />
-                            <p className="text-muted-foreground font-black uppercase tracking-widest text-xs">No independent artists found</p>
+                        <div className="bg-white/[0.01] border border-dashed border-white/[0.05] rounded-2xl p-16 text-center space-y-4">
+                            <Users size={32} className="mx-auto text-meta-label" />
+                            <p className="text-meta-label font-bold uppercase tracking-widest text-xs">No independent artists found</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {filteredRegistry.map((comedian) => (
-                                <div key={comedian.id} className="bg-card border border-border rounded-[2.5rem] p-6 shadow-xl relative overflow-hidden group hover:shadow-2xl transition-all duration-500">
-                                    <div className="absolute -right-4 -top-4 w-24 h-24 bg-primary/5 rounded-full blur-2xl group-hover:bg-primary/10 transition-colors" />
-
-                                    <div className="flex flex-col h-full space-y-6 relative z-10">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-14 h-14 rounded-2xl overflow-hidden border-2 border-border shadow-lg">
+                                <div key={comedian.id} className="bg-white/[0.01] border border-white/[0.05] rounded-2xl p-6 relative overflow-hidden group hover:border-white/[0.1] transition-all duration-300">
+                                    <div className="flex flex-col h-full space-y-4 relative z-10">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-xl overflow-hidden border border-white/[0.05]">
                                                 {comedian.profileImageUrl ? (
                                                     <img src={comedian.profileImageUrl} alt={comedian.name} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <div className="w-full h-full bg-muted flex items-center justify-center">
-                                                        <User size={24} className="text-muted-foreground opacity-20" />
+                                                    <div className="w-full h-full bg-white/[0.05] flex items-center justify-center">
+                                                        <User size={18} className="text-muted-foreground/20" />
                                                     </div>
                                                 )}
                                             </div>
                                             <div>
-                                                <h3 className="font-black italic uppercase tracking-tighter text-lg leading-none">{comedian.name}</h3>
-                                                <p className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-widest">
-                                                    Created By: {comedian.creator.organizerProfile?.name || comedian.creator.email}
+                                                <h3 className="font-bold italic uppercase tracking-tight text-lg leading-none">{comedian.name}</h3>
+                                                <p className="text-[11px] font-medium text-meta-label mt-1 uppercase tracking-widest">
+                                                    By: {comedian.creator.organizerProfile?.name || comedian.creator.email.split('@')[0]}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="bg-muted/30 rounded-xl p-3 border border-border">
-                                                <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Shows</div>
-                                                <div className="font-black text-sm">{comedian._count.showComedians}</div>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="bg-white/[0.02] rounded-lg p-2 border border-white/[0.03]">
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-meta-label mb-0.5">Shows</div>
+                                                <div className="font-bold text-sm">{comedian._count.showComedians}</div>
                                             </div>
-                                            <div className="bg-muted/30 rounded-xl p-3 border border-border">
-                                                <div className="text-[9px] font-black uppercase tracking-widest text-muted-foreground mb-1">Registered</div>
-                                                <div className="font-black text-[10px] uppercase">{new Date(comedian.createdAt).toLocaleDateString()}</div>
+                                            <div className="bg-white/[0.02] rounded-lg p-2 border border-white/[0.03]">
+                                                <div className="text-[10px] font-bold uppercase tracking-widest text-meta-label mb-0.5">Joined</div>
+                                                <div className="font-bold text-[11px] uppercase">{new Date(comedian.createdAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}</div>
                                             </div>
                                         </div>
 
-                                        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">
+                                        <p className="text-sm text-body-standard line-clamp-2 leading-relaxed font-medium">
                                             {comedian.bio || "No description available for this registry artist."}
                                         </p>
                                     </div>
@@ -326,64 +322,63 @@ export default function ComedianManagement() {
                 </div>
             )}
 
-            {/* Application Review Modal (reused from previous version) */}
             {reviewComedian && (
-                <div className="fixed inset-0 bg-background/80 backdrop-blur-xl flex items-center justify-center p-4 z-50">
-                    <div className="bg-card border border-border rounded-[3rem] shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col relative anim-enter">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 z-50">
+                    <div className="bg-zinc-950 border border-white/[0.05] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative anim-enter">
                         <button
                             onClick={() => setReviewComedian(null)}
-                            className="absolute top-8 right-8 p-2 hover:bg-muted rounded-full transition-colors z-20"
+                            className="absolute top-6 right-6 p-2 hover:bg-white/[0.05] rounded-full transition-colors z-20"
                         >
-                            <X className="w-6 h-6 text-muted-foreground" />
+                            <X className="w-5 h-5 text-muted-foreground/40 hover:text-white" />
                         </button>
 
-                        <div className="p-10 md:p-14 overflow-y-auto custom-scrollbar space-y-12">
-                            <div className="flex flex-col md:flex-row gap-10 items-center md:items-start text-center md:text-left">
-                                <div className="w-32 h-32 rounded-[2rem] overflow-hidden border-4 border-background shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                        <div className="p-10 overflow-y-auto custom-scrollbar space-y-10">
+                            <div className="flex gap-8 items-start">
+                                <div className="w-24 h-24 rounded-2xl overflow-hidden border border-white/[0.05] shadow-xl">
                                     {(reviewComedian.comedianProfile?.profileImageUrl || reviewComedian.image) ? (
                                         <img src={reviewComedian.comedianProfile?.profileImageUrl || reviewComedian.image} alt="Artist" className="w-full h-full object-cover" />
                                     ) : (
-                                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                                            <User size={48} className="text-muted-foreground opacity-20" />
+                                        <div className="w-full h-full bg-white/[0.05] flex items-center justify-center">
+                                            <User size={32} className="text-meta-label" />
                                         </div>
                                     )}
                                 </div>
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     <div>
-                                        <h3 className="text-4xl font-black italic uppercase tracking-tighter leading-none">
+                                        <h3 className="text-4xl font-bold italic uppercase tracking-tight leading-none">
                                             {reviewComedian.comedianProfile?.stageName || reviewComedian.name}
                                         </h3>
-                                        <p className="text-primary font-bold uppercase tracking-widest text-xs mt-2">{reviewComedian.email}</p>
+                                        <p className="text-primary/60 font-medium uppercase tracking-widest text-xs mt-1">{reviewComedian.email}</p>
                                     </div>
-                                    <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                                        <Badge className="bg-primary/10 text-primary uppercase font-black tracking-widest text-[10px] px-3">Artist Roster</Badge>
-                                        <Badge variant="outline" className="uppercase font-black tracking-widest text-[10px] px-3">{reviewComedian.role.replace('_', ' ')}</Badge>
+                                    <div className="flex gap-2">
+                                        <Badge className="bg-primary/10 text-primary border-none uppercase font-bold tracking-widest text-[10px] px-2">Artist</Badge>
+                                        <Badge variant="outline" className="border-white/[0.05] text-meta-label uppercase font-bold tracking-widest text-[10px] px-2">{reviewComedian.role.replace('_', ' ')}</Badge>
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                                <div className="md:col-span-2 space-y-8">
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Artist Manifesto
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                                <div className="md:col-span-2 space-y-6">
+                                    <div className="space-y-3">
+                                        <h4 className="text-[11px] uppercase tracking-widest text-meta-label flex items-center gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-primary" /> Artist Bio
                                         </h4>
-                                        <p className="text-muted-foreground leading-relaxed font-medium">
+                                        <p className="text-body-standard leading-relaxed text-sm">
                                             {reviewComedian.comedianProfile?.bio || "No professional biography has been provided for this artist."}
                                         </p>
                                     </div>
 
                                     {reviewComedian.comedianProfile?.approvals && reviewComedian.comedianProfile.approvals.length > 0 && (
-                                        <div className="space-y-4 pt-4 border-t border-border">
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Audit Trail</h4>
-                                            <div className="space-y-3">
+                                        <div className="space-y-3 pt-6 border-t border-white/[0.03]">
+                                            <h4 className="text-[9px] uppercase tracking-widest text-meta-label">History</h4>
+                                            <div className="space-y-2">
                                                 {reviewComedian.comedianProfile.approvals.map((approval) => (
-                                                    <div key={approval.id} className="flex items-center gap-3 p-3 bg-muted/20 border border-border rounded-2xl">
-                                                        <ShieldCheck className={`w-4 h-4 ${approval.status === 'APPROVED' ? 'text-emerald-500' : 'text-destructive'}`} />
-                                                        <div className="text-[10px] font-bold uppercase">
-                                                            {approval.status} <span className="text-muted-foreground mx-1">/</span> {approval.admin.email}
+                                                    <div key={approval.id} className="flex items-center gap-3 p-2 bg-white/[0.02] border border-white/[0.03] rounded-xl">
+                                                        <ShieldCheck className={`w-3.5 h-3.5 ${approval.status === 'APPROVED' ? 'text-emerald-500' : 'text-destructive/50'}`} />
+                                                        <div className="text-[11px] font-bold uppercase tracking-tighter">
+                                                            {approval.status} <span className="text-meta-label mx-1">/</span> {approval.admin.email}
                                                         </div>
-                                                        <div className="text-[9px] text-muted-foreground ml-auto">{new Date(approval.createdAt).toLocaleDateString()}</div>
+                                                        <div className="text-[10px] text-meta-label ml-auto">{new Date(approval.createdAt).toLocaleDateString()}</div>
                                                     </div>
                                                 ))}
                                             </div>
@@ -391,16 +386,16 @@ export default function ComedianManagement() {
                                     )}
                                 </div>
 
-                                <div className="space-y-8">
-                                    <div className="bg-primary/5 rounded-[2rem] p-6 border border-primary/10 space-y-6">
+                                <div className="space-y-6">
+                                    <div className="bg-white/[0.02] border border-white/[0.03] rounded-2xl p-4 space-y-4">
                                         <div className="space-y-2">
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Commission Rate</h4>
+                                            <h4 className="text-[11px] font-bold uppercase tracking-widest text-primary/60">Platform Fee</h4>
                                             <div className="flex items-center gap-2">
                                                 <input
                                                     id="comedian-fee-input"
                                                     type="number"
                                                     defaultValue={(reviewComedian.comedianProfile as any)?.customPlatformFee ?? 8}
-                                                    className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm font-black focus:ring-2 focus:ring-primary outline-none"
+                                                    className="w-full bg-black border border-white/[0.05] rounded-lg px-2 py-1.5 text-xs font-bold focus:border-primary/30 outline-none"
                                                 />
                                                 <Button
                                                     size="sm"
@@ -408,50 +403,39 @@ export default function ComedianManagement() {
                                                         const val = (document.getElementById('comedian-fee-input') as HTMLInputElement).value;
                                                         handleUpdateFee(reviewComedian.id, parseFloat(val));
                                                     }}
-                                                    className="rounded-xl h-9 px-4 font-black uppercase tracking-widest text-[9px] shadow-lg"
+                                                    className="rounded-lg h-8 px-3 font-bold uppercase tracking-widest text-[10px]"
                                                 >
                                                     Set
                                                 </Button>
                                             </div>
-                                            <p className="text-[9px] text-primary/60 font-bold uppercase tracking-tight">Standard platform rate is 8%</p>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verification Console</h4>
-                                        <div className="space-y-2">
-                                            <Button
-                                                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 shadow-xl"
-                                                onClick={() => handleAction(reviewComedian.id, 'APPROVE')}
-                                                disabled={actionLoading === reviewComedian.id}
-                                            >
-                                                <CheckCircle2 size={16} /> Approve Access
-                                            </Button>
-                                            <Button
-                                                variant="outline"
-                                                className="w-full rounded-2xl h-12 font-black uppercase tracking-widest text-[10px] gap-2 border-border"
-                                                onClick={() => handleAction(reviewComedian.id, 'REJECT')}
-                                                disabled={actionLoading === reviewComedian.id}
-                                            >
-                                                <XCircle size={16} /> Deny Submission
-                                            </Button>
-                                        </div>
+                                    <div className="space-y-2">
+                                        <Button
+                                            className="w-full bg-primary hover:bg-primary/90 text-black rounded-xl h-10 font-bold uppercase tracking-widest text-xs gap-2"
+                                            onClick={() => handleAction(reviewComedian.id, 'APPROVE')}
+                                            disabled={actionLoading === reviewComedian.id}
+                                        >
+                                            Approve Access
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            className="w-full text-muted-foreground/40 hover:text-destructive hover:bg-destructive/5 rounded-xl h-10 font-bold uppercase tracking-widest text-xs gap-2"
+                                            onClick={() => handleAction(reviewComedian.id, 'REJECT')}
+                                            disabled={actionLoading === reviewComedian.id}
+                                        >
+                                            Deny Submission
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-8 md:p-10 border-t border-border bg-muted/20 flex justify-between items-center mt-auto">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                                Profile Review Dashboard
+                        <div className="p-6 border-t border-white/[0.03] bg-white/[0.01] flex justify-between items-center mt-auto">
+                            <p className="text-[11px] text-meta-label uppercase tracking-widest">
+                                Verification Terminal
                             </p>
-                            <Button
-                                variant="ghost"
-                                className="rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-muted"
-                                onClick={() => setReviewComedian(null)}
-                            >
-                                Dismiss
-                            </Button>
                         </div>
                     </div>
                 </div>

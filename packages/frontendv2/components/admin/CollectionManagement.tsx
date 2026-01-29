@@ -117,8 +117,8 @@ export default function CollectionManagement() {
         <div className="space-y-8">
             {/* Header */}
             <div>
-                <h2 className="text-2xl font-black uppercase italic tracking-tight">Financial Collections</h2>
-                <p className="text-muted-foreground text-sm font-medium">Monitor revenue stream and platform earnings</p>
+                <h2 className="text-3xl font-black uppercase italic tracking-tight">Financial Collections</h2>
+                <p className="text-body-standard text-base">Monitor revenue stream and platform earnings</p>
             </div>
 
             {/* High Level Stats */}
@@ -134,8 +134,8 @@ export default function CollectionManagement() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black italic tracking-tighter">₹{current.platformRevenue.toLocaleString('en-IN')}</div>
-                        <p className="text-[10px] text-muted-foreground mt-2 font-bold uppercase tracking-widest">Show Revenue + Booking Fees</p>
+                        <div className="text-4xl font-black italic tracking-tighter">₹{current.platformRevenue.toLocaleString('en-IN')}</div>
+                        <p className="text-xs text-meta-label mt-2 uppercase tracking-widest">Show Revenue + Booking Fees</p>
                     </CardContent>
                 </Card>
 
@@ -144,14 +144,14 @@ export default function CollectionManagement() {
                         <DollarSign size={120} className="text-emerald-500" />
                     </div>
                     <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-black uppercase tracking-widest text-emerald-600 flex items-center gap-2">
+                        <CardDescription className="text-xs font-black uppercase tracking-widest text-emerald-600 flex items-center gap-2 text-[11px]">
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Show Revenue
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black italic tracking-tighter text-emerald-700">₹{current.showRevenue.toLocaleString('en-IN')}</div>
-                        <p className="text-[10px] text-emerald-600/60 mt-2 font-bold uppercase tracking-widest">Base Ticket Sales</p>
+                        <div className="text-4xl font-black italic tracking-tighter text-emerald-700">₹{current.showRevenue.toLocaleString('en-IN')}</div>
+                        <p className="text-xs text-emerald-600/60 mt-2 font-bold uppercase tracking-widest">Base Ticket Sales</p>
                     </CardContent>
                 </Card>
 
@@ -160,14 +160,14 @@ export default function CollectionManagement() {
                         <Wallet size={120} className="text-primary" />
                     </div>
                     <CardHeader className="pb-2">
-                        <CardDescription className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                        <CardDescription className="text-xs font-black uppercase tracking-widest text-primary flex items-center gap-2 text-[11px]">
                             <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                             Platform Earnings
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-3xl font-black italic tracking-tighter text-primary">₹{current.platformEarnings.toLocaleString('en-IN')}</div>
-                        <p className="text-[10px] text-primary/60 mt-2 font-bold uppercase tracking-widest">Commision + Booking Fees</p>
+                        <div className="text-4xl font-black italic tracking-tighter text-primary">₹{current.platformEarnings.toLocaleString('en-IN')}</div>
+                        <p className="text-xs text-primary/60 mt-2 font-bold uppercase tracking-widest">Commision + Booking Fees</p>
                     </CardContent>
                 </Card>
             </div>
@@ -177,7 +177,7 @@ export default function CollectionManagement() {
                 <div className="bg-background/80 p-2 rounded-xl border border-border">
                     <Info size={18} className="text-primary" />
                 </div>
-                <p className="text-xs font-medium text-muted-foreground italic">
+                <p className="text-sm text-body-standard italic">
                     {activeTab === 'lifetime' && "Reflecting total commerce processed since platform inception."}
                     {activeTab === 'active' && "Escrowed funds for shows currently listed or upcoming."}
                     {activeTab === 'pending' && "Completed events awaiting final audit and disbursement."}
@@ -200,9 +200,9 @@ export default function CollectionManagement() {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id as TabType)}
-                                className={`px-6 py-2.5 text-[10px] font-black uppercase tracking-[0.2em] transition-all rounded-xl ${activeTab === tab.id
+                                className={`px-6 py-2.5 text-xs font-black uppercase tracking-[0.2em] transition-all rounded-xl ${activeTab === tab.id
                                     ? 'bg-primary text-primary-foreground shadow-lg'
-                                    : 'hover:bg-muted text-muted-foreground'
+                                    : 'hover:bg-muted text-meta-label'
                                     }`}
                             >
                                 {tab.label}
@@ -214,43 +214,43 @@ export default function CollectionManagement() {
                 <CardContent className="p-0 overflow-x-auto">
                     {current.shows.length === 0 ? (
                         <div className="py-24 text-center space-y-4">
-                            <Clock size={40} className="mx-auto text-muted-foreground opacity-20" />
-                            <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">No historical data found</p>
+                            <Clock size={40} className="mx-auto text-meta-label" />
+                            <p className="text-meta-label font-black uppercase tracking-widest text-xs">No historical data found</p>
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse" style={{ minWidth: '1100px' }}>
                             <thead className="bg-muted/10 border-b border-border">
                                 <tr>
-                                    <th className="px-8 py-5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">Show Details</th>
-                                    <th className="px-6 py-5 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Ticket Sales</th>
-                                    <th className="px-6 py-5 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Fees & Platform</th>
-                                    <th className="px-6 py-5 text-right text-[10px] font-black text-emerald-600 uppercase tracking-widest">Net Payout</th>
-                                    <th className="px-6 py-5 text-right text-[10px] font-black text-primary uppercase tracking-widest">Profit</th>
-                                    <th className="px-8 py-5 text-right text-[10px] font-black text-muted-foreground uppercase tracking-widest">Action</th>
+                                    <th className="px-8 py-5 text-xs font-black text-meta-label uppercase tracking-widest">Show Details</th>
+                                    <th className="px-6 py-5 text-right text-xs font-black text-meta-label uppercase tracking-widest">Ticket Sales</th>
+                                    <th className="px-6 py-5 text-right text-xs font-black text-meta-label uppercase tracking-widest">Fees & Platform</th>
+                                    <th className="px-6 py-5 text-right text-xs font-black text-emerald-600 uppercase tracking-widest">Net Payout</th>
+                                    <th className="px-6 py-5 text-right text-xs font-black text-primary uppercase tracking-widest">Profit</th>
+                                    <th className="px-8 py-5 text-right text-xs font-black text-meta-label uppercase tracking-widest">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {current.shows.map((show) => (
                                     <tr key={show.id} className="hover:bg-muted/20 transition-colors group">
                                         <td className="px-8 py-6">
-                                            <div className="font-black italic uppercase tracking-tighter text-base group-hover:text-primary transition-colors">{show.title}</div>
-                                            <div className="text-[10px] font-bold text-muted-foreground mt-1 uppercase tracking-tight">
+                                            <div className="font-black italic uppercase tracking-tighter text-lg group-hover:text-primary transition-colors">{show.title}</div>
+                                            <div className="text-[11px] font-bold text-meta-label mt-1 uppercase tracking-tight">
                                                 {show.creator.organizerProfile?.name || show.creator.comedianProfile?.stageName || show.creator.email} • {show.stats.ticketsSold} Sold
                                             </div>
                                         </td>
                                         <td className="px-6 py-6 text-right">
-                                            <div className="font-bold text-sm">₹{show.stats.showRevenue.toLocaleString('en-IN')}</div>
-                                            <div className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5">₹{show.stats.bookingFee.toLocaleString('en-IN')} user fees</div>
+                                            <div className="font-bold text-base">₹{show.stats.showRevenue.toLocaleString('en-IN')}</div>
+                                            <div className="text-[11px] text-meta-label uppercase mt-0.5">₹{show.stats.bookingFee.toLocaleString('en-IN')} user fees</div>
                                         </td>
                                         <td className="px-6 py-6 text-right">
-                                            <div className="font-bold text-sm">₹{show.stats.platformRevenue.toLocaleString('en-IN')}</div>
-                                            <div className="text-[10px] text-muted-foreground font-medium uppercase mt-0.5">₹{show.stats.platformFee.toLocaleString('en-IN')} comm</div>
+                                            <div className="font-bold text-base">₹{show.stats.platformRevenue.toLocaleString('en-IN')}</div>
+                                            <div className="text-[11px] text-meta-label uppercase mt-0.5">₹{show.stats.platformFee.toLocaleString('en-IN')} comm</div>
                                         </td>
                                         <td className="px-6 py-6 text-right">
-                                            <div className="font-black text-emerald-600 text-sm">₹{show.stats.showEarnings.toLocaleString('en-IN')}</div>
+                                            <div className="font-black text-emerald-400 text-lg">₹{show.stats.showEarnings.toLocaleString('en-IN')}</div>
                                         </td>
                                         <td className="px-6 py-6 text-right">
-                                            <div className="font-black text-primary text-sm">₹{show.stats.platformEarnings.toLocaleString('en-IN')}</div>
+                                            <div className="font-black text-primary text-lg">₹{show.stats.platformEarnings.toLocaleString('en-IN')}</div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             {activeTab === 'pending' ? (
@@ -258,12 +258,12 @@ export default function CollectionManagement() {
                                                     size="sm"
                                                     onClick={() => handleDisburse(show.id)}
                                                     disabled={actionLoading === show.id}
-                                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[9px] h-8 rounded-lg"
+                                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-xs h-8 rounded-lg"
                                                 >
                                                     {actionLoading === show.id ? '...' : 'Disburse'}
                                                 </Button>
                                             ) : (
-                                                <Badge className={show.isDisbursed ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 font-black uppercase tracking-widest text-[9px]" : "bg-primary/10 text-primary border-primary/20 font-black uppercase tracking-widest text-[9px]"}>
+                                                <Badge className={show.isDisbursed ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 font-black uppercase tracking-widest text-xs" : "bg-primary/10 text-primary border-primary/20 font-black uppercase tracking-widest text-xs"}>
                                                     {show.isDisbursed ? 'Settled' : 'In Hold'}
                                                 </Badge>
                                             )}

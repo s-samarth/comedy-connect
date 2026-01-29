@@ -80,69 +80,66 @@ export default function FeeManagement() {
 
     if (isLoading) {
         return (
-            <div className="space-y-8">
-                <div className="h-24 bg-muted animate-pulse rounded-[2.5rem]" />
-                <div className="h-96 bg-muted animate-pulse rounded-[2.5rem]" />
+            <div className="space-y-6">
+                <div className="h-20 bg-white/[0.02] border border-white/[0.05] animate-pulse rounded-2xl" />
+                <div className="h-96 bg-white/[0.02] border border-white/[0.05] animate-pulse rounded-2xl" />
             </div>
         )
     }
 
     return (
-        <div className="space-y-12 pb-20">
+        <div className="space-y-10 pb-20">
             {/* Context Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                <div className="space-y-2">
-                    <p className="text-muted-foreground text-sm font-medium italic max-w-xl">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div className="space-y-1">
+                    <p className="text-body-standard text-sm max-w-xl">
                         Design dynamic revenue structures through price-based commission slabs. Automated per-ticket handling for the entire ecosystem.
                     </p>
                 </div>
                 {feeConfig && (
-                    <div className="flex items-center gap-3 bg-muted/30 border border-border px-4 py-2 rounded-2xl">
-                        <Clock size={14} className="text-muted-foreground" />
-                        <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                            Last Modified <span className="text-primary ml-1">{new Date(feeConfig.lastUpdated).toLocaleDateString()}</span>
+                    <div className="flex items-center gap-2 bg-white/[0.03] border border-white/[0.05] px-3 py-1.5 rounded-xl">
+                        <Clock size={12} className="text-meta-label" />
+                        <div className="text-[11px] font-bold uppercase tracking-widest text-meta-label">
+                            Last Updated <span className="text-primary ml-1">{new Date(feeConfig.lastUpdated).toLocaleDateString()}</span>
                         </div>
                     </div>
                 )}
             </div>
 
             {/* Explainer / Warning */}
-            <div className="bg-primary/5 border border-primary/20 rounded-[2rem] p-6 flex flex-col md:flex-row items-center gap-6 relative overflow-hidden group">
-                <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <BadgePercent size={120} className="text-primary" />
-                </div>
-                <div className="bg-background/80 p-4 rounded-3xl border border-primary/20">
-                    <ShieldAlert size={28} className="text-primary" />
+            <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 flex items-center gap-6 relative overflow-hidden group">
+                <div className="bg-white/[0.02] p-3 rounded-xl border border-primary/20">
+                    <ShieldAlert size={24} className="text-primary/60" />
                 </div>
                 <div className="flex-1 space-y-1">
-                    <h3 className="font-black italic uppercase tracking-tighter text-lg">Platform Revenue Governance</h3>
-                    <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-2xl">
-                        Adjusting these parameters will immediately affect the platform's cut from all upcoming transactions. Always ensure slabs are continuous and do not overlap to prevent billing logic anomalies.
+                    <h3 className="font-bold italic uppercase tracking-tight text-lg">Platform Revenue Governance</h3>
+                    <p className="text-sm text-body-standard font-medium leading-relaxed max-w-2xl">
+                        Adjusting these parameters will immediately affect the platform's cut from all upcoming transactions. Ensure slabs are continuous to prevent billing gaps.
                     </p>
                 </div>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-10">
                 <div className="bg-card border border-border rounded-[3rem] shadow-2xl overflow-hidden">
-                    <div className="p-8 md:p-10 bg-muted/10 border-b border-border flex justify-between items-center">
-                        <div className="flex items-center gap-4">
-                            <TrendingUp className="text-primary" size={20} />
-                            <h3 className="font-black italic uppercase tracking-tighter text-xl">Dynamic Commission Tiers</h3>
+                    <div className="p-6 bg-white/[0.02] border-b border-white/[0.05] flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                            <TrendingUp className="text-primary/60" size={18} />
+                            <h3 className="font-bold italic uppercase tracking-tight text-lg">Dynamic Commission Tiers</h3>
                         </div>
                         <Button
                             type="button"
                             onClick={addSlab}
-                            className="rounded-xl font-black uppercase tracking-widest text-[9px] h-10 px-6 gap-2 bg-background border border-border text-foreground hover:bg-muted shadow-lg"
+                            className="rounded-lg font-bold uppercase tracking-widest text-xs h-8 px-4 gap-2 bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.08]"
                         >
-                            <Plus size={14} /> Add Revenue Tier
+                            <Plus size={12} /> Add Tier
                         </Button>
                     </div>
 
                     <div className="divide-y divide-border">
                         {formData.length === 0 ? (
                             <div className="py-24 text-center space-y-4">
-                                <DollarSign size={40} className="mx-auto text-muted-foreground opacity-20" />
-                                <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">No active revenue slabs found</p>
+                                <DollarSign size={40} className="mx-auto text-meta-label" />
+                                <p className="text-meta-label font-black uppercase tracking-widest text-xs">No active revenue slabs found</p>
                             </div>
                         ) : (
                             formData.map((slab, index) => (
@@ -150,7 +147,7 @@ export default function FeeManagement() {
                                     <div className="flex flex-col md:flex-row items-end gap-8">
                                         <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                <label className="text-[11px] font-black uppercase tracking-widest text-meta-label flex items-center gap-2">
                                                     Min Ticket Price (₹)
                                                 </label>
                                                 <div className="relative group/input">
@@ -165,7 +162,7 @@ export default function FeeManagement() {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                <label className="text-[11px] font-black uppercase tracking-widest text-meta-label flex items-center gap-2">
                                                     Max Ticket Price (₹)
                                                 </label>
                                                 <div className="relative group/input">
@@ -180,7 +177,7 @@ export default function FeeManagement() {
                                             </div>
 
                                             <div className="space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
+                                                <label className="text-[11px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
                                                     Platform Commission (%)
                                                 </label>
                                                 <div className="relative group/input">
@@ -212,14 +209,14 @@ export default function FeeManagement() {
                     </div>
 
                     <div className="p-10 md:p-12 bg-muted/20 border-t border-border flex justify-between items-center">
-                        <div className="flex items-center gap-4 text-muted-foreground opacity-60">
+                        <div className="flex items-center gap-4 text-meta-label">
                             <Info size={16} />
-                            <p className="text-[10px] font-black uppercase tracking-widest italic">Changes take effect globally on save</p>
+                            <p className="text-[11px] font-black uppercase tracking-widest italic">Changes take effect globally on save</p>
                         </div>
                         <Button
                             type="submit"
                             disabled={isSaving}
-                            className="rounded-2xl font-black uppercase tracking-widest text-[10px] h-14 px-10 shadow-2xl bg-primary text-primary-foreground hover:scale-105 transition-transform gap-3"
+                            className="rounded-2xl font-black uppercase tracking-widest text-xs h-14 px-10 shadow-2xl bg-primary text-primary-foreground hover:scale-105 transition-transform gap-3"
                         >
                             {isSaving ? <Loader2 className="animate-spin w-4 h-4" /> : <DollarSign size={16} />}
                             {isSaving ? "Synchronizing..." : "Save Configuration"}

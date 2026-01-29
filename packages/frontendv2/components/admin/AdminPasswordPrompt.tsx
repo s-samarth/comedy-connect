@@ -66,7 +66,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
 
             <div className="relative z-10 w-full max-w-xl text-center space-y-12 animate-in fade-in zoom-in-95 duration-700">
                 {/* Brand Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-[0.2em] mx-auto">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-[0.2em] mx-auto">
                     <Zap size={14} className="fill-primary" />
                     Administrative Security
                 </div>
@@ -77,7 +77,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                         ADMIN <br />
                         <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">ACCESS.</span>
                     </h1>
-                    <p className="text-base md:text-lg text-muted-foreground max-w-sm mx-auto font-bold tracking-tight opacity-60">
+                    <p className="text-base md:text-lg text-body-standard max-w-sm mx-auto font-bold tracking-tight">
                         {isSetup
                             ? 'Configure your master key for platform steering.'
                             : 'Synchronize credentials to access the command board.'
@@ -93,7 +93,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                     <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
                         <div className="space-y-6">
                             <div className="space-y-3 text-left">
-                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-4">
+                                <label className="text-[11px] font-black uppercase tracking-[0.3em] text-meta-label ml-4">
                                     Primary Authorization Key
                                 </label>
                                 <div className="relative group/input">
@@ -112,7 +112,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
 
                             {isSetup && (
                                 <div className="space-y-3 text-left animate-in slide-in-from-top-4 duration-500">
-                                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground ml-4">
+                                    <label className="text-[11px] font-black uppercase tracking-[0.3em] text-meta-label ml-4">
                                         Verify Roster Key
                                     </label>
                                     <div className="relative group/input">
@@ -134,7 +134,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                         {error && (
                             <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-4 text-red-400 animate-in shake duration-500">
                                 <AlertCircle size={20} className="shrink-0" />
-                                <p className="text-[10px] font-black uppercase tracking-widest italic leading-tight">
+                                <p className="text-[11px] font-black uppercase tracking-widest italic leading-tight">
                                     {error}
                                 </p>
                             </div>
@@ -158,15 +158,15 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                 </div>
 
                 {/* Footer Meta */}
-                <div className="pt-4 flex items-center justify-center gap-10 opacity-30">
+                <div className="pt-4 flex items-center justify-center gap-10">
                     <div className="flex flex-col items-center gap-1">
                         <ShieldCheck size={20} className="text-primary" />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Secure Handshake</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-meta-label">Secure Handshake</span>
                     </div>
                     <div className="w-[1px] h-6 bg-white/10" />
                     <div className="flex flex-col items-center gap-1">
                         <Zap size={20} className="text-primary" />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Live Authorization</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-meta-label">Live Authorization</span>
                     </div>
                 </div>
             </div>

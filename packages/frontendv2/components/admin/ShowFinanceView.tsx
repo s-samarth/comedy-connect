@@ -60,7 +60,7 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-[#111] p-8 rounded-2xl border border-white/10 flex flex-col items-center">
                 <Loader2 className="w-12 h-12 text-purple-500 animate-spin mb-4" />
-                <p className="text-white/60">Loading Financial Report...</p>
+                <p className="text-body-standard">Loading Financial Report...</p>
             </div>
         </div>
     )
@@ -81,12 +81,12 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
                 <div className="p-8 border-b border-white/5 flex justify-between items-start">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h2 className="text-3xl font-bold text-white tracking-tight">{data.title}</h2>
+                            <h2 className="text-4xl font-bold text-white tracking-tight">{data.title}</h2>
                             <span className={`px-3 py-1 rounded-full text-xs font-medium ${data.isDisbursed ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}>
                                 {data.isDisbursed ? 'DISBURSED' : 'TO BE DISBURSED'}
                             </span>
                         </div>
-                        <p className="text-white/40 flex items-center gap-2">
+                        <p className="text-meta-label flex items-center gap-2 text-sm">
                             {new Date(data.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} • {data.venue}
                         </p>
                     </div>
@@ -121,7 +121,7 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
                     {/* Breakdown */}
                     <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
                         <div className="px-6 py-4 border-b border-white/5 bg-white/5">
-                            <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">Detailed Breakdown</h3>
+                            <h3 className="text-sm font-semibold text-body-standard uppercase tracking-wider">Detailed Breakdown</h3>
                         </div>
                         <div className="p-6 space-y-4">
                             <BreakdownRow label="Tickets Sold" value={(data.stats?.ticketsSold ?? 0).toString()} />
@@ -142,9 +142,9 @@ export default function ShowFinanceView({ showId, onClose }: ShowFinanceViewProp
 
                     <div className="mt-8 flex justify-between items-center bg-white/5 p-6 rounded-2xl border border-white/10">
                         <div>
-                            <p className="text-xs font-medium text-white/30 uppercase tracking-wider mb-1">Creator</p>
-                            <p className="text-white font-medium">{data.creator.organizerProfile?.name || 'Unknown'}</p>
-                            <p className="text-white/40 text-sm">{data.creator.email}</p>
+                            <p className="text-[11px] font-medium text-meta-label uppercase tracking-wider mb-1">Creator</p>
+                            <p className="text-white font-medium text-lg leading-none">{data.creator.organizerProfile?.name || 'Unknown'}</p>
+                            <p className="text-body-standard text-base mt-1">{data.creator.email}</p>
                         </div>
                         <button
                             onClick={onClose}
@@ -168,9 +168,9 @@ function LocalStatsCard({ title, value, subtitle, color }: { title: string, valu
 
     return (
         <div className={`bg-gradient-to-br ${colors[color]} p-6 rounded-2xl border`}>
-            <p className="text-white/50 text-xs font-bold uppercase tracking-widest mb-2">{title}</p>
-            <p className="text-3xl font-black text-white mb-1 tracking-tight">{value}</p>
-            <p className="text-white/30 text-[10px] font-medium leading-tight">{subtitle}</p>
+            <p className="text-meta-label text-[11px] font-bold uppercase tracking-widest mb-2">{title}</p>
+            <p className="text-4xl font-black text-white mb-1 tracking-tight">{value}</p>
+            <p className="text-meta-label text-xs leading-tight">{subtitle}</p>
         </div>
     )
 }
@@ -178,8 +178,8 @@ function LocalStatsCard({ title, value, subtitle, color }: { title: string, valu
 function BreakdownRow({ label, value, isNegative, isHighlight, color }: { label: string, value: string, isNegative?: boolean, isHighlight?: boolean, color?: string }) {
     return (
         <div className="flex justify-between items-center">
-            <span className={`text-sm ${isHighlight ? 'text-white font-semibold' : 'text-white/50'}`}>{label}</span>
-            <span className={`text-sm font-mono ${isNegative ? 'text-red-400' : isHighlight ? (color || 'text-emerald-400') + ' text-lg font-bold' : 'text-white'}`}>
+            <span className={`text-base ${isHighlight ? 'text-white font-semibold' : 'text-meta-label'}`}>{label}</span>
+            <span className={`text-base font-mono ${isNegative ? 'text-red-400' : isHighlight ? (color || 'text-emerald-400') + ' text-xl font-bold' : 'text-white'}`}>
                 {value}
             </span>
         </div>

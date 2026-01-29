@@ -60,6 +60,25 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
             ? (type === 'youtube' ? 'comedianYoutubeUrls' : 'comedianInstagramUrls')
             : (type === 'youtube' ? 'organizerYoutubeUrls' : 'organizerInstagramUrls');
 
+        const normalizedValue = value.trim();
+
+        if (type === 'youtube') {
+            if (!normalizedValue.startsWith("https://youtube.com") &&
+                !normalizedValue.startsWith("https://www.youtube.com") &&
+                !normalizedValue.startsWith("https://youtu.be")) {
+                alert("Please enter a valid YouTube URL starting with https://youtube.com or https://youtu.be");
+                return;
+            }
+        }
+
+        if (type === 'instagram') {
+            if (!normalizedValue.startsWith("https://instagram.com") &&
+                !normalizedValue.startsWith("https://www.instagram.com")) {
+                alert("Please enter a valid Instagram URL starting with https://instagram.com");
+                return;
+            }
+        }
+
         const currentUrls = formData[fieldName as keyof typeof formData] as string[];
         if (type === 'youtube' && currentUrls.length >= 1) {
             alert("You can only add 1 YouTube video. Please remove the existing one to add a new one.");
@@ -153,6 +172,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
 
     const isComedian = user.role?.startsWith('COMEDIAN');
     const isOrganizer = user.role?.startsWith('ORGANIZER');
+    const isVerified = user.role === 'COMEDIAN_VERIFIED' || user.role === 'ORGANIZER_VERIFIED';
 
     return (
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -192,7 +212,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-foreground mb-1">Phone Number</label>
+                        <label className="block text-sm font-medium text-foreground mb-1">Phone Number *</label>
                         <div className="flex rounded-md shadow-sm">
                             <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground sm:text-sm">
                                 +91
@@ -207,6 +227,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                                 }}
                                 pattern="[0-9]{10}"
                                 maxLength={10}
+                                required
                                 className="flex-1 block w-full p-2 rounded-none rounded-r-md border border-input bg-background text-foreground focus:ring-2 focus:ring-ring"
                                 placeholder="9876543210"
                             />
@@ -259,13 +280,14 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                     <h3 className="text-lg font-semibold text-foreground pb-2 border-b border-border">Comedian Branding</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-1">Stage Name</label>
+                            <label className="block text-sm font-medium text-foreground mb-1">Stage Name *</label>
                             <input
                                 type="text"
                                 name="stageName"
                                 value={formData.stageName}
                                 onChange={handleChange}
                                 placeholder="How you appear on posters"
+                                required={isComedian}
                                 className="w-full p-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring"
                             />
                         </div>
@@ -279,12 +301,13 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                     <h3 className="text-lg font-semibold text-foreground pb-2 border-b border-border">Organizer Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-foreground mb-1">Organization Name</label>
+                            <label className="block text-sm font-medium text-foreground mb-1">Organization Name *</label>
                             <input
                                 type="text"
                                 name="organizerName"
                                 value={formData.organizerName}
                                 onChange={handleChange}
+                                required={isOrganizer}
                                 className="w-full p-2 border border-input rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring"
                             />
                         </div>
@@ -450,7 +473,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
                             <Loader2 className="animate-spin" size={16} /> Saving...
                         </span>
                     ) : (
-                        "Save Profile"
+                        isVerified ? "Update Profile" : "Submit for Verification"
                     )}
                 </button>
             </div>

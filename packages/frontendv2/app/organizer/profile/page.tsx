@@ -103,7 +103,7 @@ export default function OrganizerProfilePage() {
                             {!isVerified && (
                                 <div className="p-4 bg-yellow-500/5 border border-yellow-500/10 rounded-2xl">
                                     <p className="text-[11px] font-bold text-yellow-500/80 leading-relaxed">
-                                        * Complete all fields to speed up your verification process.
+                                        * Complete all fields and upload a clear logo/photo to speed up your verification process. You'll be able to list shows once approved.
                                     </p>
                                 </div>
                             )}

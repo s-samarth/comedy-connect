@@ -16,7 +16,8 @@ import {
     ShieldCheck,
     AlertCircle,
     Loader2,
-    BarChart3
+    BarChart3,
+    ExternalLink
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -148,75 +149,82 @@ export default function OrganizerDashboardPage() {
 
                 {/* Verification Alert */}
                 {!isVerified && (
-                    <div className="p-8 bg-primary/5 border border-primary/20 rounded-3xl flex flex-col md:flex-row items-center gap-6 justify-between border-dashed">
+                    <div className="p-8 bg-yellow-500/5 border border-yellow-500/20 rounded-3xl flex flex-col md:flex-row items-center gap-6 justify-between animate-in slide-in-from-top duration-500">
                         <div className="flex items-center gap-4 text-center md:text-left">
-                            <div className="p-4 bg-primary/10 text-primary rounded-full">
-                                <BarChart3 size={32} />
+                            <div className="p-4 bg-yellow-500/10 text-yellow-500 rounded-full">
+                                <AlertCircle size={32} />
                             </div>
                             <div className="space-y-1">
-                                <h3 className="text-xl font-black uppercase tracking-tight italic">Waiting for verification</h3>
+                                <h3 className="text-xl font-black uppercase tracking-tight underline decoration-yellow-500 decoration-2 underline-offset-4">Identity Verification Pending</h3>
                                 <p className="text-sm text-muted-foreground font-medium max-w-lg">
-                                    Your organizer credentials are in the queue. You can complete your venue details while you wait.
+                                    We're currently reviewing your venue profile to ensure it meets our guidelines.
+                                    You'll get specific access to create events once verified.
                                 </p>
                             </div>
                         </div>
                         <Link href="/organizer/profile">
-                            <Button className="rounded-full h-12 px-8 font-black uppercase tracking-tight italic gap-2">
-                                Complete Profile
+                            <Button className="bg-yellow-500 text-black hover:bg-yellow-600 rounded-full h-12 px-8 font-black uppercase tracking-tight italic">
+                                Resubmit for Verification
                             </Button>
                         </Link>
                     </div>
                 )}
 
-                {!isVerified && (
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden">
-                        <CardHeader className="border-b border-border">
-                            <CardTitle className="text-xl font-black uppercase italic tracking-tight">Quick Actions</CardTitle>
-                            <CardDescription className="font-medium">You’ll be able to create events after verification.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Link href="/organizer/profile" className="block">
-                                    <Button variant="outline" className="w-full rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
-                                        <Settings size={18} /> Complete Profile
-                                    </Button>
-                                </Link>
-                                <Link href="/organizer/pending-verification" className="block">
-                                    <Button className="w-full rounded-full h-12 font-black uppercase tracking-tight gap-2">
-                                        <AlertCircle size={18} /> Verification Status
-                                    </Button>
-                                </Link>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
+                {/* Recent Activity / My Shows Section */}
                 {isVerified && (
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <div className="lg:col-span-12 space-y-6">
+                        <div className="lg:col-span-8 space-y-6">
                             <div className="flex items-center justify-between">
                                 <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
                                     <span className="w-8 h-1 bg-primary rounded-full" />
                                     EVENT MANAGEMENT
                                 </h2>
+                                <Link href="/organizer/shows" className="text-xs font-black uppercase tracking-widest text-primary hover:underline">View All</Link>
                             </div>
 
-                            <div className="bg-muted/10 border border-dashed border-border rounded-3xl p-20 text-center space-y-6">
-                                <div className="w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground/30">
-                                    <CalendarRange size={40} />
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-xl font-black uppercase tracking-tight italic text-foreground/50">Your stage is empty.</p>
-                                    <p className="text-muted-foreground font-medium max-w-sm mx-auto">Start creating events and selling tickets as soon as your account is verified.</p>
-                                </div>
+                            <div className="bg-muted/10 border border-dashed border-border rounded-3xl p-12 text-center space-y-4">
+                                <CalendarRange size={48} className="text-muted-foreground/30 mx-auto" />
+                                <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
                                 {isVerified && (
                                     <Link href="/organizer/shows/new" className="inline-block">
-                                        <Button className="rounded-full h-14 px-10 font-black uppercase tracking-tighter italic gap-2">
-                                            <Plus size={20} /> Create New Event
+                                        <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                            <Plus size={18} /> Create New Event
                                         </Button>
                                     </Link>
                                 )}
                             </div>
+                        </div>
+
+                        <div className="lg:col-span-4 space-y-6">
+                            <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
+                                <span className="w-8 h-1 bg-primary rounded-full" />
+                                MY PROFILE
+                            </h2>
+
+                            <Card className="bg-card border-border rounded-3xl overflow-hidden">
+                                <div className="relative h-32 bg-primary/20">
+                                    <div className="absolute -bottom-10 left-6 p-1 bg-card rounded-2xl border border-border">
+                                        <div className="w-20 h-20 rounded-xl bg-muted animate-pulse" />
+                                    </div>
+                                </div>
+                                <CardContent className="pt-14 pb-8 px-6 space-y-6">
+                                    <div className="space-y-1">
+                                        <h3 className="text-2xl font-black uppercase tracking-tight italic">{user?.name}</h3>
+                                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{user?.organizerProfile?.name || 'New Organizer'}</p>
+                                    </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-border">
+                                        <Link href="/profile" className="flex items-center justify-between group">
+                                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">Public Profile</span>
+                                            <ExternalLink size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                        </Link>
+                                    </div>
+
+                                    <Button variant="outline" className="w-full rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                        Share Profile
+                                    </Button>
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
                 )}

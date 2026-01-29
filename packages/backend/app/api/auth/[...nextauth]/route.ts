@@ -73,10 +73,13 @@ export const authOptions: NextAuthOptions = {
         if (dbUser) {
           ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted
             ; (session.user as any).phone = dbUser.phone
-        }
-
-        if (dbUser) {
-          ; (session.user as any).onboardingCompleted = dbUser.onboardingCompleted
+            ; (session.user as any).age = dbUser.age
+            ; (session.user as any).city = dbUser.city
+            ; (session.user as any).bio = dbUser.bio
+            ; (session.user as any).language = dbUser.language
+            ; (session.user as any).heardAboutUs = dbUser.heardAboutUs
+            ; (session.user as any).comedianProfile = dbUser.comedianProfile
+            ; (session.user as any).organizerProfile = dbUser.organizerProfile
         }
       }
       return session
@@ -84,6 +87,7 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/auth/signin',
+    signOut: '/auth/signout',
     error: '/auth/signin',
   },
 }

@@ -43,7 +43,8 @@ export async function POST(request: Request) {
       description,
       venue,
       youtubeUrls,
-      instagramUrls
+      instagramUrls,
+      socialLinks
     } = await request.json()
 
     if (!name) {
@@ -87,7 +88,8 @@ export async function POST(request: Request) {
         description,
         venue,
         youtubeUrls: sanitizedYouTube,
-        instagramUrls: sanitizedInstagram
+        instagramUrls: sanitizedInstagram,
+        socialLinks
       },
       create: {
         userId: user.id,
@@ -96,7 +98,8 @@ export async function POST(request: Request) {
         description,
         venue,
         youtubeUrls: sanitizedYouTube,
-        instagramUrls: sanitizedInstagram
+        instagramUrls: sanitizedInstagram,
+        socialLinks
       }
     })
 

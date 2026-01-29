@@ -107,7 +107,7 @@ export default function RoleSelectionPage() {
         const isProfileComplete = user && (user as any).name && (user as any).phone && (user as any).city && (user as any).age;
 
         if (!isProfileComplete) {
-            router.push('/onboarding');
+            router.push(`/onboarding/${roleId.toLowerCase()}`);
             return;
         }
 

@@ -88,61 +88,63 @@ export default function OrganizerDashboardPage() {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                                    <Ticket size={20} />
+                {isVerified && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                        <Ticket size={20} />
+                                    </div>
+                                    <BarChart3 size={16} className="text-muted-foreground/30" />
                                 </div>
-                                <BarChart3 size={16} className="text-muted-foreground/30" />
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tickets Sold</p>
-                                <p className="text-3xl font-black italic mt-1">0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform">
-                                    <IndianRupee size={20} />
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tickets Sold</p>
+                                    <p className="text-3xl font-black italic mt-1">0</p>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gross Revenue</p>
-                                <p className="text-3xl font-black italic mt-1 text-green-500">₹0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
-                                    <CalendarRange size={20} />
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform">
+                                        <IndianRupee size={20} />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Active Events</p>
-                                <p className="text-3xl font-black italic mt-1 text-orange-500">0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
-                                    <Users size={20} />
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gross Revenue</p>
+                                    <p className="text-3xl font-black italic mt-1 text-green-500">₹0</p>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Fans</p>
-                                <p className="text-3xl font-black italic mt-1 text-blue-500">0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
+                                        <CalendarRange size={20} />
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Active Events</p>
+                                    <p className="text-3xl font-black italic mt-1 text-orange-500">0</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform">
+                                        <Users size={20} />
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">New Fans</p>
+                                    <p className="text-3xl font-black italic mt-1 text-blue-500">0</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
 
                 {/* Verification Alert */}
                 {!isVerified && (
@@ -166,33 +168,58 @@ export default function OrganizerDashboardPage() {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div className="lg:col-span-12 space-y-6">
-                        <div className="flex items-center justify-between">
-                            <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
-                                <span className="w-8 h-1 bg-primary rounded-full" />
-                                EVENT MANAGEMENT
-                            </h2>
-                        </div>
-
-                        <div className="bg-muted/10 border border-dashed border-border rounded-3xl p-20 text-center space-y-6">
-                            <div className="w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground/30">
-                                <CalendarRange size={40} />
-                            </div>
-                            <div className="space-y-2">
-                                <p className="text-xl font-black uppercase tracking-tight italic text-foreground/50">Your stage is empty.</p>
-                                <p className="text-muted-foreground font-medium max-w-sm mx-auto">Start creating events and selling tickets as soon as your account is verified.</p>
-                            </div>
-                            {isVerified && (
-                                <Link href="/organizer/shows/new" className="inline-block">
-                                    <Button className="rounded-full h-14 px-10 font-black uppercase tracking-tighter italic gap-2">
-                                        <Plus size={20} /> Create New Event
+                {!isVerified && (
+                    <Card className="bg-card border-border rounded-3xl overflow-hidden">
+                        <CardHeader className="border-b border-border">
+                            <CardTitle className="text-xl font-black uppercase italic tracking-tight">Quick Actions</CardTitle>
+                            <CardDescription className="font-medium">You’ll be able to create events after verification.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Link href="/organizer/profile" className="block">
+                                    <Button variant="outline" className="w-full rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                        <Settings size={18} /> Complete Profile
                                     </Button>
                                 </Link>
-                            )}
+                                <Link href="/organizer/pending-verification" className="block">
+                                    <Button className="w-full rounded-full h-12 font-black uppercase tracking-tight gap-2">
+                                        <AlertCircle size={18} /> Verification Status
+                                    </Button>
+                                </Link>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {isVerified && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-12 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
+                                    <span className="w-8 h-1 bg-primary rounded-full" />
+                                    EVENT MANAGEMENT
+                                </h2>
+                            </div>
+
+                            <div className="bg-muted/10 border border-dashed border-border rounded-3xl p-20 text-center space-y-6">
+                                <div className="w-20 h-20 bg-muted/30 rounded-full flex items-center justify-center mx-auto text-muted-foreground/30">
+                                    <CalendarRange size={40} />
+                                </div>
+                                <div className="space-y-2">
+                                    <p className="text-xl font-black uppercase tracking-tight italic text-foreground/50">Your stage is empty.</p>
+                                    <p className="text-muted-foreground font-medium max-w-sm mx-auto">Start creating events and selling tickets as soon as your account is verified.</p>
+                                </div>
+                                {isVerified && (
+                                    <Link href="/organizer/shows/new" className="inline-block">
+                                        <Button className="rounded-full h-14 px-10 font-black uppercase tracking-tighter italic gap-2">
+                                            <Plus size={20} /> Create New Event
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </main>
     );

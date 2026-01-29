@@ -88,60 +88,62 @@ export default function ComedianDashboardPage() {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                                    <Calendar size={20} />
+                {isVerified && (
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                        <Calendar size={20} />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Shows</p>
-                                <p className="text-3xl font-black italic mt-1">0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                                    <Users size={20} />
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Shows</p>
+                                    <p className="text-3xl font-black italic mt-1">0</p>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Audience</p>
-                                <p className="text-3xl font-black italic mt-1">0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                                    <TrendingUp size={20} />
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                        <Users size={20} />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Revenue Shares</p>
-                                <p className="text-3xl font-black italic mt-1">₹0</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
-                        <CardContent className="p-6">
-                            <div className="flex justify-between items-start">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
-                                    <ShieldCheck size={20} />
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Audience</p>
+                                    <p className="text-3xl font-black italic mt-1">0</p>
                                 </div>
-                            </div>
-                            <div className="mt-4">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Artist Score</p>
-                                <p className="text-3xl font-black italic mt-1">--</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                        <TrendingUp size={20} />
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Revenue Shares</p>
+                                    <p className="text-3xl font-black italic mt-1">₹0</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        <Card className="bg-card border-border rounded-3xl overflow-hidden group hover:border-primary/30 transition-all">
+                            <CardContent className="p-6">
+                                <div className="flex justify-between items-start">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                                        <ShieldCheck size={20} />
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Artist Score</p>
+                                    <p className="text-3xl font-black italic mt-1">--</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
 
                 {/* Verification Alert */}
                 {!isVerified && (
@@ -158,68 +160,72 @@ export default function ComedianDashboardPage() {
                                 </p>
                             </div>
                         </div>
-                        <Button className="bg-yellow-500 text-black hover:bg-yellow-600 rounded-full h-12 px-8 font-black uppercase tracking-tight italic">
-                            Check Status
-                        </Button>
+                        <Link href="/comedian/profile">
+                            <Button className="bg-yellow-500 text-black hover:bg-yellow-600 rounded-full h-12 px-8 font-black uppercase tracking-tight italic">
+                                Resubmit for Verification
+                            </Button>
+                        </Link>
                     </div>
                 )}
 
                 {/* Recent Activity / My Shows Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    <div className="lg:col-span-8 space-y-6">
-                        <div className="flex items-center justify-between">
+                {isVerified && (
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-8 space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
+                                    <span className="w-8 h-1 bg-primary rounded-full" />
+                                    UPCOMING SHOWS
+                                </h2>
+                                <Link href="/organizer/shows" className="text-xs font-black uppercase tracking-widest text-primary hover:underline">View All</Link>
+                            </div>
+
+                            <div className="bg-muted/20 border border-border rounded-3xl p-12 text-center space-y-4">
+                                <Mic2 size={48} className="text-muted-foreground/30 mx-auto" />
+                                <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
+                                {isVerified && (
+                                    <Link href="/organizer/shows/new" className="inline-block">
+                                        <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                            <Plus size={18} /> List My First Show
+                                        </Button>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="lg:col-span-4 space-y-6">
                             <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
                                 <span className="w-8 h-1 bg-primary rounded-full" />
-                                UPCOMING SHOWS
+                                MY PROFILE
                             </h2>
-                            <Link href="/organizer/shows" className="text-xs font-black uppercase tracking-widest text-primary hover:underline">View All</Link>
-                        </div>
 
-                        <div className="bg-muted/20 border border-border rounded-3xl p-12 text-center space-y-4">
-                            <Mic2 size={48} className="text-muted-foreground/30 mx-auto" />
-                            <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
-                            {isVerified && (
-                                <Link href="/organizer/shows/new" className="inline-block">
-                                    <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
-                                        <Plus size={18} /> List My First Show
+                            <Card className="bg-card border-border rounded-3xl overflow-hidden">
+                                <div className="relative h-32 bg-primary/20">
+                                    <div className="absolute -bottom-10 left-6 p-1 bg-card rounded-2xl border border-border">
+                                        <div className="w-20 h-20 rounded-xl bg-muted animate-pulse" />
+                                    </div>
+                                </div>
+                                <CardContent className="pt-14 pb-8 px-6 space-y-6">
+                                    <div className="space-y-1">
+                                        <h3 className="text-2xl font-black uppercase tracking-tight italic">{user?.name}</h3>
+                                        <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{user?.comedianProfile?.stageName || 'New Artist'}</p>
+                                    </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-border">
+                                        <Link href="/profile" className="flex items-center justify-between group">
+                                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">Public Profile</span>
+                                            <ExternalLink size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                                        </Link>
+                                    </div>
+
+                                    <Button variant="outline" className="w-full rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                        Share Profile
                                     </Button>
-                                </Link>
-                            )}
+                                </CardContent>
+                            </Card>
                         </div>
                     </div>
-
-                    <div className="lg:col-span-4 space-y-6">
-                        <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
-                            <span className="w-8 h-1 bg-primary rounded-full" />
-                            MY PROFILE
-                        </h2>
-
-                        <Card className="bg-card border-border rounded-3xl overflow-hidden">
-                            <div className="relative h-32 bg-primary/20">
-                                <div className="absolute -bottom-10 left-6 p-1 bg-card rounded-2xl border border-border">
-                                    <div className="w-20 h-20 rounded-xl bg-muted animate-pulse" />
-                                </div>
-                            </div>
-                            <CardContent className="pt-14 pb-8 px-6 space-y-6">
-                                <div className="space-y-1">
-                                    <h3 className="text-2xl font-black uppercase tracking-tight italic">{user?.name}</h3>
-                                    <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">{user?.comedianProfile?.stageName || 'New Artist'}</p>
-                                </div>
-
-                                <div className="space-y-4 pt-4 border-t border-border">
-                                    <Link href="/profile" className="flex items-center justify-between group">
-                                        <span className="text-xs font-black uppercase tracking-widest text-muted-foreground group-hover:text-primary transition-colors">Public Profile</span>
-                                        <ExternalLink size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
-                                    </Link>
-                                </div>
-
-                                <Button variant="outline" className="w-full rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
-                                    Share Profile
-                                </Button>
-                            </CardContent>
-                        </Card>
-                    </div>
-                </div>
+                )}
             </div>
         </main>
     );

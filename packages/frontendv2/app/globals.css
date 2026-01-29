@@ -114,12 +114,24 @@
 }
 
 @layer base {
+
   * {
     @apply border-border outline-ring/50;
   }
 
+  html,
   body {
-    @apply bg-background text-foreground;
+    min-height: 100vh;
+  }
+
+  body {
+    @apply text-foreground;
+    background-color: #000 !important;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('/backgrounds/brick-wall-bg.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-attachment: fixed !important;
+    background-repeat: no-repeat !important;
   }
 }
 

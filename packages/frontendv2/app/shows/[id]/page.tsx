@@ -20,7 +20,7 @@ export default function ShowDetailsPage() {
 
     if (isLoading) {
         return (
-            <main className="min-h-screen bg-background">
+            <main className="min-h-screen">
 
                 <div className="container mx-auto px-4 pt-32">
                     <Skeleton className="h-[400px] w-full rounded-3xl" />
@@ -31,7 +31,7 @@ export default function ShowDetailsPage() {
 
     if (error || !show) {
         return (
-            <main className="min-h-screen bg-background">
+            <main className="min-h-screen">
 
                 <div className="container mx-auto px-4 pt-32 text-center">
                     <h1 className="text-2xl font-bold">Show not found</h1>
@@ -46,9 +46,7 @@ export default function ShowDetailsPage() {
     const showDate = new Date(show.date);
 
     return (
-        <main className="min-h-screen bg-background">
-            <Navbar />
-
+        <main className="min-h-screen">
             <div className="container mx-auto px-4 pt-32 pb-20">
                 {/* Back Link */}
                 <Link href="/shows" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold uppercase text-xs tracking-widest mb-8">

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 
 export default function ShowsPage() {
     return (
-        <main className="min-h-screen bg-background">
+        <main className="min-h-screen">
 
 
             <div className="container mx-auto px-4 pt-32 pb-20">

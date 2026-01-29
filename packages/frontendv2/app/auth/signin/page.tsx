@@ -39,70 +39,57 @@ function SignInPage() {
 
     if (authLoading) {
         return (
-            <div className="flex min-h-screen items-center justify-center bg-background">
-                <div className="text-center">Loading...</div>
+            <div className="flex min-h-screen items-center justify-center">
+                <div className="text-center text-meta-label font-bold uppercase tracking-widest animate-pulse">Establishing Connection...</div>
             </div>
         );
     }
 
     return (
-        <div className="flex min-h-screen items-center justify-center bg-background font-sans p-4">
-            <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-lg shadow-lg border border-border">
-                <div className="text-center">
-                    <h2 className="text-3xl font-bold text-foreground">
-                        Sign In
+        <div className="flex min-h-screen items-center justify-center font-sans p-4">
+            <div className="w-full max-w-md space-y-8 bg-card/80 backdrop-blur-xl p-10 md:p-14 rounded-[3rem] shadow-2xl border border-white/10 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+
+                <div className="text-center relative z-10">
+                    <h2 className="text-4xl font-black text-white uppercase italic tracking-tighter leading-none">
+                        JOIN THE <br /> <span className="text-primary">STAGE.</span>
                     </h2>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        Sign in to access your bookings, save favorites, and manage your profile
+                    <p className="mt-4 text-xs text-meta-label font-bold uppercase tracking-widest leading-relaxed">
+                        Authorize via secure stream to <br /> access the comedy grid.
                     </p>
                 </div>
 
                 {/* Info Card */}
-                <div className="bg-muted/50 border border-border rounded-lg p-4">
-                    <h3 className="font-medium text-foreground mb-2">Why Sign In?</h3>
-                    <div className="space-y-2 text-sm">
-                        <div className="flex items-start">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
-                            <div className="text-muted-foreground">
-                                <span className="font-medium text-foreground">Manage Bookings:</span>
-                                <span className="ml-1">View and manage all your show tickets in one place</span>
-                            </div>
-                        </div>
-                        <div className="flex items-start">
-                            <div className="w-2 h-2 bg-purple-500 rounded-full mt-1.5 mr-2 flex-shrink-0"></div>
-                            <div className="text-muted-foreground">
-                                <span className="font-medium text-foreground">Personalized Experience:</span>
-                                <span className="ml-1">Save your favorite comedians and venues</span>
-                            </div>
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-6 space-y-4 relative z-10">
+                    <div className="flex items-start gap-4">
+                        <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2" />
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white">Management Console</p>
+                            <p className="text-[10px] text-meta-label leading-relaxed">Oversee bookings and favorite acts.</p>
                         </div>
                     </div>
                 </div>
 
                 {error && (
-                    <div className="bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded">
-                        <p className="text-sm">
-                            {error === 'Callback' ? 'Authentication failed. Please try again.' :
-                                error === 'OAuthSignin' ? 'Could not sign in with Google. Please try again.' :
-                                    error === 'Default' ? 'An error occurred during authentication.' :
-                                        'Authentication failed. Please try again.'}
-                        </p>
+                    <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest text-center animate-in shake duration-500">
+                        {error === 'Callback' ? 'Authentication failed. Please try again.' :
+                            error === 'OAuthSignin' ? 'Could not sign in with Google. Please try again.' :
+                                error === 'Default' ? 'An error occurred during authentication.' :
+                                    'Authentication failed. Please try again.'}
                     </div>
                 )}
 
-                <div className="mt-8 space-y-6">
+                <div className="mt-8 space-y-6 relative z-10">
                     <button
                         onClick={handleGoogleSignIn}
                         disabled={isSigningIn}
-                        className="w-full flex items-center justify-center px-4 py-3 border border-input rounded-md shadow-sm text-sm font-medium bg-background hover:bg-accent hover:text-accent-foreground transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-foreground"
+                        className="w-full flex items-center justify-center px-6 py-4 bg-white text-black rounded-2xl text-xs font-black uppercase tracking-[0.2em] hover:bg-primary transition-all active:scale-[0.98] disabled:opacity-50 group/btn"
                     >
                         {isSigningIn ? (
-                            <>
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-foreground mr-2"></div>
-                                Signing In...
-                            </>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black"></div>
                         ) : (
                             <>
-                                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                                <svg className="w-5 h-5 mr-3 group-hover:scale-110 transition-transform" viewBox="0 0 24 24">
                                     <path
                                         fill="currentColor"
                                         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -120,31 +107,28 @@ function SignInPage() {
                                         d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                     />
                                 </svg>
-                                Continue with Google
+                                AUTH VIA GOOGLE
                             </>
                         )}
                     </button>
 
-                    <div className="relative">
+                    <div className="relative pt-4">
                         <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                            <div className="w-full border-t border-border"></div>
+                            <div className="w-full border-t border-white/5"></div>
                         </div>
-                        <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-background text-muted-foreground">Or</span>
+                        <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
+                            <span className="px-4 bg-transparent text-meta-label">Or</span>
                         </div>
                     </div>
 
-                    <div className="text-center">
-                        <p className="text-sm text-muted-foreground mb-3">
-                            Just browsing? You can view all shows without an account.
-                        </p>
+                    <div className="text-center pt-4">
                         <a
                             href="/shows"
-                            className="inline-flex items-center px-4 py-2 border border-primary/20 text-primary bg-primary/5 rounded-md hover:bg-primary/10 text-sm font-medium transition-colors"
+                            className="text-[10px] font-black text-primary uppercase tracking-[0.2em] hover:text-white transition-colors flex items-center justify-center gap-2 group"
                         >
-                            Continue as Guest
-                            <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            CONTINUE AS GUEST
+                            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                             </svg>
                         </a>
                     </div>
@@ -156,7 +140,7 @@ function SignInPage() {
 
 export default function SignIn() {
     return (
-        <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-background"><div className="text-center">Loading...</div></div>}>
+        <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><div className="text-center text-meta-label font-bold uppercase tracking-widest animate-pulse">SYNCING...</div></div>}>
             <SignInPage />
         </Suspense>
     );

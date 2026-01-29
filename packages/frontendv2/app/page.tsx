@@ -8,7 +8,7 @@ import { ListShowCTA } from '@/components/home/ListShowCTA';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-background">
+    <main className="min-h-screen">
 
       {/* Hero Section */}
       <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
@@ -71,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* Show Discovery Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-transparent">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-20 bg-black border-t border-border">
+      <footer className="py-20 bg-transparent border-t border-border">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="space-y-6">

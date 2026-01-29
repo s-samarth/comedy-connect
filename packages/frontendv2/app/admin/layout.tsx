@@ -20,7 +20,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
     if (isLoading || !user || user.role !== 'ADMIN') {
         return (
-            <div className="min-h-screen bg-background flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-80 h-80 bg-primary blur-[120px] opacity-10 rounded-full animate-pulse" />
                 </div>
@@ -43,7 +43,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ]
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/40 relative overflow-x-hidden">
+        <div className="min-h-screen text-foreground font-sans selection:bg-primary/40 relative overflow-x-hidden">
             {/* MINIMALIST BACKGROUND - Subtle Ambient Glows */}
             <div className="fixed inset-0 pointer-events-none z-0">
                 {/* Primary Orange Gloom - Toned Down */}

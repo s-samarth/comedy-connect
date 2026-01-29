@@ -73,23 +73,29 @@ export default function StatsOverview() {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {statCards.map((stat) => (
-                <div key={stat.label} className="group relative bg-white/[0.01] border border-white/[0.03] rounded-3xl p-8 hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300 overflow-hidden">
+                <div key={stat.label} className={`group relative bg-zinc-950/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:bg-zinc-950/60 transition-all duration-500 overflow-hidden`}>
+                    {/* Hover Glow Effect */}
+                    <div className={`absolute -inset-px bg-gradient-to-r ${stat.bg} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+
                     <div className="flex flex-col items-start gap-6 relative z-10">
-                        <div className={`w-12 h-12 ${stat.bg} ${stat.border} ${stat.color} rounded-xl flex items-center justify-center transition-all duration-300`}>
+                        <div className={`w-12 h-12 ${stat.bg} ${stat.border} ${stat.color} rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_20px_rgba(var(--primary),0.3)]`}>
                             <stat.icon size={24} />
                         </div>
 
                         <div className="space-y-1">
-                            <p className="text-xs text-meta-label uppercase tracking-widest">{stat.label}</p>
+                            <p className="text-xs text-meta-label uppercase tracking-widest opacity-70">{stat.label}</p>
                             <div className="flex items-baseline gap-2">
-                                <p className="text-4xl font-black tracking-tighter text-white italic">{stat.value}</p>
+                                <p className="text-4xl font-black tracking-tighter text-white italic transition-transform duration-300 group-hover:translate-x-1">{stat.value}</p>
                             </div>
                             <div className="flex items-center gap-2 pt-1 font-bold italic">
-                                <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                                <div className={`w-1.5 h-1.5 rounded-full ${stat.color} animate-pulse`} />
                                 <p className="text-[11px] text-meta-label uppercase tracking-tight">{stat.change}</p>
                             </div>
                         </div>
                     </div>
+
+                    {/* Subtle Border Glow on Hover */}
+                    <div className={`absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-${stat.color.split('-')[1]}-500/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 </div>
             ))}
         </div>

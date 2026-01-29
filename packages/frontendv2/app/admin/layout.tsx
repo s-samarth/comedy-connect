@@ -4,42 +4,83 @@ import { useAuth } from '@/lib/hooks'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from "next/link"
 import { LayoutGrid, Users, Calendar, Settings, ShieldCheck, Zap } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { AdminPasswordPrompt } from "@/components/admin/AdminPasswordPrompt"
+import { RefreshCw } from 'lucide-react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const { user, isAuthenticated, isLoading } = useAuth()
+    const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
 
+    const [isVerified, setIsVerified] = useState(false)
+    const [needsSetup, setNeedsSetup] = useState(false)
+    const [isSecurityLoading, setIsSecurityLoading] = useState(true)
+
     useEffect(() => {
-        if (!isLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
+        const checkSecurity = async () => {
+            if (isAuthLoading || !isAuthenticated || user?.role !== 'ADMIN') {
+                if (!isAuthLoading) setIsSecurityLoading(false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/admin/check-password-setup')
+                const data = await response.json()
+                setNeedsSetup(data.needsSetup)
+
+                if (!data.needsSetup) {
+                    const verifyResponse = await fetch('/api/v1/admin/verify-session')
+                    if (verifyResponse.ok) {
+                        setIsVerified(true)
+                    }
+                }
+            } catch (error) {
+                console.error('Security check failed:', error)
+            } finally {
+                setIsSecurityLoading(false)
+            }
+        }
+        checkSecurity()
+    }, [isAuthLoading, isAuthenticated, user])
+
+    useEffect(() => {
+        if (!isAuthLoading && (!isAuthenticated || user?.role !== 'ADMIN')) {
             router.push('/')
         }
-    }, [isAuthenticated, isLoading, user, router])
+    }, [isAuthenticated, isAuthLoading, user, router])
 
-    if (isLoading || !user || user.role !== 'ADMIN') {
+    if (isAuthLoading || (isAuthenticated && user?.role === 'ADMIN' && isSecurityLoading)) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center space-y-8 relative overflow-hidden">
+            <div className="min-h-screen flex flex-col items-center justify-center space-y-8 relative overflow-hidden bg-background">
                 <div className="absolute inset-0 pointer-events-none">
                     <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-80 h-80 bg-primary blur-[120px] opacity-10 rounded-full animate-pulse" />
                 </div>
                 <div className="relative">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-[0_0_30px_rgba(255,100,0,0.3)]" />
+                    <RefreshCw className="w-16 h-16 text-primary animate-spin" />
+                    <div className="absolute inset-0 bg-primary blur-2xl opacity-20 animate-pulse" />
                 </div>
                 <div className="flex flex-col items-center gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">Command Core</span>
-                    <span className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest">Initializing Handshake...</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.5em] text-primary italic">Establishing Secure Stream</span>
+                    <span className="text-xs font-bold text-muted-foreground/40 uppercase tracking-widest animate-pulse">Handshaking Console...</span>
                 </div>
             </div>
         )
     }
 
+    if (!user || user.role !== 'ADMIN') return null;
+
+    if (!isVerified) {
+        return <AdminPasswordPrompt onVerified={() => setIsVerified(true)} needsSetup={needsSetup} />
+    }
+
     const navLinks = [
         { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
-        { href: '#organizers', label: 'Organizers', icon: Users },
-        { href: '#shows', label: 'Shows', icon: Calendar },
-        { href: '#fees', label: 'Economics', icon: Settings },
+        { href: '/admin/comedians', label: 'Artists', icon: Users },
+        { href: '/admin/organizers', label: 'Guild', icon: ShieldCheck },
+        { href: '/admin/shows', label: 'Shows', icon: Calendar },
+        { href: '/admin/fees', label: 'Economics', icon: Settings },
     ]
 
     return (

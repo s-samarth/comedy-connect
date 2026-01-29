@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Comedy Connect | Discover Live Comedy",
   description: "The premier platform for discovering, booking, and managing live stand-up comedy shows.",
+  icons: {
+    icon: "/comedy-connect-icon.ico",
+  },
 };
 
 export default function RootLayout({

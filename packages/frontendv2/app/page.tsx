@@ -15,7 +15,7 @@ export default function Home() {
         {/* Background glow effects */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl pointer-events-none opacity-20">
           <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary blur-[120px] rounded-full" />
-          <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] bg-orange-600 blur-[100px] rounded-full" />
+          <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] bg-primary blur-[100px] rounded-full" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
@@ -36,34 +36,35 @@ export default function Home() {
               Trust the vibe, enjoy the night.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+            <div className="flex items-center justify-center pt-4">
               <Link href="/shows">
-                <Button size="lg" className="h-14 px-8 text-lg font-bold gap-2 rounded-full">
+                <Button size="lg" className="h-14 px-8 text-lg font-bold gap-2 rounded-full shadow-lg shadow-primary/20">
                   Browse Shows
                   <ArrowRight size={20} />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg font-bold rounded-full border-border hover:bg-muted">
-                How it works
-              </Button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex text-primary">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={16} fill="currentColor" />)}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8 pt-12 items-start">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-12 flex items-center justify-center text-primary">
+                  <div className="flex gap-0.5">
+                    {[...Array(5)].map((_, i) => <Star key={i} size={18} fill="currentColor" />)}
+                  </div>
                 </div>
-                <span className="text-sm font-bold uppercase tracking-tight">Top Rated Acts</span>
+                <span className="text-xs font-black uppercase tracking-widest opacity-80">Top Rated Acts</span>
               </div>
-              <div className="flex flex-col items-center gap-2">
-                <div className="text-primary">
-                  <ShieldCheck size={32} />
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-12 flex items-center justify-center text-primary">
+                  <ShieldCheck size={36} />
                 </div>
-                <span className="text-sm font-bold uppercase tracking-tight">Secure Booking</span>
+                <span className="text-xs font-black uppercase tracking-widest opacity-80">Secure Booking</span>
               </div>
-              <div className="hidden md:flex flex-col items-center gap-2">
-                <div className="text-primary font-black text-3xl italic">10k+</div>
-                <span className="text-sm font-bold uppercase tracking-tight">Happy Fans</span>
+              <div className="hidden md:flex flex-col items-center gap-3">
+                <div className="h-12 flex items-center justify-center">
+                  <span className="text-4xl">🙌</span>
+                </div>
+                <span className="text-xs font-black uppercase tracking-widest opacity-80">Awesome Community</span>
               </div>
             </div>
           </div>
@@ -132,7 +133,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
             <div className="space-y-6">
               <Link href="/" className="flex items-center gap-2">
-                <Image src="/symbol.png" alt="Logo" width={40} height={40} />
+
                 <span className="font-bold text-2xl tracking-tighter">COMEDY <span className="text-primary">CONNECT</span></span>
               </Link>
               <p className="text-muted-foreground text-sm font-medium">

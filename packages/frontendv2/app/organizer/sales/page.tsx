@@ -161,7 +161,7 @@ export default function OrganizerSalesPage() {
                                                         <p className="font-black italic text-sm">{show.ticketsSold} / {show.totalTickets}</p>
                                                         <div className="w-24 h-1.5 bg-muted rounded-full overflow-hidden">
                                                             <div
-                                                                className="h-full bg-gradient-to-r from-primary to-orange-500"
+                                                                className="h-full bg-gradient-to-r from-primary to-primary/60"
                                                                 style={{ width: `${(show.ticketsSold / show.totalTickets) * 100}%` }}
                                                             />
                                                         </div>

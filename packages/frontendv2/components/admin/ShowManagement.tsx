@@ -256,9 +256,9 @@ export function ShowManagement() {
                                                 value={show.isDisbursed ? 'DISBURSED' : 'TO_BE_DISBURSED'}
                                                 onChange={(e) => handleSetDisbursed(show.id, e.target.value === 'DISBURSED')}
                                                 disabled={actionLoading === show.id + '-payment'}
-                                                className={`text-xs font-black uppercase tracking-tight rounded-md px-2 py-1 border transition-colors ${show.isDisbursed
+                                                className={`text-xs font-black uppercase tracking-tight rounded-md px-2 py-1 border transition-all ${show.isDisbursed
                                                     ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20'
-                                                    : 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
+                                                    : 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/20'
                                                     } focus:outline-none focus:ring-1 focus:ring-primary shadow-sm outline-none`}
                                             >
                                                 <option value="TO_BE_DISBURSED" className="bg-zinc-950">To Be Disbursed</option>
@@ -296,8 +296,8 @@ export function ShowManagement() {
                                                         <button
                                                             onClick={() => handleAction(show.id, show.isPublished ? 'UNPUBLISH' : 'PUBLISH')}
                                                             disabled={actionLoading === show.id}
-                                                            className={`px-2 py-1 rounded-md text-xs font-black uppercase tracking-tight transition-colors border shadow-sm ${show.isPublished
-                                                                ? 'text-orange-400 bg-orange-400/10 border-orange-400/20 hover:bg-orange-400/20'
+                                                            className={`px-2 py-1 rounded-md text-xs font-black uppercase tracking-tight transition-all border shadow-sm ${show.isPublished
+                                                                ? 'text-primary bg-primary/10 border-primary/20 hover:bg-primary/20'
                                                                 : 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20 hover:bg-emerald-400/20'
                                                                 } disabled:opacity-50`}
                                                         >

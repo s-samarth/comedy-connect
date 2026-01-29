@@ -121,13 +121,13 @@ export default function OrganizerDashboardPage() {
                         <Card className="bg-card border-border rounded-3xl overflow-hidden hover:border-primary/30 transition-all group">
                             <CardContent className="p-6">
                                 <div className="flex justify-between items-start">
-                                    <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500 group-hover:scale-110 transition-transform">
+                                    <div className="p-3 rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
                                         <CalendarRange size={20} />
                                     </div>
                                 </div>
                                 <div className="mt-4">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Active Events</p>
-                                    <p className="text-3xl font-black italic mt-1 text-orange-500">0</p>
+                                    <p className="text-3xl font-black italic mt-1 text-primary">0</p>
                                 </div>
                             </CardContent>
                         </Card>

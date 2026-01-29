@@ -52,7 +52,7 @@ export default function BookingsPage() {
 
             <div className="max-w-4xl mx-auto relative z-10 space-y-12">
                 <div className="text-center space-y-4">
-                    <Image src="/symbol.png" alt="Logo" width={64} height={64} className="mx-auto" />
+
                     <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none">
                         MY <span className="text-primary italic underline decoration-primary decoration-4 underline-offset-4">BOOKINGS</span>
                     </h1>

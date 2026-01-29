@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
     const isExcludedRoute = pathname.startsWith('/api/') ||
         pathname.startsWith('/auth') ||
         pathname.startsWith('/_next') ||
-        pathname === '/favicon.ico'
+        pathname === '/comedy-connect-icon.ico'
 
     // If authenticated but not onboarded, redirect to /onboarding
     if (token && !isOnboardingRoute && !isExcludedRoute) {
@@ -38,9 +38,9 @@ export const config = {
          * Match all request paths except for the ones starting with:
          * - _next/static (static files)
          * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
+         * - comedy-connect-icon.ico (favicon file)
          * - public folder assets (e.g. .png, .jpg)
          */
-        "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
+        "/((?!_next/static|_next/image|comedy-connect-icon.ico|.*\\..*).*)",
     ],
 }

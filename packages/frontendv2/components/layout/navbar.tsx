@@ -23,13 +23,7 @@ export function Navbar() {
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2">
-                    <Image
-                        src="/symbol.png"
-                        alt="Comedy Connect Symbol"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 object-contain"
-                    />
+
                     <span className="font-bold text-xl tracking-tight hidden sm:block">
                         Comedy <span className="text-primary">Connect</span>
                     </span>

@@ -91,7 +91,7 @@ export default function ComedianSalesPage() {
                     <Card className="bg-card border-border rounded-3xl overflow-hidden shadow-xl shadow-primary/5">
                         <CardContent className="p-8">
                             <div className="flex items-center gap-4 mb-4">
-                                <div className="p-3 rounded-2xl bg-orange-500/10 text-orange-500">
+                                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
                                     <Ticket size={24} />
                                 </div>
                                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Tickets Sold</p>

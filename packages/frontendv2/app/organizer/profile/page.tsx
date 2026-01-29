@@ -78,7 +78,7 @@ export default function OrganizerProfilePage() {
                                             <Image src={user.image} alt={user.name || ''} fill className="object-cover" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center text-muted-foreground/20">
-                                                <Image src="/symbol.png" alt="Logo" width={48} height={48} className="opacity-20 translate-y-2" />
+
                                             </div>
                                         )}
                                     </div>

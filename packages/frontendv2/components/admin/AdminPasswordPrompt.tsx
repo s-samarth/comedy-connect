@@ -57,12 +57,8 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
     };
 
     return (
-        <div className="min-h-[85vh] flex items-center justify-center p-4 relative overflow-hidden bg-background">
-            {/* High-Energy Background Blurs - Straight from Homepage */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl pointer-events-none opacity-30 z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary blur-[140px] rounded-full animate-pulse" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-orange-600 blur-[120px] rounded-full opacity-60" />
-            </div>
+        <div className="min-h-[85vh] flex items-center justify-center p-4 relative overflow-hidden bg-transparent">
+            {/* Background Glows handled by global background/texture */}
 
             <div className="relative z-10 w-full max-w-xl text-center space-y-12 animate-in fade-in zoom-in-95 duration-700">
                 {/* Brand Badge */}
@@ -75,7 +71,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                 <div className="space-y-4">
                     <h1 className="text-6xl md:text-8xl font-[900] tracking-tighter leading-[0.85] uppercase italic text-white drop-shadow-2xl">
                         ADMIN <br />
-                        <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">ACCESS.</span>
+                        <span className="text-primary underline decoration-white/10 decoration-8 underline-offset-8">ACCESS</span>
                     </h1>
                     <p className="text-base md:text-lg text-body-standard max-w-sm mx-auto font-bold tracking-tight">
                         {isSetup
@@ -143,7 +139,7 @@ export function AdminPasswordPrompt({ onVerified, needsSetup }: AdminPasswordPro
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full h-18 bg-primary hover:bg-orange-600 text-black rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm shadow-[0_20px_40px_rgba(255,100,0,0.4)] hover:shadow-[0_25px_50px_rgba(255,100,0,0.5)] transition-all group active:scale-[0.97]"
+                            className="w-full h-18 bg-primary hover:bg-primary/90 text-black rounded-[2rem] font-black uppercase tracking-[0.2em] text-sm shadow-xl shadow-primary/20 transition-all group active:scale-[0.97]"
                         >
                             {isLoading ? (
                                 <Loader2 className="animate-spin text-black" size={24} />

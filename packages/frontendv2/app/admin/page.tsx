@@ -10,7 +10,7 @@ export default function AdminPage() {
         { id: "organizers", title: "Organizer Guild", desc: "Credentialing, venue verification, and performance audits.", icon: ShieldCheck, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", glow: "shadow-[0_0_40px_rgba(59,130,246,0.15)]", link: "/admin/organizers" },
         { id: "shows", title: "Moderation Queue", desc: "Live show vetting, publishing logic, and event scheduling.", icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", glow: "shadow-[0_0_40px_rgba(168,85,247,0.15)]", link: "/admin/shows" },
         { id: "fees", title: "Revenue Config", desc: "Global fee logic, platform percentage, and finance logic.", icon: Settings, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-[0_0_40px_rgba(16,185,129,0.15)]", link: "/admin/fees" },
-        { id: "collections", title: "Treasury Hub", desc: "Lifetime revenue flows, active pools, and payouts.", icon: Wallet, color: "text-orange-500", bg: "bg-orange-500/10", border: "border-orange-500/20", glow: "shadow-[0_0_40px_rgba(249,115,22,0.15)]", link: "/admin/collections" },
+        { id: "collections", title: "Treasury Hub", desc: "Lifetime revenue flows, active pools, and payouts.", icon: Wallet, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20", glow: "shadow-[0_0_40px_rgba(245,166,35,0.15)]", link: "/admin/collections" },
     ]
 
     return (

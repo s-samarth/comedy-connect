@@ -126,7 +126,7 @@ export default function OrganizerOnboardingPage() {
 
             <div className="max-w-2xl mx-auto relative z-10">
                 <div className="text-center mb-12 space-y-4">
-                    <Image src="/symbol.png" alt="Logo" width={64} height={64} className="mx-auto" />
+
                     <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter uppercase">
                         Host <span className="text-primary italic underline decoration-primary decoration-4 underline-offset-4">Shows</span>
                     </h1>

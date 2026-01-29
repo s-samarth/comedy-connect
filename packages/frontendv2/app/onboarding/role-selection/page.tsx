@@ -125,7 +125,7 @@ export default function RoleSelectionPage() {
 
             <div className="max-w-5xl w-full relative z-10 space-y-12">
                 <div className="text-center space-y-4">
-                    <Image src="/symbol.png" alt="Logo" width={64} height={64} className="mx-auto" />
+
                     <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none">
                         CHOOSE YOUR <span className="text-primary italic underline decoration-primary decoration-4 underline-offset-4">VIBE</span>.
                     </h1>

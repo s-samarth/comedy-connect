@@ -7,7 +7,7 @@ export default function CollectionsAdminPage() {
     return (
         <div className="space-y-10 animate-in fade-in duration-700 pb-20">
             <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-orange-500/10 border border-orange-500/20 rounded-xl flex items-center justify-center text-orange-500">
+                <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center text-primary">
                     <Wallet size={24} />
                 </div>
                 <div>

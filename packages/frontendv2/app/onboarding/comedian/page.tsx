@@ -76,7 +76,7 @@ export default function ComedianOnboardingPage() {
     if (isAuthLoading || !user) return null;
 
     return (
-        <main className="min-h-screen bg-background py-20 px-4 relative overflow-hidden">
+        <main className="min-h-screen bg-transparent py-20 px-4 relative overflow-hidden">
             {/* Background glow */}
             <div className="absolute top-0 right-0 w-full h-full pointer-events-none opacity-10">
                 <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-primary blur-[150px] rounded-full" />

@@ -17,7 +17,7 @@ export default function BookingSuccessPage() {
 
     if (isLoading || !show) {
         return (
-            <main className="min-h-screen bg-background">
+            <main className="min-h-screen bg-transparent">
 
                 <div className="container mx-auto px-4 pt-32 text-center">
                     <div className="animate-pulse space-y-4">
@@ -32,9 +32,7 @@ export default function BookingSuccessPage() {
     const showDate = new Date(show.date);
 
     return (
-        <main className="min-h-screen bg-background flex flex-col">
-            <Navbar />
-
+        <main className="min-h-screen bg-transparent flex flex-col">
             <div className="flex-grow flex items-center justify-center pt-32 pb-20 px-4">
                 <div className="max-w-xl w-full space-y-8 text-center">
                     {/* Success Icon */}

@@ -117,7 +117,7 @@ export default function RoleSelectionPage() {
     if (isAuthLoading || !user) return null;
 
     return (
-        <main className="min-h-screen bg-background py-20 px-4 flex items-center justify-center relative overflow-hidden">
+        <main className="min-h-screen bg-transparent py-20 px-4 flex items-center justify-center relative overflow-hidden">
             {/* Background glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-7xl pointer-events-none opacity-20">
                 <div className="absolute top-0 left-0 w-full h-full bg-primary/20 blur-[150px] rounded-full" />

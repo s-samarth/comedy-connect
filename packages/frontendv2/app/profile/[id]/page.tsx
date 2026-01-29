@@ -75,7 +75,7 @@ export default function PublicProfilePage() {
 
     if (authLoading || isLoading) {
         return (
-            <main className="min-h-screen bg-background pt-32 px-4">
+            <main className="min-h-screen bg-transparent pt-32 px-4">
                 <div className="container mx-auto max-w-4xl space-y-8">
                     <div className="flex flex-col md:flex-row gap-8 items-center md:items-start anim-enter">
                         <Skeleton className="w-40 h-40 rounded-3xl" />
@@ -92,7 +92,7 @@ export default function PublicProfilePage() {
 
     if (error) {
         return (
-            <main className="min-h-screen bg-background pt-32 px-4 flex items-center justify-center">
+            <main className="min-h-screen bg-transparent pt-32 px-4 flex items-center justify-center">
                 <div className="text-center space-y-4 max-w-md bg-muted/20 p-12 rounded-[2.5rem] border border-border mt-20">
                     <User size={48} className="mx-auto text-muted-foreground opacity-50" />
                     <h1 className="text-xl font-black uppercase tracking-tight">{error}</h1>
@@ -105,7 +105,7 @@ export default function PublicProfilePage() {
     }
 
     return (
-        <main className="min-h-screen bg-background pb-20 pt-32">
+        <main className="min-h-screen bg-transparent pb-20 pt-32">
             <div className="container mx-auto px-4 max-w-6xl">
                 {/* Back Navigation */}
                 <button onClick={() => router.back()} className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold uppercase text-[10px] tracking-widest mb-12">

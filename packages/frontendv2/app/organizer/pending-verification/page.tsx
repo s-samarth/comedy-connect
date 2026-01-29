@@ -8,7 +8,7 @@ import Link from 'next/link';
 
 export default function OrganizerPendingPage() {
     return (
-        <main className="min-h-screen bg-background flex flex-col">
+        <main className="min-h-screen bg-transparent flex flex-col">
 
 
             <div className="flex-grow flex items-center justify-center pt-32 pb-20 px-4">

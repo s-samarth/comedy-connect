@@ -26,7 +26,7 @@ export default function ComedianDashboardPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary" size={48} />
             </div>
         );
@@ -34,7 +34,7 @@ export default function ComedianDashboardPage() {
 
     if (!isAuthenticated || !isComedian) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <div className="text-center space-y-4">
                     <AlertCircle size={48} className="text-red-500 mx-auto" />
                     <h1 className="text-2xl font-bold">Access Denied</h1>
@@ -48,7 +48,7 @@ export default function ComedianDashboardPage() {
     }
 
     return (
-        <main className="min-h-screen bg-background pb-20">
+        <main className="min-h-screen bg-transparent pb-20">
 
 
             <div className="container mx-auto px-4 pt-32 space-y-8">

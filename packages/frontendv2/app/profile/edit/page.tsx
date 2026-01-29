@@ -18,7 +18,7 @@ function EditProfileContent() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="min-h-screen flex items-center justify-center bg-transparent">
                 <div className="text-center">
                     <Loader2 className="animate-spin h-8 w-8 text-primary mx-auto mb-4" />
                     <p className="text-muted-foreground">Loading...</p>
@@ -32,7 +32,7 @@ function EditProfileContent() {
     }
 
     return (
-        <div className="min-h-screen bg-background pt-20">
+        <div className="min-h-screen bg-transparent pt-20">
             <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
@@ -54,7 +54,7 @@ function EditProfileContent() {
 export default function EditProfilePage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="min-h-screen flex items-center justify-center bg-transparent">
                 <div className="text-center">Loading...</div>
             </div>
         }>

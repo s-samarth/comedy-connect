@@ -14,7 +14,7 @@ function ShowsContent() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="min-h-screen flex items-center justify-center bg-transparent">
                 <div className="text-center space-y-4">
                     <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
                     <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Loading Management Panel...</p>
@@ -29,7 +29,7 @@ function ShowsContent() {
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-transparent text-foreground">
             <main className="container mx-auto px-4 pt-32 pb-20">
                 {/* Navigation Breadcrumb */}
                 <div className="mb-12">
@@ -54,7 +54,7 @@ function ShowsContent() {
 export default function OrganizerShowsPage() {
     return (
         <Suspense fallback={
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="min-h-screen flex items-center justify-center bg-transparent">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         }>

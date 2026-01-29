@@ -1,20 +1,11 @@
 'use client';
 
+import type { BookingResponse } from '@comedy-connect/types';
 import { Calendar, MapPin, Tag } from 'lucide-react';
 import Link from 'next/link';
 
 interface UserBookingsProps {
-    bookings: Array<{
-        id: string;
-        createdAt: Date | string;
-        show: {
-            id: string;
-            title: string;
-            date: Date | string;
-            venue: string;
-            ticketPrice: number;
-        };
-    }>;
+    bookings: Array<BookingResponse & { createdAt?: Date | string }>;
 }
 
 export default function UserBookings({ bookings }: UserBookingsProps) {
@@ -97,9 +88,11 @@ export default function UserBookings({ bookings }: UserBookingsProps) {
                                 <div className="mt-2 flex items-center justify-between">
                                     <div className="flex items-center space-x-3">
                                         {getStatusBadge(booking.show.date)}
-                                        <span className="text-sm text-muted-foreground">
-                                            Booked on {formatDate(booking.createdAt)}
-                                        </span>
+                                        {booking.createdAt ? (
+                                            <span className="text-sm text-muted-foreground">
+                                                Booked on {formatDate(booking.createdAt)}
+                                            </span>
+                                        ) : null}
                                     </div>
                                     <div className="text-right">
                                         <p className="text-lg font-semibold text-foreground">{formatPrice(booking.show.ticketPrice)}</p>

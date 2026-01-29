@@ -15,7 +15,7 @@ export default function OrganizerProfilePage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary" size={48} />
             </div>
         );
@@ -23,7 +23,7 @@ export default function OrganizerProfilePage() {
 
     if (!isAuthenticated || !isOrganizer) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center p-4">
+            <div className="min-h-screen bg-transparent flex items-center justify-center p-4">
                 <div className="text-center space-y-4 max-w-md">
                     <AlertCircle size={48} className="text-destructive mx-auto" />
                     <h1 className="text-2xl font-bold italic uppercase tracking-tight">Access Denied</h1>
@@ -39,7 +39,7 @@ export default function OrganizerProfilePage() {
     }
 
     return (
-        <main className="min-h-screen bg-background pb-20">
+        <main className="min-h-screen bg-transparent pb-20">
             <div className="container mx-auto px-4 pt-32 space-y-12">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-border">

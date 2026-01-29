@@ -16,7 +16,7 @@ import Image from 'next/image';
 export default function OnboardingPage() {
     return (
         <React.Suspense fallback={
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary" size={48} />
             </div>
         }>
@@ -84,14 +84,14 @@ function OnboardingForm() {
 
     if (isAuthLoading || !user) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary" size={48} />
             </div>
         );
     }
 
     return (
-        <main className="min-h-screen bg-background py-20 px-4 relative overflow-hidden">
+        <main className="min-h-screen bg-transparent py-20 px-4 relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-10">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary blur-[150px] rounded-full" />

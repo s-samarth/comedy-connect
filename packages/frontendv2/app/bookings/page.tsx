@@ -16,7 +16,7 @@ export default function BookingsPage() {
 
     if (isAuthLoading || isBookingsLoading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-transparent flex items-center justify-center">
                 <Loader2 className="animate-spin text-primary" size={48} />
             </div>
         );
@@ -43,7 +43,7 @@ export default function BookingsPage() {
     };
 
     return (
-        <main className="min-h-screen bg-background py-20 px-4 relative overflow-hidden">
+        <main className="min-h-screen bg-transparent py-20 px-4 relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none opacity-10">
                 <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary blur-[150px] rounded-full" />

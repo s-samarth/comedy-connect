@@ -405,9 +405,9 @@ async updateMany(ids: string[], data: any) {
 
 ## 📖 Related Documentation
 
-- [SERVICES.md](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/SERVICES.md) - Service layer documentation
-- [API.md](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/app/API.md) - API endpoint documentation
-- [Prisma Schema](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/prisma/schema.prisma) - Database schema
+- [SERVICES.md](./SERVICES.md) - Service layer documentation
+- [API.md](./app/API.md) - API endpoint documentation
+- [Prisma Schema](./prisma/schema.prisma) - Database schema
 
 ---
 

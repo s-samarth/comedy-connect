@@ -1332,10 +1332,10 @@ These guidelines are **MANDATORY**. Code that violates them will be rejected in 
 
 ## Questions?
 
-- **Architecture**: See [`SYSTEM_DESIGN.md`](file:///Users/samarthsaraswat/Codebases/comedy-connect/docs/SYSTEM_DESIGN.md)
-- **Services**: See [`SERVICES.md`](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/SERVICES.md)
-- **Repositories**: See [`REPOSITORIES.md`](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/REPOSITORIES.md)
-- **API Endpoints**: See [`API.md`](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/app/API.md)
+- **Architecture**: See [`SYSTEM_DESIGN.md`](../../docs/SYSTEM_DESIGN.md)
+- **Services**: See [`SERVICES.md`](./SERVICES.md)
+- **Repositories**: See [`REPOSITORIES.md`](./REPOSITORIES.md)
+- **API Endpoints**: See [`API.md`](./app/API.md)
 
 ---
 

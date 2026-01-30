@@ -572,9 +572,9 @@ When creating a new service:
 
 ## 🔗 Related Documentation
 
-- [API.md](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/app/API.md) - API endpoint documentation
-- [SYSTEM_DESIGN.md](file:///Users/samarthsaraswat/Codebases/comedy-connect/docs/SYSTEM_DESIGN.md) - System architecture overview
-- [Repositories Index](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/repositories/index.ts) - Available repositories
+- [API.md](./app/API.md) - API endpoint documentation
+- [SYSTEM_DESIGN.md](../../docs/SYSTEM_DESIGN.md) - System architecture overview
+- [Repositories Index](./repositories/index.ts) - Available repositories
 
 ---
 

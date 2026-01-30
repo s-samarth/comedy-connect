@@ -1,3 +1,2 @@
-// Placeholder for entity types
-// Will be populated as needed
-export { }
+// Re-export all entity types
+export * from './enums';

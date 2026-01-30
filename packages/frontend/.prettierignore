@@ -1,0 +1,20 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+.next
+dist
+build
+
+# Package manager files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Test coverage
+coverage
+
+# Environment files
+.env*
+!.env.example

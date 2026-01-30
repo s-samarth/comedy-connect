@@ -2,50 +2,63 @@
 
 import useSWR from 'swr';
 import { api } from '../api/client';
-import { ShowResponse, BookingResponse, SessionResponse } from '@comedy-connect/types';
+import {
+    ShowResponse,
+    BookingResponse,
+    SessionResponse,
+    UserRole,
+} from '@comedy-connect/types';
+import { normalizeError } from '../errors';
 
-export interface User extends NonNullable<SessionResponse['user']> {
+/**
+ * Extended user type that matches the backend session response.
+ * The backend enriches the base User type with additional fields.
+ * This type should stay in sync with what /api/auth/session actually returns.
+ */
+export interface ExtendedUser extends NonNullable<SessionResponse['user']> {
     onboardingCompleted?: boolean;
     phone?: string;
+    age?: number;
+    city?: string;
     comedianProfile?: {
         stageName: string;
     };
-    age?: number;
-    city?: string;
     organizerProfile?: {
         name: string;
     };
 }
 
-export interface ExtendedSessionResponse extends SessionResponse {
-    user: User | null;
-}
-
 /**
  * Custom hook for authentication state
+ * Uses SWR to fetch and cache the current user session
  */
 export function useAuth() {
-    const { data, error, isLoading, mutate } = useSWR<ExtendedSessionResponse>(
+    const { data, error, isLoading, mutate } = useSWR<SessionResponse>(
         '/api/auth/session',
-        () => api.get<ExtendedSessionResponse>('/api/auth/session')
+        () => api.get<SessionResponse>('/api/auth/session')
     );
 
-    const user = data?.user as User | null;
+    const user = data?.user as ExtendedUser | null;
 
     return {
         user,
         isAuthenticated: !!user,
-        isAdmin: user?.role === 'ADMIN',
-        isOrganizer: user?.role?.startsWith('ORGANIZER'),
-        isComedian: user?.role?.startsWith('COMEDIAN'),
+        isAdmin: user?.role === UserRole.ADMIN,
+        isOrganizer: user?.role === UserRole.ORGANIZER_VERIFIED ||
+            user?.role === UserRole.ORGANIZER_UNVERIFIED,
+        isOrganizerVerified: user?.role === UserRole.ORGANIZER_VERIFIED,
+        isComedian: user?.role === UserRole.COMEDIAN_VERIFIED ||
+            user?.role === UserRole.COMEDIAN_UNVERIFIED,
+        isComedianVerified: user?.role === UserRole.COMEDIAN_VERIFIED,
         isLoading,
-        error,
+        error: normalizeError(error),
         mutate,
     };
 }
 
 /**
  * Custom hook for fetching shows
+ * @param mode - 'discovery' for public shows, 'manage' for creator's shows, 'public' for all public shows
  */
 export function useShows(mode: 'discovery' | 'manage' | 'public' = 'discovery') {
     const endpoint = `/api/v1/shows?mode=${mode}`;
@@ -58,13 +71,14 @@ export function useShows(mode: 'discovery' | 'manage' | 'public' = 'discovery') 
     return {
         shows: data?.shows || [],
         isLoading,
-        error,
+        error: normalizeError(error),
         mutate,
     };
 }
 
 /**
  * Custom hook for fetching a single show
+ * @param id - Show ID, or null to skip fetching
  */
 export function useShow(id: string | null) {
     const { data, error, isLoading, mutate } = useSWR<{ show: ShowResponse }>(
@@ -75,7 +89,7 @@ export function useShow(id: string | null) {
     return {
         show: data?.show,
         isLoading,
-        error,
+        error: normalizeError(error),
         mutate,
     };
 }
@@ -92,10 +106,11 @@ export function useBookings() {
     return {
         bookings: data?.bookings || [],
         isLoading,
-        error,
+        error: normalizeError(error),
         mutate,
     };
 }
+
 /**
  * Custom hook for fetching sales reports (for Comedians & Organizers)
  */
@@ -108,7 +123,7 @@ export function useSales() {
     return {
         sales: data?.shows || [],
         isLoading,
-        error,
+        error: normalizeError(error),
         mutate,
     };
 }

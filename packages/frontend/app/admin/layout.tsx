@@ -4,7 +4,7 @@ import { useAuth } from '@/lib/hooks'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from "next/link"
 import { LayoutGrid, Users, Calendar, Settings, ShieldCheck, Zap } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { AdminPasswordPrompt } from "@/components/admin/AdminPasswordPrompt"
 import { RefreshCw } from 'lucide-react'
@@ -73,13 +73,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return <AdminPasswordPrompt onVerified={() => setIsVerified(true)} needsSetup={needsSetup} />
     }
 
-    const navLinks = [
+    const navLinks = useMemo(() => [
         { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
         { href: '/admin/comedians', label: 'Artists', icon: Users },
         { href: '/admin/organizers', label: 'Guild', icon: ShieldCheck },
         { href: '/admin/shows', label: 'Shows', icon: Calendar },
         { href: '/admin/fees', label: 'Economics', icon: Settings },
-    ]
+    ], []);
 
     return (
         <div className="min-h-screen text-foreground font-sans selection:bg-primary/40 relative overflow-x-hidden">

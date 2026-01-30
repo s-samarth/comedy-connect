@@ -1335,7 +1335,7 @@ These guidelines are **MANDATORY**. Code that violates them will be rejected in 
 - **Architecture**: See [`SYSTEM_DESIGN.md`](../../docs/SYSTEM_DESIGN.md)
 - **Services**: See [`SERVICES.md`](./SERVICES.md)
 - **Repositories**: See [`REPOSITORIES.md`](./REPOSITORIES.md)
-- **API Endpoints**: See [`API.md`](./app/API.md)
+- **API Endpoints**: See [`API.md`](./API.md)
 
 ---
 

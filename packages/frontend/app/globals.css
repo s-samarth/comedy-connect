@@ -3,25 +3,30 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Primary color constant - defined once */
+:root {
+  --color-theme-primary: #F5A623;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: #F5A623;
+  --color-sidebar-ring: var(--color-theme-primary);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: #F5A623;
+  --color-sidebar-primary: var(--color-theme-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
-  --color-chart-1: #F5A623;
-  --color-ring: #F5A623;
+  --color-chart-1: var(--color-theme-primary);
+  --color-ring: var(--color-theme-primary);
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
@@ -32,7 +37,7 @@
   --color-secondary-foreground: var(--secondary-foreground);
   --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary: #F5A623;
+  --color-primary: var(--color-theme-primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-muted-foreground: #E0E0E0;
@@ -130,26 +135,26 @@
 
   body {
     @apply text-foreground;
-    background-color: #000 !important;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('/backgrounds/brick-wall-bg.png') !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-attachment: fixed !important;
-    background-repeat: no-repeat !important;
+    background-color: #000;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3)), url('/backgrounds/brick-wall-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
   }
 }
 
 @layer utilities {
   .text-body-standard {
-    color: var(--text-body) !important;
-    line-height: var(--text-body-lh) !important;
-    letter-spacing: var(--text-body-ls) !important;
-    opacity: 1 !important;
+    color: var(--text-body);
+    line-height: var(--text-body-lh);
+    letter-spacing: var(--text-body-ls);
+    opacity: 1;
   }
 
   .text-meta-label {
-    color: var(--text-meta) !important;
-    font-weight: var(--text-meta-fw) !important;
-    opacity: 1 !important;
+    color: var(--text-meta);
+    font-weight: var(--text-meta-fw);
+    opacity: 1;
   }
 }

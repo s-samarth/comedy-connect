@@ -11,7 +11,7 @@ export default function OrganizersAdminPage() {
                     <ShieldCheck size={24} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Organizer Guild</h1>
+                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Organizers</h1>
                     <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Credentialing, venue verification, and performance audits</p>
                 </div>
             </div>

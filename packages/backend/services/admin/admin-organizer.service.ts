@@ -58,7 +58,7 @@ class AdminOrganizerService {
     /**
      * Approve organizer
      */
-    async approveOrganizer(organizerId: string) {
+    async approveOrganizer(organizerId: string, adminId: string) {
         const user = await prisma.user.findUnique({
             where: { id: organizerId },
             include: {
@@ -76,18 +76,35 @@ class AdminOrganizerService {
             data: { role: 'ORGANIZER_VERIFIED' }
         })
 
+        // Record approval history
+        await approvalRepository.upsertOrganizerApproval(user.organizerProfile.id, adminId, 'APPROVED')
+
         return { success: true }
     }
 
     /**
      * Reject organizer
      */
-    async rejectOrganizer(organizerId: string, reason?: string) {
+    async rejectOrganizer(organizerId: string, adminId: string, reason?: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: organizerId },
+            include: {
+                organizerProfile: true
+            }
+        })
+
+        if (!user || !user.organizerProfile) {
+            throw new NotFoundError('Organizer')
+        }
+
         // Just update the user role back to unverified
         await prisma.user.update({
             where: { id: organizerId },
             data: { role: 'ORGANIZER_UNVERIFIED' }
         })
+
+        // Record rejection history
+        await approvalRepository.upsertOrganizerApproval(user.organizerProfile.id, adminId, 'REJECTED')
 
         return { success: true }
     }
@@ -95,10 +112,25 @@ class AdminOrganizerService {
     /**
      * Disable organizer
      */
-    async disableOrganizer(organizerId: string) {
-        await userRepository.updateProfile(organizerId, {
-            role: 'ORGANIZER_UNVERIFIED'
+    async disableOrganizer(organizerId: string, adminId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: organizerId },
+            include: {
+                organizerProfile: true
+            }
         })
+
+        if (!user || !user.organizerProfile) {
+            throw new NotFoundError('Organizer')
+        }
+
+        await prisma.user.update({
+            where: { id: organizerId },
+            data: { role: 'ORGANIZER_UNVERIFIED' }
+        })
+
+        // Record as rejection in history
+        await approvalRepository.upsertOrganizerApproval(user.organizerProfile.id, adminId, 'REJECTED')
 
         return { success: true }
     }
@@ -106,11 +138,25 @@ class AdminOrganizerService {
     /**
      * Enable organizer
      */
-    async enableOrganizer(organizerId: string) {
+    async enableOrganizer(organizerId: string, adminId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: organizerId },
+            include: {
+                organizerProfile: true
+            }
+        })
+
+        if (!user || !user.organizerProfile) {
+            throw new NotFoundError('Organizer')
+        }
+
         await prisma.user.update({
             where: { id: organizerId },
             data: { role: 'ORGANIZER_VERIFIED' }
         })
+
+        // Record as approval in history
+        await approvalRepository.upsertOrganizerApproval(user.organizerProfile.id, adminId, 'APPROVED')
 
         return { success: true }
     }

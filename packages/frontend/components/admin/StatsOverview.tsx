@@ -33,40 +33,40 @@ export default function StatsOverview() {
 
     const statCards = [
         {
-            label: 'LIQUID REVENUE',
+            label: 'Total Revenue',
             value: `₹${stats?.totalRevenue?.toLocaleString() || '0'}`,
-            change: '+18.4% MOM',
+            change: 'Money Handled',
             icon: Banknote,
-            color: 'text-emerald-400',
-            bg: 'bg-emerald-400/5',
-            border: 'border-emerald-400/10',
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-500/10',
+            border: 'border-emerald-500/20',
         },
         {
-            label: 'ACTION ITEMS',
+            label: 'Pending Approvals',
             value: stats?.pendingApprovals?.toString() || '0',
-            change: 'Critical Priority',
+            change: 'Requires attention',
             icon: ShieldCheck,
-            color: 'text-primary',
-            bg: 'bg-primary/5',
-            border: 'border-primary/10',
+            color: 'text-orange-500',
+            bg: 'bg-orange-500/10',
+            border: 'border-orange-500/20',
         },
         {
-            label: 'LIVE STATUS',
+            label: 'Active Shows',
             value: stats?.activeShows?.toString() || '0',
-            change: 'Scheduled Events',
+            change: 'Scheduled upcoming',
             icon: Calendar,
-            color: 'text-purple-400',
-            bg: 'bg-purple-400/5',
-            border: 'border-purple-400/10',
+            color: 'text-purple-500',
+            bg: 'bg-purple-500/10',
+            border: 'border-purple-500/20',
         },
         {
-            label: 'HUB CAPACITY',
+            label: 'Total Users',
             value: stats?.totalUsers?.toString() || '0',
-            change: 'Unique Users',
+            change: 'Registered users',
             icon: Users,
-            color: 'text-blue-400',
-            bg: 'bg-blue-400/5',
-            border: 'border-blue-400/10',
+            color: 'text-blue-500',
+            bg: 'bg-blue-500/10',
+            border: 'border-blue-500/20',
         },
     ]
 
@@ -82,14 +82,13 @@ export default function StatsOverview() {
                             <stat.icon size={24} />
                         </div>
 
-                        <div className="space-y-1">
-                            <p className="text-xs text-meta-label uppercase tracking-widest opacity-70">{stat.label}</p>
+                        <div className="space-y-2">
+                            <p className="text-[10px] text-meta-label font-bold uppercase tracking-[0.2em] opacity-50">{stat.label}</p>
                             <div className="flex items-baseline gap-2">
                                 <p className="text-4xl font-black tracking-tighter text-white italic transition-transform duration-300 group-hover:translate-x-1">{stat.value}</p>
                             </div>
-                            <div className="flex items-center gap-2 pt-1 font-bold italic">
-                                <div className={`w-1.5 h-1.5 rounded-full ${stat.color} animate-pulse`} />
-                                <p className="text-[11px] text-meta-label uppercase tracking-tight">{stat.change}</p>
+                            <div className="flex items-center gap-2 pt-1">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-meta-label/40 italic">{stat.change}</p>
                             </div>
                         </div>
                     </div>

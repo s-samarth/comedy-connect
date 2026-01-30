@@ -20,7 +20,13 @@ class AdminFeesService {
             })
         }
 
-        return { config: config.value }
+        const value = (config.value || {}) as Record<string, any>
+        return {
+            config: {
+                ...value,
+                lastUpdated: config.updatedAt
+            }
+        }
     }
 
     /**
@@ -36,7 +42,14 @@ class AdminFeesService {
             feeSlabs: slabs
         })
 
-        return { success: true, config: config.value }
+        const value = (config.value || {}) as Record<string, any>
+        return {
+            success: true,
+            config: {
+                ...value,
+                lastUpdated: config.updatedAt
+            }
+        }
     }
 }
 

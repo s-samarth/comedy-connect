@@ -11,7 +11,7 @@ export default function CollectionsAdminPage() {
                     <Wallet size={24} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Treasury Hub</h1>
+                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Collections</h1>
                     <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Lifetime revenue flows, active pools, and payouts</p>
                 </div>
             </div>

@@ -132,22 +132,57 @@ export class BookingService {
      * Usually a percentage of the ticket price added on top.
      */
     private async calculateBookingFee(tx: any, ticketPrice: number, totalAmount: number): Promise<number> {
-        const slabsConfig = await tx.platformConfig.findUnique({
-            where: { key: "booking_fee_slabs" }
+        const configRecord = await tx.platformConfig.findUnique({
+            where: { key: "PLATFORM_FEES" }
         })
 
-        const slabs = (slabsConfig?.value as any[]) || [
-            { minPrice: 0, maxPrice: 199, fee: 7 },
-            { minPrice: 200, maxPrice: 400, fee: 8 },
-            { minPrice: 401, maxPrice: 1000000, fee: 9 }
+        const config = configRecord?.value as any
+        const slabs = config?.feeSlabs || config?.slabs || [
+            { minPrice: 0, maxPrice: 199, fee: 0.07 },
+            { minPrice: 200, maxPrice: 400, fee: 0.08 },
+            { minPrice: 401, maxPrice: 1000000, fee: 0.09 }
         ]
 
         const matchedSlab = slabs.find(
-            (s) => ticketPrice >= s.minPrice && ticketPrice <= s.maxPrice
+            (s: any) => ticketPrice >= s.minPrice && ticketPrice <= s.maxPrice
         )
-        const bookingFeePercentage = (matchedSlab ? matchedSlab.fee : 8) / 100
+
+        // The 'fee' in slabs is stored as decimal (e.g. 0.05 for 5%)
+        const bookingFeePercentage = matchedSlab ? matchedSlab.fee : 0.08
 
         return totalAmount * bookingFeePercentage
+    }
+
+    /**
+     * Find a specific booking by ID (with ownership check)
+     */
+    async getBookingById(bookingId: string, userId: string) {
+        const booking = await prisma.booking.findUnique({
+            where: { id: bookingId },
+            include: {
+                show: {
+                    select: {
+                        id: true,
+                        title: true,
+                        date: true,
+                        venue: true,
+                        ticketPrice: true,
+                        posterImageUrl: true
+                    }
+                }
+            }
+        })
+
+        if (!booking) {
+            throw new NotFoundError("Booking")
+        }
+
+        // Ownership check
+        if (booking.userId !== userId) {
+            throw new ValidationError("Unauthorized access to booking")
+        }
+
+        return booking
     }
 
     /**

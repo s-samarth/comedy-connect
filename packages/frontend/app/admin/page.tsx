@@ -6,11 +6,11 @@ import StatsOverview from "@/components/admin/StatsOverview"
 
 export default function AdminPage() {
     const managementConsoles = [
-        { id: "comedians", title: "Artist Roster", desc: "Verify authentication, manage registry, and oversee performances.", icon: Users, color: "text-pink-500", bg: "bg-pink-500/10", border: "border-pink-500/20", glow: "shadow-[0_0_40px_rgba(244,114,182,0.15)]", link: "/admin/comedians" },
-        { id: "organizers", title: "Organizer Guild", desc: "Credentialing, venue verification, and performance audits.", icon: ShieldCheck, color: "text-blue-500", bg: "bg-blue-500/10", border: "border-blue-500/20", glow: "shadow-[0_0_40px_rgba(59,130,246,0.15)]", link: "/admin/organizers" },
-        { id: "shows", title: "Moderation Queue", desc: "Live show vetting, publishing logic, and event scheduling.", icon: Calendar, color: "text-purple-500", bg: "bg-purple-500/10", border: "border-purple-500/20", glow: "shadow-[0_0_40px_rgba(168,85,247,0.15)]", link: "/admin/shows" },
-        { id: "fees", title: "Revenue Config", desc: "Global fee logic, platform percentage, and finance logic.", icon: Settings, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-[0_0_40px_rgba(16,185,129,0.15)]", link: "/admin/fees" },
-        { id: "collections", title: "Treasury Hub", desc: "Lifetime revenue flows, active pools, and payouts.", icon: Wallet, color: "text-primary", bg: "bg-primary/10", border: "border-primary/20", glow: "shadow-[0_0_40px_rgba(245,166,35,0.15)]", link: "/admin/collections" },
+        { id: "comedians", title: "Comedians", desc: "Verify profiles, manage comedians, and moderate unverified comedians", icon: Users, color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20", link: "/admin/comedians" },
+        { id: "organizers", title: "Organizers", desc: "Verify organizers, manage organizers, and moderate unverified organizers", icon: ShieldCheck, color: "text-sky-500", bg: "bg-sky-500/10", border: "border-sky-500/20", link: "/admin/organizers" },
+        { id: "shows", title: "Shows", desc: "Moderation queue, show publishing oversight, and event calendar.", icon: Calendar, color: "text-violet-500", bg: "bg-violet-500/10", border: "border-violet-500/20", link: "/admin/shows" },
+        { id: "fees", title: "Platform Fees", desc: "Adjust booking fees, platform fees, and everything affecting our profit.", icon: Settings, color: "text-emerald-500", bg: "bg-emerald-500/10", border: "border-emerald-500/20", link: "/admin/fees" },
+        { id: "collections", title: "Collections", desc: "View lifetime revenue, active pools, and pending disbursements.", icon: Wallet, color: "text-amber-500", bg: "bg-amber-500/10", border: "border-amber-500/20", link: "/admin/collections" },
     ]
 
     return (
@@ -65,7 +65,7 @@ export default function AdminPage() {
 
                                 <div className="mt-auto">
                                     <Link href={console.link} className="inline-flex items-center gap-3 text-[11px] font-bold text-primary uppercase tracking-widest transition-all pt-2 group-hover:gap-5">
-                                        OPEN CONSOLE <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                                        {console.id === 'fees' ? 'Configure Fees' : console.id === 'collections' ? 'View Collections' : `Manage ${console.title}`} <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                     </Link>
                                 </div>
                             </div>

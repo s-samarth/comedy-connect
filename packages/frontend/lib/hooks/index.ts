@@ -112,6 +112,24 @@ export function useBookings() {
 }
 
 /**
+ * Custom hook for fetching a single booking
+ * @param id - Booking ID, or null to skip fetching
+ */
+export function useBooking(id: string | null) {
+    const { data, error, isLoading, mutate } = useSWR<{ booking: BookingResponse }>(
+        id ? `/api/v1/bookings/${id}` : null,
+        (url: string) => api.get<{ booking: BookingResponse }>(url)
+    );
+
+    return {
+        booking: data?.booking,
+        isLoading,
+        error: normalizeError(error),
+        mutate,
+    };
+}
+
+/**
  * Custom hook for fetching sales reports (for Comedians & Organizers)
  */
 export function useSales() {

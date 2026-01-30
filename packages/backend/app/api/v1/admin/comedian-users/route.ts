@@ -21,7 +21,7 @@ export async function GET() {
     }
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
     try {
         const user = await getCurrentUser()
 
@@ -29,10 +29,35 @@ export async function PUT(request: Request) {
             throw new UnauthorizedError('Admin access required')
         }
 
-        const { comedianId, customFee } = await request.json()
+        const { comedianId, action, customPlatformFee, reason } = await request.json()
 
-        // Delegate to service
-        const result = await adminComedianService.updateCustomFee(comedianId, customFee)
+        if (!comedianId || !action) {
+            throw new Error('Missing comedianId or action')
+        }
+
+        const normalizedAction = action.toLowerCase()
+        let result
+
+        switch (normalizedAction) {
+            case 'approve':
+                result = await adminComedianService.approveComedian(comedianId, user.id)
+                break
+            case 'reject':
+                result = await adminComedianService.rejectComedian(comedianId, user.id, reason)
+                break
+            case 'revoke':
+            case 'disable':
+                result = await adminComedianService.disableComedian(comedianId, user.id)
+                break
+            case 'enable':
+                result = await adminComedianService.enableComedian(comedianId, user.id)
+                break
+            case 'update_fee':
+                result = await adminComedianService.updateCustomFee(comedianId, customPlatformFee)
+                break
+            default:
+                throw new Error(`Invalid action: ${action}`)
+        }
 
         return NextResponse.json(result)
     } catch (error) {
@@ -41,37 +66,10 @@ export async function PUT(request: Request) {
     }
 }
 
+export async function PUT(request: Request) {
+    return POST(request)
+}
+
 export async function PATCH(request: Request) {
-    try {
-        const user = await getCurrentUser()
-
-        if (!user || user.role !== 'ADMIN') {
-            throw new UnauthorizedError('Admin access required')
-        }
-
-        const { comedianId, action, reason } = await request.json()
-
-        let result
-        switch (action) {
-            case 'approve':
-                result = await adminComedianService.approveComedian(comedianId)
-                break
-            case 'reject':
-                result = await adminComedianService.rejectComedian(comedianId, reason)
-                break
-            case 'disable':
-                result = await adminComedianService.disableComedian(comedianId)
-                break
-            case 'enable':
-                result = await adminComedianService.enableComedian(comedianId)
-                break
-            default:
-                throw new Error('Invalid action')
-        }
-
-        return NextResponse.json(result)
-    } catch (error) {
-        const { status, error: message } = mapErrorToResponse(error)
-        return NextResponse.json({ error: message }, { status })
-    }
+    return POST(request)
 }

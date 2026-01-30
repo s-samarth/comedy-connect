@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useSearchParams, useParams } from 'next/navigation';
-import { useShow } from '@/lib/hooks';
+import { useShow, useBooking } from '@/lib/hooks';
 
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Calendar, MapPin, Ticket, ArrowRight, Download } from 'lucide-react';
@@ -11,14 +11,15 @@ import { format } from 'date-fns';
 
 export default function BookingSuccessPage() {
     const searchParams = useSearchParams();
-    const { id } = useParams() as { id: string };
-    const { show, isLoading } = useShow(id);
+    const { id: showId } = useParams() as { id: string };
     const bookingId = searchParams.get('bookingId');
 
-    if (isLoading || !show) {
+    const { show, isLoading: isShowLoading } = useShow(showId);
+    const { booking, isLoading: isBookingLoading } = useBooking(bookingId);
+
+    if (isShowLoading || isBookingLoading || !show) {
         return (
             <main className="min-h-screen bg-transparent">
-
                 <div className="container mx-auto px-4 pt-32 text-center">
                     <div className="animate-pulse space-y-4">
                         <div className="h-12 w-12 bg-muted rounded-full mx-auto" />
@@ -54,7 +55,7 @@ export default function BookingSuccessPage() {
                     <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom duration-700 delay-200">
                         <div className="p-8 space-y-6">
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Booking ID: {bookingId || 'CC-XXXXXX'}</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary">Booking ID: {bookingId?.slice(0, 8) || 'CC-XXXXXX'}</p>
                                 <h2 className="text-2xl font-black uppercase tracking-tight line-clamp-1 italic">{show.title}</h2>
                             </div>
 
@@ -75,17 +76,21 @@ export default function BookingSuccessPage() {
                                 </div>
                             </div>
 
-                            <div className="p-4 bg-muted/30 rounded-2xl flex items-center justify-between">
+                            <div className="p-4 bg-muted/30 rounded-2xl grid grid-cols-2 gap-4 items-center">
                                 <div className="flex items-center gap-3">
                                     <Ticket size={24} className="text-primary" />
                                     <div className="text-left">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Status</p>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                            {booking?.quantity || 1} Ticket{(booking?.quantity || 1) > 1 ? 's' : ''}
+                                        </p>
                                         <p className="text-sm font-bold uppercase tracking-tight">Confirmed</p>
                                     </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-right border-l border-border/50 pl-4">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Paid</p>
-                                    <p className="text-lg font-black italic">₹{(show.ticketPrice * 1.08).toFixed(2)}</p>
+                                    <p className="text-lg font-black italic">
+                                        ₹{booking ? (booking.totalAmount + (booking.bookingFee || 0)).toFixed(2) : (show.ticketPrice * 1.08).toFixed(2)}
+                                    </p>
                                 </div>
                             </div>
                         </div>

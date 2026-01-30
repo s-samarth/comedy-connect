@@ -21,7 +21,7 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: Request) {
+export async function POST(request: Request) {
   try {
     const user = await getCurrentUser()
 
@@ -29,10 +29,35 @@ export async function PUT(request: Request) {
       throw new UnauthorizedError('Admin access required')
     }
 
-    const { organizerId, customFee } = await request.json()
+    const { organizerId, action, customPlatformFee, reason } = await request.json()
 
-    // Delegate to service
-    const result = await adminOrganizerService.updateCustomFee(organizerId, customFee)
+    if (!organizerId || !action) {
+      throw new Error('Missing organizerId or action')
+    }
+
+    const normalizedAction = action.toLowerCase()
+    let result
+
+    switch (normalizedAction) {
+      case 'approve':
+        result = await adminOrganizerService.approveOrganizer(organizerId, user.id)
+        break
+      case 'reject':
+        result = await adminOrganizerService.rejectOrganizer(organizerId, user.id, reason)
+        break
+      case 'revoke':
+      case 'disable':
+        result = await adminOrganizerService.disableOrganizer(organizerId, user.id)
+        break
+      case 'enable':
+        result = await adminOrganizerService.enableOrganizer(organizerId, user.id)
+        break
+      case 'update_fee':
+        result = await adminOrganizerService.updateCustomFee(organizerId, customPlatformFee)
+        break
+      default:
+        throw new Error(`Invalid action: ${action}`)
+    }
 
     return NextResponse.json(result)
   } catch (error) {
@@ -41,37 +66,12 @@ export async function PUT(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  // Keep PUT for backward compatibility if any other client uses it
+  return POST(request)
+}
+
 export async function PATCH(request: Request) {
-  try {
-    const user = await getCurrentUser()
-
-    if (!user || user.role !== 'ADMIN') {
-      throw new UnauthorizedError('Admin access required')
-    }
-
-    const { organizerId, action, reason } = await request.json()
-
-    let result
-    switch (action) {
-      case 'approve':
-        result = await adminOrganizerService.approveOrganizer(organizerId)
-        break
-      case 'reject':
-        result = await adminOrganizerService.rejectOrganizer(organizerId, reason)
-        break
-      case 'disable':
-        result = await adminOrganizerService.disableOrganizer(organizerId)
-        break
-      case 'enable':
-        result = await adminOrganizerService.enableOrganizer(organizerId)
-        break
-      default:
-        throw new Error('Invalid action')
-    }
-
-    return NextResponse.json(result)
-  } catch (error) {
-    const { status, error: message } = mapErrorToResponse(error)
-    return NextResponse.json({ error: message }, { status })
-  }
+  // Keep PATCH for backward compatibility
+  return POST(request)
 }

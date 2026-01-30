@@ -89,7 +89,7 @@ class AdminComedianService {
     /**
      * Approve comedian
      */
-    async approveComedian(comedianId: string) {
+    async approveComedian(comedianId: string, adminId: string) {
         const user = await prisma.user.findUnique({
             where: { id: comedianId },
             include: {
@@ -107,18 +107,35 @@ class AdminComedianService {
             data: { role: 'COMEDIAN_VERIFIED' }
         })
 
+        // Record approval history
+        await approvalRepository.upsertComedianApproval(user.comedianProfile.id, adminId, 'APPROVED')
+
         return { success: true }
     }
 
     /**
      * Reject comedian
      */
-    async rejectComedian(comedianId: string, reason?: string) {
+    async rejectComedian(comedianId: string, adminId: string, reason?: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: comedianId },
+            include: {
+                comedianProfile: true
+            }
+        })
+
+        if (!user || !user.comedianProfile) {
+            throw new NotFoundError('Comedian')
+        }
+
         // Just update the user role back to unverified
         await prisma.user.update({
             where: { id: comedianId },
             data: { role: 'COMEDIAN_UNVERIFIED' }
         })
+
+        // Record rejection history
+        await approvalRepository.upsertComedianApproval(user.comedianProfile.id, adminId, 'REJECTED')
 
         return { success: true }
     }
@@ -126,10 +143,25 @@ class AdminComedianService {
     /**
      * Disable comedian
      */
-    async disableComedian(comedianId: string) {
-        await userRepository.updateProfile(comedianId, {
-            role: 'COMEDIAN_UNVERIFIED'
+    async disableComedian(comedianId: string, adminId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: comedianId },
+            include: {
+                comedianProfile: true
+            }
         })
+
+        if (!user || !user.comedianProfile) {
+            throw new NotFoundError('Comedian')
+        }
+
+        await prisma.user.update({
+            where: { id: comedianId },
+            data: { role: 'COMEDIAN_UNVERIFIED' }
+        })
+
+        // Record as rejection in history
+        await approvalRepository.upsertComedianApproval(user.comedianProfile.id, adminId, 'REJECTED')
 
         return { success: true }
     }
@@ -137,10 +169,25 @@ class AdminComedianService {
     /**
      * Enable comedian
      */
-    async enableComedian(comedianId: string) {
-        await userRepository.updateProfile(comedianId, {
-            role: 'COMEDIAN_VERIFIED'
+    async enableComedian(comedianId: string, adminId: string) {
+        const user = await prisma.user.findUnique({
+            where: { id: comedianId },
+            include: {
+                comedianProfile: true
+            }
         })
+
+        if (!user || !user.comedianProfile) {
+            throw new NotFoundError('Comedian')
+        }
+
+        await prisma.user.update({
+            where: { id: comedianId },
+            data: { role: 'COMEDIAN_VERIFIED' }
+        })
+
+        // Record as approval in history
+        await approvalRepository.upsertComedianApproval(user.comedianProfile.id, adminId, 'APPROVED')
 
         return { success: true }
     }

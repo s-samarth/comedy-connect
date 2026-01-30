@@ -11,7 +11,7 @@ export default function ComediansAdminPage() {
                     <Users size={24} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Artist Registry</h1>
+                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Comedians</h1>
                     <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Manage comedians, verify accounts, and oversee profiles</p>
                 </div>
             </div>

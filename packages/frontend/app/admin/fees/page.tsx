@@ -11,8 +11,8 @@ export default function FeesAdminPage() {
                     <Settings size={24} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Revenue Config</h1>
-                    <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Global fee logic, platform percentage, and finance logic</p>
+                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Fees Configuration</h1>
+                    <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Platform fees and Booking fees Configuration</p>
                 </div>
             </div>
 

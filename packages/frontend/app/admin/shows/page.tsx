@@ -11,7 +11,7 @@ export default function ShowsAdminPage() {
                     <Calendar size={24} />
                 </div>
                 <div>
-                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Moderation Queue</h1>
+                    <h1 className="text-3xl font-bold uppercase italic tracking-tight text-white">Shows</h1>
                     <p className="text-sm text-meta-label font-medium uppercase tracking-widest">Live show vetting, publishing logic, and event scheduling</p>
                 </div>
             </div>

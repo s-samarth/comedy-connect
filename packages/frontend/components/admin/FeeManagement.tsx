@@ -14,7 +14,8 @@ interface FeeSlab {
 }
 
 interface FeeConfig {
-    slabs: FeeSlab[]
+    slabs?: FeeSlab[]
+    feeSlabs?: FeeSlab[]
     lastUpdated: string
     updatedBy: string
 }
@@ -35,7 +36,7 @@ export default function FeeManagement() {
             const data = await api.get<any>("/api/v1/admin/fees")
             if (data?.feeConfig) {
                 setFeeConfig(data.feeConfig)
-                setFormData(data.feeConfig.slabs)
+                setFormData(data.feeConfig.feeSlabs || data.feeConfig.slabs || [])
             }
         } catch (error) {
             console.error("Failed to fetch fee config:", error)
@@ -124,14 +125,14 @@ export default function FeeManagement() {
                     <div className="p-6 bg-white/[0.02] border-b border-white/[0.05] flex justify-between items-center">
                         <div className="flex items-center gap-3">
                             <TrendingUp className="text-primary/60" size={18} />
-                            <h3 className="font-bold italic uppercase tracking-tight text-lg">Dynamic Commission Tiers</h3>
+                            <h3 className="font-bold italic uppercase tracking-tight text-lg">Dynamic Fee Tiers</h3>
                         </div>
                         <Button
                             type="button"
                             onClick={addSlab}
-                            className="rounded-lg font-bold uppercase tracking-widest text-xs h-8 px-4 gap-2 bg-white/[0.03] border border-white/[0.05] hover:bg-white/[0.08]"
+                            className="rounded-lg font-bold uppercase tracking-widest text-[10px] h-9 px-4 gap-2 bg-primary text-black hover:bg-primary/90 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] transition-all"
                         >
-                            <Plus size={12} /> Add Tier
+                            <Plus size={14} className="stroke-[3px]" /> Add Tier
                         </Button>
                     </div>
 
@@ -178,7 +179,7 @@ export default function FeeManagement() {
 
                                             <div className="space-y-3">
                                                 <label className="text-[11px] font-black uppercase tracking-widest text-primary flex items-center gap-2">
-                                                    Platform Commission (%)
+                                                    Booking Fee Per Sale (%)
                                                 </label>
                                                 <div className="relative group/input">
                                                     <input

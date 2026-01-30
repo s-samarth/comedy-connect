@@ -32,7 +32,7 @@ export function ShowBooking({ show, user }: ShowBookingProps) {
 
     const handleBooking = async () => {
         if (!user) {
-            window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/signin?callbackUrl=${encodeURIComponent(window.location.href)}`;
+            router.push(`/auth/signin?callbackUrl=${encodeURIComponent(window.location.href)}`);
             return;
         }
 
@@ -167,7 +167,7 @@ export function ShowBooking({ show, user }: ShowBookingProps) {
                                     {isLoading ? (
                                         <Loader2 className="animate-spin" size={24} />
                                     ) : (
-                                        'Book Now'
+                                        user ? 'Book Now' : 'Sign In To Book'
                                     )}
                                 </Button>
                             </div>

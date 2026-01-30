@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 function ShowsContent() {
-    const { user, isOrganizer, isAuthenticated, isLoading } = useAuth();
+    const { user, isOrganizer, isComedian, isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
 
     if (isLoading) {
@@ -23,28 +23,31 @@ function ShowsContent() {
         );
     }
 
-    if (!isAuthenticated || !isOrganizer) {
+    if (!isAuthenticated || (!isOrganizer && !isComedian)) {
         router.push('/auth/signin');
         return null;
     }
+
+    const backPath = isOrganizer ? '/organizer/dashboard' : '/comedian/dashboard';
+    const isVerified = user?.role === 'ORGANIZER_VERIFIED' || user?.role === 'COMEDIAN_VERIFIED';
 
     return (
         <div className="min-h-screen bg-transparent text-foreground">
             <main className="container mx-auto px-4 pt-32 pb-20">
                 {/* Navigation Breadcrumb */}
                 <div className="mb-12">
-                    <Link href="/organizer" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold uppercase text-[10px] tracking-[0.2em] group">
+                    <Link href={backPath} className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-bold uppercase text-[10px] tracking-[0.2em] group">
                         <div className="bg-muted p-2 rounded-lg group-hover:bg-primary/10 transition-colors">
                             <ArrowLeft size={14} />
                         </div>
-                        Back to Organizer Dashboard
+                        Back to Dashboard
                     </Link>
                 </div>
 
                 {/* Main Component */}
                 <OrganizerShowManagement
                     userId={user?.id || ''}
-                    isVerified={user?.role === 'ORGANIZER_VERIFIED'}
+                    isVerified={isVerified}
                 />
             </main>
         </div>

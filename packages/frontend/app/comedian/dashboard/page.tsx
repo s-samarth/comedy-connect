@@ -77,7 +77,7 @@ export default function ComedianDashboardPage() {
                             </Button>
                         </Link>
                         {isVerified && (
-                            <Link href="/organizer/shows/new">
+                            <Link href="/organizer/shows?action=new">
                                 <Button className="rounded-full h-12 font-bold uppercase tracking-tight gap-2">
                                     <Plus size={18} />
                                     Create Show
@@ -184,7 +184,7 @@ export default function ComedianDashboardPage() {
                                 <Mic2 size={48} className="text-muted-foreground/30 mx-auto" />
                                 <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
                                 {isVerified && (
-                                    <Link href="/organizer/shows/new" className="inline-block">
+                                    <Link href="/organizer/shows?action=new" className="inline-block">
                                         <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
                                             <Plus size={18} /> List My First Show
                                         </Button>

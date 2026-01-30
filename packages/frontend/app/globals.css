@@ -6,6 +6,7 @@
 /* Primary color constant - defined once */
 :root {
   --color-theme-primary: #F5A623;
+  --secondary-burnt-copper: #5D4037;
 }
 
 @theme inline {
@@ -56,6 +57,7 @@
   --radius: 0.75rem;
 
   /* Comedy Connect - Forced Dark Theme */
+  /* Comedy Connect Vintage Amber */
   --color-theme-primary: #F5A623;
   --background: oklch(0.1 0 0);
   /* Pure Blackish */
@@ -156,5 +158,29 @@
     color: var(--text-meta);
     font-weight: var(--text-meta-fw);
     opacity: 1;
+  }
+
+  .glass-container-large {
+    position: relative;
+    background: rgba(23, 23, 23, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(93, 64, 55, 0.15);
+    /* Dimensional 'Cut' Border */
+    z-index: 1;
+  }
+
+  .glass-container-large::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, var(--secondary-burnt-copper) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: -1;
   }
 }

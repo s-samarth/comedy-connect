@@ -42,6 +42,7 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role
         token.id = (user as any).id
         token.name = user.name
+        token.onboardingCompleted = (user as any).onboardingCompleted
       } else if (token.id) {
         // Fetch fresh data from database when token is validated
         const { userRepository } = await import('@/repositories/user.repository')

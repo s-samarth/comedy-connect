@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import ImageUpload from "@/components/ui/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,9 +71,17 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
         durationMinutes: "60"
     });
 
+    const searchParams = useSearchParams();
+
     useEffect(() => {
         fetchShows();
-    }, []);
+
+        // Handle action=new query parameter
+        if (searchParams.get('action') === 'new' && isVerified) {
+            resetForm();
+            setShowForm(true);
+        }
+    }, [searchParams, isVerified]);
 
     const fetchShows = async () => {
         try {
@@ -112,8 +121,11 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                 date: new Date(formData.date).toISOString()
             };
 
-            await api.post(url, payload); // api.post handles both POST and PUT if we use generic fetch, but here let's assume api has specific methods if needed. 
-            // Wait, looking at frontendv2/lib/api.ts (from previous turns) it has api.post and api.get.
+            if (editingShow) {
+                await api.patch(url, payload);
+            } else {
+                await api.post(url, payload);
+            }
 
             toast.success(editingShow ? "Show updated successfully" : "Show created successfully");
             fetchShows();
@@ -266,21 +278,21 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
             )}
 
             {showForm && (
-                <Card className="border-border shadow-2xl rounded-3xl overflow-hidden">
-                    <CardHeader className="bg-muted/30 border-b border-border p-8">
-                        <CardTitle className="text-2xl font-black uppercase italic tracking-tight">
+                <Card className="glass-container-large shadow-2xl rounded-[2.5rem] overflow-hidden animate-in fade-in zoom-in duration-500 border-none">
+                    <CardHeader className="bg-transparent border-b border-white/5 p-10">
+                        <CardTitle className="text-3xl font-black uppercase italic tracking-tight text-white">
                             {editingShow ? "Edit Show" : "Create New Show"}
                         </CardTitle>
-                        <CardDescription>Enter the details for your upcoming comedy event</CardDescription>
+                        <CardDescription className="text-muted-foreground/60 font-medium">Enter the details for your upcoming comedy event</CardDescription>
                     </CardHeader>
-                    <CardContent className="p-8">
+                    <CardContent className="p-10">
                         <form onSubmit={handleSubmit} className="space-y-8">
                             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                                 {/* Left Column: Media */}
                                 <div className="lg:col-span-4 space-y-6">
-                                    <div className="space-y-2">
-                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Show Poster</Label>
-                                        <div className="aspect-[3/4] rounded-3xl overflow-hidden border-2 border-dashed border-border flex items-center justify-center bg-muted/20 hover:border-primary/50 transition-all group relative">
+                                    <div className="space-y-4">
+                                        <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Show Poster</Label>
+                                        <div className="aspect-[3/4] rounded-[2rem] overflow-hidden border-2 border-dashed border-white/10 flex items-center justify-center bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all group relative">
                                             <ImageUpload
                                                 type="show"
                                                 currentImage={formData.posterImageUrl}
@@ -294,59 +306,59 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                 {/* Right Column: Details */}
                                 <div className="lg:col-span-8 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Title *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Title *</Label>
                                             <Input
                                                 id="title"
                                                 required
                                                 placeholder="e.g. Comedy Night Live"
                                                 value={formData.title}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                                 disabled={editingShow?.isPublished}
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="date" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Date & Time *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="date" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Date & Time *</Label>
                                             <Input
                                                 id="date"
                                                 type="datetime-local"
                                                 required
                                                 value={formData.date}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white transition-all [color-scheme:dark]"
                                                 disabled={editingShow?.isPublished}
                                             />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Description</Label>
+                                    <div className="space-y-3">
+                                        <Label htmlFor="description" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Description</Label>
                                         <Textarea
                                             id="description"
                                             rows={4}
                                             placeholder="Tell the audience about this show..."
                                             value={formData.description}
                                             onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                            className="rounded-xl bg-muted/20 border-border focus:ring-primary resize-none"
+                                            className="rounded-2xl bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all resize-none p-4"
                                         />
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="venue" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Venue *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="venue" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Venue *</Label>
                                             <Input
                                                 id="venue"
                                                 required
                                                 placeholder="e.g. The Laugh Club, Gachibowli"
                                                 value={formData.venue}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, venue: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                                 disabled={editingShow?.isPublished}
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="googleMapsLink" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Maps Link *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="googleMapsLink" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Maps Link *</Label>
                                             <Input
                                                 id="googleMapsLink"
                                                 type="url"
@@ -354,14 +366,14 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                                 placeholder="https://maps.app.goo.gl/..."
                                                 value={formData.googleMapsLink}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, googleMapsLink: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="price" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Ticket Price (₹) *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="price" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Ticket Price (₹) *</Label>
                                             <Input
                                                 id="price"
                                                 type="number"
@@ -369,11 +381,11 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                                 min="0"
                                                 value={formData.ticketPrice}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, ticketPrice: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white transition-all"
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="tickets" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Total Tickets *</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="tickets" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Total Tickets *</Label>
                                             <Input
                                                 id="tickets"
                                                 type="number"
@@ -381,32 +393,32 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                                 min="1"
                                                 value={formData.totalTickets}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, totalTickets: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white transition-all"
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <Label htmlFor="duration" className="text-xs font-black uppercase tracking-widest text-muted-foreground">Duration (mins)</Label>
+                                        <div className="space-y-3">
+                                            <Label htmlFor="duration" className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Duration (mins)</Label>
                                             <Input
                                                 id="duration"
                                                 type="number"
                                                 value={formData.durationMinutes}
                                                 onChange={(e) => setFormData(prev => ({ ...prev, durationMinutes: e.target.value }))}
-                                                className="rounded-xl h-12 bg-muted/20 border-border focus:ring-primary"
+                                                className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white transition-all"
                                                 disabled={editingShow?.isPublished}
                                             />
                                         </div>
                                     </div>
 
                                     {/* Social Links Sub-section */}
-                                    <div className="space-y-4 pt-4 border-t border-border">
-                                        <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Social & Media (Optional)</h4>
+                                    <div className="space-y-6 pt-10 border-t border-white/5">
+                                        <h4 className="text-xs font-black uppercase tracking-widest text-primary italic">Social & Media (Optional)</h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <Label className="flex items-center gap-2"><Youtube size={14} className="text-red-500" /> YouTube Video</Label>
                                                 <div className="flex gap-2">
                                                     <Input
                                                         placeholder="YouTube URL"
-                                                        className="rounded-xl bg-muted/20 border-border"
+                                                        className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
@@ -432,7 +444,7 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                                 <Label className="flex items-center gap-2"><Instagram size={14} className="text-pink-500" /> Instagram Reel</Label>
                                                 <Input
                                                     placeholder="Instagram URL"
-                                                    className="rounded-xl bg-muted/20 border-border"
+                                                    className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                                     onKeyDown={(e) => {
                                                         if (e.key === 'Enter') {
                                                             e.preventDefault();
@@ -458,12 +470,12 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                 </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-4 pt-8 border-t border-border justify-end">
+                            <div className="flex flex-wrap gap-4 pt-10 border-t border-white/5 justify-end">
                                 <Button
                                     type="button"
                                     variant="ghost"
                                     onClick={() => { setShowForm(false); setEditingShow(null); resetForm(); }}
-                                    className="font-bold uppercase tracking-widest text-xs h-12 px-8 rounded-xl"
+                                    className="font-black uppercase tracking-widest text-[10px] h-14 px-10 rounded-2xl hover:bg-white/5 transition-colors"
                                 >
                                     Cancel
                                 </Button>
@@ -471,13 +483,13 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                     type="button"
                                     variant="outline"
                                     onClick={() => handlePreview(formData)}
-                                    className="border-primary text-primary hover:bg-primary/5 font-bold uppercase tracking-widest text-xs h-12 px-8 rounded-xl gap-2"
+                                    className="border-primary/50 text-white hover:bg-primary/10 font-black uppercase tracking-widest text-[10px] h-14 px-10 rounded-2xl gap-2 transition-all"
                                 >
-                                    <Eye size={16} /> Preview
+                                    <Eye size={16} className="text-primary" /> Preview
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold uppercase tracking-widest text-xs h-12 px-10 rounded-xl shadow-lg shadow-primary/20"
+                                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest text-[10px] h-14 px-12 rounded-2xl shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
                                 >
                                     {editingShow ? "Update Show" : "Create Show"}
                                 </Button>

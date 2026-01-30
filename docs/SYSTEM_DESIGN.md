@@ -52,7 +52,7 @@ The system implements a dual-fee structure:
 
 ### 🔐 Auth Layers
 -   **NextAuth.js**: Handles standard Google OAuth for audience, organizers, and comedians. Sessions are backed by the database.
--   **Admin Secure Session**: High-stakes administrative actions require a second layer of authentication, using a signed `admin-secure-session` cookie.
+-   **Admin Secure Session**: High-stakes administrative actions require a second layer of authentication, using a signed `admin-session` cookie.
 
 ### 🛡️ RBAC & Middleware
 -   **Role-Based Access Control**: Enforced through middleware and service-level checks (`AUDIENCE`, `ORGANIZER`, `COMEDIAN`, `ADMIN`).

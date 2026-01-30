@@ -1,37 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
+import { profileService } from '@/services/user/profile.service'
 import { getCurrentUser } from '@/lib/auth'
-import { prisma } from '@/lib/prisma'
+import { mapErrorToResponse, UnauthorizedError } from '@/errors'
 
 export async function GET() {
   try {
     const user = await getCurrentUser()
-    
+
     if (!user) {
-      return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
+      throw new UnauthorizedError()
     }
 
-    // Check if user has completed onboarding using the new flag
-    const userProfile = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: { 
-        onboardingCompleted: true
-      }
-    })
+    // Delegate to service
+    const result = await profileService.getOnboardingStatus(user.id)
 
-    const completed = userProfile?.onboardingCompleted || false
-
-    return NextResponse.json({ 
-      needsOnboarding: !completed,
-      completed 
-    })
+    return NextResponse.json(result)
   } catch (error) {
-    console.error('Error checking onboarding status:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    const { status, error: message } = mapErrorToResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }

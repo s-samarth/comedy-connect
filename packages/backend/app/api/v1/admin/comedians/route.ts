@@ -1,49 +1,22 @@
-import { NextResponse } from "next/server"
-import { getCurrentUser } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { NextResponse } from 'next/server'
+import { adminComedianService } from '@/services/admin/admin-comedian.service'
+import { getCurrentUser } from '@/lib/auth'
+import { mapErrorToResponse, UnauthorizedError } from '@/errors'
 
 export async function GET() {
     try {
-        // Server-side admin validation
         const user = await getCurrentUser()
 
-        if (!user || user.role !== "ADMIN") {
-            return NextResponse.json(
-                { error: "Unauthorized - Admin access required" },
-                { status: 403 }
-            )
+        if (!user || user.role !== 'ADMIN') {
+            throw new UnauthorizedError('Admin access required')
         }
 
-        // Fetch all comedians with creator information
-        const comedians = await prisma.comedian.findMany({
-            include: {
-                creator: {
-                    select: {
-                        email: true,
-                        organizerProfile: {
-                            select: {
-                                name: true,
-                            },
-                        },
-                    },
-                },
-                _count: {
-                    select: {
-                        showComedians: true,
-                    },
-                },
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
-        })
+        // Delegate to service
+        const result = await adminComedianService.getComedianProfiles()
 
-        return NextResponse.json({ comedians })
+        return NextResponse.json(result)
     } catch (error) {
-        console.error("Failed to fetch comedians:", error)
-        return NextResponse.json(
-            { error: "Failed to fetch comedians" },
-            { status: 500 }
-        )
+        const { status, error: message } = mapErrorToResponse(error)
+        return NextResponse.json({ error: message }, { status })
     }
 }

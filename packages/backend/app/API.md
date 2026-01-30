@@ -9,10 +9,51 @@ This document describes the REST API endpoints provided by the **Comedy Connect 
 ---
 
 ## 🏗️ Architecture
-The backend follows a **Service/Repository architecture**.
-- **Services**: Contain all business logic, fee calculations, and validation.
-- **Repositories**: Handle all data access via Prisma.
-- **Controllers**: Thin Next.js API route handlers that delegate to services.
+
+The backend follows a **clean Service/Repository architecture** with complete separation of concerns.
+
+### Architecture Layers
+
+```
+┌─────────────────┐
+│   API Routes    │  ← Thin controllers (18 routes refactored)
+│  /app/api/v1    │    - Authentication
+└────────┬────────┘    - Request parsing
+         │             - Service delegation
+         ▼             - Response formatting
+┌─────────────────┐
+│    Services     │  ← Business logic layer (10 services)
+│   /services     │    - Validation
+└────────┬────────┘    - Business rules
+         │             - Orchestration
+         ▼
+┌─────────────────┐
+│  Repositories   │  ← Data access layer (6 repositories)
+│ /repositories   │    - Prisma calls only
+└────────┬────────┘    - Query building
+         │
+         ▼
+┌─────────────────┐
+│     Prisma      │  ← Database ORM
+│   PostgreSQL    │
+└─────────────────┘
+```
+
+### Key Principles
+
+- **Controllers (Routes)**: Thin handlers that authenticate, parse requests, delegate to services, and format responses
+- **Services**: Contain ALL business logic, validation, and orchestration. No Prisma calls.
+- **Repositories**: Handle ALL database operations. No business logic.
+- **Error Handling**: Domain errors (`ValidationError`, `NotFoundError`, etc.) are thrown by services and mapped to HTTP responses by controllers
+
+### Implementation Status
+
+- ✅ **100% Architecture Compliance**: Zero Prisma calls in routes
+- ✅ **10 Services**: All business logic extracted and centralized
+- ✅ **6 Repositories**: All data access encapsulated
+- ✅ **Consistent Error Handling**: `mapErrorToResponse()` used in all routes
+
+> **See**: [`SERVICES.md`](file:///Users/samarthsaraswat/Codebases/comedy-connect/packages/backend/SERVICES.md) for detailed service documentation
 
 ---
 

@@ -1,60 +1,21 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { verifyAdminPassword, createAdminSessionCookie, isAdminEmailWhitelisted } from '@/lib/admin-password'
+import { adminAuthService } from '@/services/admin/admin-auth.service'
+import { mapErrorToResponse } from '@/errors'
 
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json()
 
-        if (!email || !password) {
-            return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
-        }
+        // Delegate to service
+        const result = await adminAuthService.login(email, password)
 
-        // 1. Check whitelist
-        console.log(`[AdminLogin] Attempting login for ${email}. Whitelist check...`)
-        if (!isAdminEmailWhitelisted(email)) {
-            console.warn(`[AdminLogin] Email ${email} not in whitelist. Whitelist env: ${process.env.ADMIN_EMAIL}`)
-            return NextResponse.json({ error: 'Unauthorized email' }, { status: 401 })
-        }
-        console.log(`[AdminLogin] Email ${email} whitelisted.`)
-
-        // 2. Find user
-        const user = await prisma.user.findUnique({
-            where: { email }
-        })
-
-        if (!user || user.role !== 'ADMIN') {
-            return NextResponse.json({ error: 'Restricted access' }, { status: 401 })
-        }
-
-        // 3. Check if password set
-        if (!user.adminPasswordHash) {
-            return NextResponse.json({ error: 'Setup required', code: 'SETUP_REQUIRED' }, { status: 403 })
-        }
-
-        // 4. Verify password
-        const isValid = await verifyAdminPassword(password, user.adminPasswordHash)
-        if (!isValid) {
-            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
-        }
-
-        // 5. Create session
-        const sessionCookie = await createAdminSessionCookie(email)
-
-        // Set cookie on response
-        const response = NextResponse.json({ success: true })
-        // Using admin-secure-session to distinguish from previous attempts
-        response.cookies.set('admin-secure-session', sessionCookie, {
-            httpOnly: true,
-            secure: true, // Always secure for SameSite=None
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-            path: '/'
-        })
+        // Create response with session cookie
+        const response = NextResponse.json(result)
+        response.headers.set('Set-Cookie', result.sessionCookie)
 
         return response
-
     } catch (error) {
-        console.error('Login error:', error)
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+        const { status, error: message } = mapErrorToResponse(error)
+        return NextResponse.json({ error: message }, { status })
     }
 }

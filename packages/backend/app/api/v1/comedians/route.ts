@@ -1,87 +1,36 @@
-import { getCurrentUser, requireOrganizer, isVerifiedOrganizer } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
-import { validateMediaUrls, sanitizeMediaUrls } from "@/lib/media-validation"
+import { NextResponse } from 'next/server'
+import { comedianService } from '@/services/comedians/comedian.service'
+import { getCurrentUser } from '@/lib/auth'
+import { mapErrorToResponse, UnauthorizedError } from '@/errors'
 
 export async function GET() {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    }
+    // Delegate to service
+    const result = await comedianService.listComedians()
 
-    // Verified organizers can see all comedians they created
-    // Public users can see all comedians (for show discovery)
-    const comedians = await prisma.comedian.findMany({
-      where: user.role.startsWith("ORGANIZER") ? { createdBy: user.id } : {},
-      include: {
-        creator: {
-          select: { email: true }
-        }
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-
-    return NextResponse.json({ comedians })
+    return NextResponse.json(result)
   } catch (error) {
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    const { status, error: message } = mapErrorToResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const user = await requireOrganizer()
+    const user = await getCurrentUser()
 
-    if (!isVerifiedOrganizer(user.role)) {
-      return NextResponse.json({ error: "Account not verified" }, { status: 403 })
+    if (!user) {
+      throw new UnauthorizedError()
     }
 
-    const {
-      name,
-      bio,
-      socialLinks,
-      promoVideoUrl,
-      youtubeUrls,
-      instagramUrls
-    } = await request.json()
+    const body = await request.json()
 
-    if (!name) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 })
-    }
+    // Delegate to service
+    const result = await comedianService.createComedianProfile(user.id, body)
 
-    // Validate social links if provided
-    if (socialLinks && typeof socialLinks !== 'object') {
-      return NextResponse.json({ error: "Social links must be an object" }, { status: 400 })
-    }
-
-    // Sanitize and validate media URLs
-    const sanitizedYouTube = sanitizeMediaUrls(youtubeUrls || [])
-    const sanitizedInstagram = sanitizeMediaUrls(instagramUrls || [])
-
-    const validation = validateMediaUrls(sanitizedYouTube, sanitizedInstagram)
-    if (!validation.valid) {
-      return NextResponse.json(
-        { error: "Invalid media URLs", details: validation.errors },
-        { status: 400 }
-      )
-    }
-
-    const comedian = await prisma.comedian.create({
-      data: {
-        name,
-        bio,
-        socialLinks,
-        promoVideoUrl,
-        youtubeUrls: sanitizedYouTube,
-        instagramUrls: sanitizedInstagram,
-        createdBy: user.id
-      }
-    })
-
-    return NextResponse.json({ comedian })
+    return NextResponse.json(result)
   } catch (error) {
-    console.error("Comedian creation error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    const { status, error: message } = mapErrorToResponse(error)
+    return NextResponse.json({ error: message }, { status })
   }
 }
-

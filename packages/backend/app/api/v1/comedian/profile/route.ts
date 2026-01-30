@@ -1,96 +1,42 @@
-import { getCurrentUser } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
-import { NextResponse } from "next/server"
-import { UserRole } from "@prisma/client"
+import { NextResponse } from 'next/server'
+import { comedianService } from '@/services/comedians/comedian.service'
+import { getCurrentUser } from '@/lib/auth'
+import { mapErrorToResponse, UnauthorizedError } from '@/errors'
 
 export async function GET() {
     try {
         const user = await getCurrentUser()
+
         if (!user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            throw new UnauthorizedError()
         }
 
-        const profile = await (prisma as any).comedianProfile.findUnique({
-            where: { userId: user.id },
-            include: {
-                approvals: {
-                    include: {
-                        admin: {
-                            select: { email: true }
-                        }
-                    }
-                }
-            }
-        })
+        // Delegate to service
+        const result = await comedianService.getComedianByUserId(user.id)
 
-        return NextResponse.json({ profile })
+        return NextResponse.json(result)
     } catch (error) {
-        console.error("Error in comedian profile GET:", error)
-        return NextResponse.json({
-            error: "Internal server error",
-            message: error instanceof Error ? error.message : String(error)
-        }, { status: 500 })
+        const { status, error: message } = mapErrorToResponse(error)
+        return NextResponse.json({ error: message }, { status })
     }
 }
 
-export async function POST(request: Request) {
+export async function PUT(request: Request) {
     try {
         const user = await getCurrentUser()
+
         if (!user) {
-            console.log("POST /api/comedian/profile: Unauthorized")
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+            throw new UnauthorizedError()
         }
 
         const body = await request.json()
-        console.log("POST /api/comedian/profile: Body received", { ...body, stageName: body.stageName ? "present" : "missing" })
 
-        const { stageName, bio, contact, socialLinks, youtubeUrls, instagramUrls } = body
+        // Delegate to service
+        const result = await comedianService.updateComedianProfile(user.id, body)
 
-        if (!stageName) {
-            return NextResponse.json({ error: "Stage name is required" }, { status: 400 })
-        }
-
-        console.log("POST /api/comedian/profile: Updating user role for", user.id)
-
-        // Only set to UNVERIFIED if not already VERIFIED
-        const updateData: any = {
-            onboardingCompleted: true,
-            phone: contact
-        }
-
-        if (user.role !== "COMEDIAN_VERIFIED") {
-            updateData.role = "COMEDIAN_UNVERIFIED"
-        }
-
-        // Update user role and mark onboarding as completed
-        await (prisma as any).user.update({
-            where: { id: user.id },
-            data: updateData
-        })
-
-        console.log("POST /api/comedian/profile: Upserting comedian profile for", user.id)
-        // Create or update comedian profile
-        const profile = await (prisma as any).comedianProfile.upsert({
-            where: { userId: user.id },
-            update: { stageName, bio, contact, socialLinks, youtubeUrls, instagramUrls },
-            create: {
-                userId: user.id,
-                stageName,
-                bio,
-                contact,
-                socialLinks,
-                youtubeUrls,
-                instagramUrls
-            }
-        })
-
-        console.log("POST /api/comedian/profile: Success")
-        return NextResponse.json({ profile })
+        return NextResponse.json(result)
     } catch (error) {
-        console.error("Error in comedian profile POST:", error)
-        return NextResponse.json({
-            error: "Internal server error",
-            message: error instanceof Error ? error.message : String(error)
-        }, { status: 500 })
+        const { status, error: message } = mapErrorToResponse(error)
+        return NextResponse.json({ error: message }, { status })
     }
 }

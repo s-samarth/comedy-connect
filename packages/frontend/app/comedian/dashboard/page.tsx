@@ -19,9 +19,14 @@ import {
     Loader2
 } from 'lucide-react';
 import Link from 'next/link';
+import { format } from 'date-fns';
+import { useShows } from '@/lib/hooks';
 
 export default function ComedianDashboardPage() {
-    const { user, isAuthenticated, isComedian, isLoading } = useAuth();
+    const { user, isAuthenticated, isComedian, isLoading: authLoading } = useAuth();
+    const { shows, isLoading: showsLoading } = useShows('manage');
+
+    const isLoading = authLoading || showsLoading;
     const isVerified = user?.role === 'COMEDIAN_VERIFIED';
 
     if (isLoading) {
@@ -99,7 +104,7 @@ export default function ComedianDashboardPage() {
                                 </div>
                                 <div className="mt-4">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Shows</p>
-                                    <p className="text-3xl font-black italic mt-1">0</p>
+                                    <p className="text-3xl font-black italic mt-1">{shows.length}</p>
                                 </div>
                             </CardContent>
                         </Card>
@@ -180,15 +185,49 @@ export default function ComedianDashboardPage() {
                                 <Link href="/organizer/shows" className="text-xs font-black uppercase tracking-widest text-primary hover:underline">View All</Link>
                             </div>
 
-                            <div className="bg-muted/20 border border-border rounded-3xl p-12 text-center space-y-4">
-                                <Mic2 size={48} className="text-muted-foreground/30 mx-auto" />
-                                <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
-                                {isVerified && (
-                                    <Link href="/organizer/shows?action=new" className="inline-block">
-                                        <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
-                                            <Plus size={18} /> List My First Show
-                                        </Button>
-                                    </Link>
+                            <div className="space-y-4">
+                                {shows.length > 0 ? (
+                                    <div className="grid grid-cols-1 gap-4">
+                                        {shows.map((show) => (
+                                            <Link key={show.id} href={`/organizer/shows`}>
+                                                <div className="bg-muted/20 border border-border rounded-3xl p-6 hover:border-primary/30 transition-all flex items-center justify-between group">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center overflow-hidden">
+                                                            {show.posterImageUrl ? (
+                                                                <img src={show.posterImageUrl} alt={show.title} className="w-full h-full object-cover" />
+                                                            ) : (
+                                                                <Mic2 className="text-primary" size={24} />
+                                                            )}
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2">
+                                                                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{show.title}</h3>
+                                                                {!show.isPublished && (
+                                                                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-[10px] h-5">DRAFT</Badge>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-xs text-muted-foreground flex items-center gap-2">
+                                                                <Calendar size={12} /> {format(new Date(show.date), 'PPP p')}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Button variant="ghost" size="sm" className="rounded-full text-primary hover:text-primary hover:bg-primary/10">Manage</Button>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-muted/20 border border-border rounded-3xl p-12 text-center space-y-4">
+                                        <Mic2 size={48} className="text-muted-foreground/30 mx-auto" />
+                                        <p className="text-muted-foreground font-bold uppercase tracking-tight italic">No shows scheduled yet.</p>
+                                        {isVerified && (
+                                            <Link href="/organizer/shows?action=new" className="inline-block">
+                                                <Button variant="outline" className="rounded-full h-12 border-border font-black uppercase tracking-tight gap-2">
+                                                    <Plus size={18} /> List My First Show
+                                                </Button>
+                                            </Link>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>

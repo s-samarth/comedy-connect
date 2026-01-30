@@ -10,11 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, MapPin, Clock, Plus, Edit2, Trash2, Youtube, Instagram, ExternalLink, Eye } from "lucide-react";
+import { Calendar, MapPin, Clock, Plus, Edit2, Trash2, Youtube, Instagram, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import ShowPreviewModal from "./ShowPreviewModal";
 import { api } from "@/lib/api/client";
+import { ApiError } from "@/lib/errors";
+import { isValidGoogleMapsLink, isValidYouTubeUrl, isValidInstagramUrl } from "@/lib/validations";
 
 interface Show {
     id: string;
@@ -57,6 +59,9 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewData, setPreviewData] = useState<any>(null);
 
+    const youtubeInputRef = React.useRef<HTMLInputElement>(null);
+    const instagramInputRef = React.useRef<HTMLInputElement>(null);
+
     const [formData, setFormData] = useState({
         title: "",
         description: "",
@@ -68,7 +73,7 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
         posterImageUrl: "",
         youtubeUrls: [] as string[],
         instagramUrls: [] as string[],
-        durationMinutes: "60"
+        durationMinutes: "90"
     });
 
     const searchParams = useSearchParams();
@@ -100,18 +105,15 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
         e.preventDefault();
 
         // Validation
-        if (formData.googleMapsLink &&
-            !formData.googleMapsLink.startsWith('https://maps.app.goo.gl') &&
-            !formData.googleMapsLink.startsWith('https://google.com/maps') &&
-            !formData.googleMapsLink.startsWith('https://www.google.com/maps')) {
-            toast.error("Invalid Google Maps Link. Must be a valid Google Maps URL.");
+        if (formData.googleMapsLink && !isValidGoogleMapsLink(formData.googleMapsLink)) {
+            toast.error("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)");
             return;
         }
 
         try {
             setIsLoading(true);
             const url = editingShow ? `/api/v1/shows/${editingShow.id}` : "/api/v1/shows";
-            const method = editingShow ? "PUT" : "POST";
+            // const method = editingShow ? "PUT" : "POST"; // Kept for reference if needed, but using api helper
 
             const payload = {
                 ...formData,
@@ -121,11 +123,9 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                 date: new Date(formData.date).toISOString()
             };
 
-            if (editingShow) {
-                await api.patch(url, payload);
-            } else {
-                await api.post(url, payload);
-            }
+            const _res = editingShow
+                ? await api.put(url, payload)
+                : await api.post(url, payload);
 
             toast.success(editingShow ? "Show updated successfully" : "Show created successfully");
             fetchShows();
@@ -134,7 +134,8 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
             resetForm();
         } catch (error) {
             console.error("Save show error:", error);
-            toast.error("Failed to save show");
+            const message = error instanceof ApiError ? error.message : "Failed to save show";
+            toast.error(message);
         } finally {
             setIsLoading(false);
         }
@@ -152,7 +153,7 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
             posterImageUrl: "",
             youtubeUrls: [],
             instagramUrls: [],
-            durationMinutes: "60"
+            durationMinutes: "90"
         });
     };
 
@@ -173,7 +174,7 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
             posterImageUrl: show.posterImageUrl || "",
             youtubeUrls: show.youtubeUrls || [],
             instagramUrls: show.instagramUrls || [],
-            durationMinutes: (show.durationMinutes || 60).toString()
+            durationMinutes: (show.durationMinutes || 90).toString()
         });
         setShowForm(true);
     };
@@ -227,8 +228,48 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
     });
 
     const handlePreview = (data: any) => {
+        if (data.googleMapsLink && !isValidGoogleMapsLink(data.googleMapsLink)) {
+            toast.error("Invalid Google Maps Link. It must be a valid Google Maps URL (e.g. https://maps.app.goo.gl/...)");
+            return;
+        }
         setPreviewData(data);
         setPreviewOpen(true);
+    };
+
+    const handleAddYoutubeUrl = (val: string) => {
+        const trimmedVal = val.trim();
+        if (!trimmedVal) return;
+
+        if (!isValidYouTubeUrl(trimmedVal)) {
+            toast.error("Please enter a valid YouTube URL (starting with https://youtube.com or https://youtu.be)");
+            return;
+        }
+
+        if (formData.youtubeUrls.length >= 1) {
+            toast.error("Maximum 1 YouTube video allowed");
+            return;
+        }
+
+        setFormData(p => ({ ...p, youtubeUrls: [...p.youtubeUrls, trimmedVal] }));
+        if (youtubeInputRef.current) youtubeInputRef.current.value = "";
+    };
+
+    const handleAddInstagramUrl = (val: string) => {
+        const trimmedVal = val.trim();
+        if (!trimmedVal) return;
+
+        if (!isValidInstagramUrl(trimmedVal)) {
+            toast.error("Please enter a valid Instagram URL (starting with https://instagram.com)");
+            return;
+        }
+
+        if (formData.instagramUrls.length >= 2) {
+            toast.error("Maximum 2 Instagram reels allowed");
+            return;
+        }
+
+        setFormData(p => ({ ...p, instagramUrls: [...p.instagramUrls, trimmedVal] }));
+        if (instagramInputRef.current) instagramInputRef.current.value = "";
     };
 
     if (isLoading && shows.length === 0) {
@@ -292,13 +333,17 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                 <div className="lg:col-span-4 space-y-6">
                                     <div className="space-y-4">
                                         <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground/60">Show Poster</Label>
-                                        <div className="aspect-[3/4] rounded-[2rem] overflow-hidden border-2 border-dashed border-white/10 flex items-center justify-center bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all group relative">
+                                        <div className="aspect-[3/4] rounded-[2rem] overflow-hidden border-2 border-dashed border-white/10 flex items-center justify-center bg-white/5 hover:bg-white/10 hover:border-primary/50 transition-all group relative cursor-pointer">
                                             <ImageUpload
                                                 type="show"
+                                                variant="rectangle"
                                                 currentImage={formData.posterImageUrl}
                                                 onUpload={(url) => setFormData(prev => ({ ...prev, posterImageUrl: url }))}
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full"
                                             />
+                                            {!formData.posterImageUrl && (
+                                                <label htmlFor="file-input-show" className="absolute inset-0 cursor-pointer" />
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -417,19 +462,23 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                                 <Label className="flex items-center gap-2"><Youtube size={14} className="text-red-500" /> YouTube Video</Label>
                                                 <div className="flex gap-2">
                                                     <Input
+                                                        ref={youtubeInputRef}
                                                         placeholder="YouTube URL"
                                                         className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
                                                         onKeyDown={(e) => {
                                                             if (e.key === 'Enter') {
                                                                 e.preventDefault();
-                                                                const val = (e.target as HTMLInputElement).value;
-                                                                if (val && formData.youtubeUrls.length < 1) {
-                                                                    setFormData(p => ({ ...p, youtubeUrls: [...p.youtubeUrls, val] }));
-                                                                    (e.target as HTMLInputElement).value = "";
-                                                                }
+                                                                handleAddYoutubeUrl((e.target as HTMLInputElement).value);
                                                             }
                                                         }}
                                                     />
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => youtubeInputRef.current && handleAddYoutubeUrl(youtubeInputRef.current.value)}
+                                                        className="h-14 rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/10 px-6 font-bold uppercase tracking-widest text-[10px] transition-all"
+                                                    >
+                                                        Add
+                                                    </Button>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
                                                     {formData.youtubeUrls.map((url, i) => (
@@ -442,20 +491,26 @@ export default function OrganizerShowManagement({ userId, isVerified }: Organize
                                             </div>
                                             <div className="space-y-2">
                                                 <Label className="flex items-center gap-2"><Instagram size={14} className="text-pink-500" /> Instagram Reel</Label>
-                                                <Input
-                                                    placeholder="Instagram URL"
-                                                    className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            const val = (e.target as HTMLInputElement).value;
-                                                            if (val && formData.instagramUrls.length < 2) {
-                                                                setFormData(p => ({ ...p, instagramUrls: [...p.instagramUrls, val] }));
-                                                                (e.target as HTMLInputElement).value = "";
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        ref={instagramInputRef}
+                                                        placeholder="Instagram URL"
+                                                        className="rounded-2xl h-14 bg-white/5 border-white/10 hover:[&:not(:focus)]:border-primary/70 hover:[&:not(:focus)]:bg-white/20 focus:border-primary/50 focus:ring-primary/20 text-white placeholder:text-muted-foreground/30 transition-all"
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                handleAddInstagramUrl((e.target as HTMLInputElement).value);
                                                             }
-                                                        }
-                                                    }}
-                                                />
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => instagramInputRef.current && handleAddInstagramUrl(instagramInputRef.current.value)}
+                                                        className="h-14 rounded-2xl bg-white/10 hover:bg-white/20 text-white border-white/10 px-6 font-bold uppercase tracking-widest text-[10px] transition-all"
+                                                    >
+                                                        Add
+                                                    </Button>
+                                                </div>
                                                 <div className="flex flex-wrap gap-2">
                                                     {formData.instagramUrls.map((url, i) => (
                                                         <Badge key={i} variant="secondary" className="gap-2 py-1 px-3">

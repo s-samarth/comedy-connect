@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import ImageUpload from '@/components/ui/ImageUpload';
 import { Loader2, Plus, Trash2, Youtube, Instagram, Video, Film } from 'lucide-react';
+import { isValidYouTubeUrl, isValidInstagramUrl } from '@/lib/validations';
 
 interface ProfileEditFormProps {
     user: any;
@@ -63,17 +64,14 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
         const normalizedValue = value.trim();
 
         if (type === 'youtube') {
-            if (!normalizedValue.startsWith("https://youtube.com") &&
-                !normalizedValue.startsWith("https://www.youtube.com") &&
-                !normalizedValue.startsWith("https://youtu.be")) {
+            if (!isValidYouTubeUrl(normalizedValue)) {
                 alert("Please enter a valid YouTube URL starting with https://youtube.com or https://youtu.be");
                 return;
             }
         }
 
         if (type === 'instagram') {
-            if (!normalizedValue.startsWith("https://instagram.com") &&
-                !normalizedValue.startsWith("https://www.instagram.com")) {
+            if (!isValidInstagramUrl(normalizedValue)) {
                 alert("Please enter a valid Instagram URL starting with https://instagram.com");
                 return;
             }
@@ -116,15 +114,14 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
         setError(null);
 
         // Auto-add any pending URLs in the inputs before saving
-        let finalFormData = { ...formData };
+        const finalFormData = { ...formData };
         const role = user.role || 'AUDIENCE';
 
         if (newYoutubeUrl.trim()) {
             const field = role.startsWith('COMEDIAN') ? 'comedianYoutubeUrls' : 'organizerYoutubeUrls';
             const currentCount = (finalFormData[field as keyof typeof finalFormData] as string[]).length;
             if (currentCount < 1) {
-                // @ts-ignore - dynamic key access
-                finalFormData[field] = [...(finalFormData[field as keyof typeof finalFormData] as string[]), newYoutubeUrl.trim()];
+                finalFormData[field as keyof typeof finalFormData] = [...(finalFormData[field as keyof typeof finalFormData] as string[]), newYoutubeUrl.trim()];
             }
         }
 
@@ -132,8 +129,7 @@ export default function ProfileEditForm({ user }: ProfileEditFormProps) {
             const field = role.startsWith('COMEDIAN') ? 'comedianInstagramUrls' : 'organizerInstagramUrls';
             const currentCount = (finalFormData[field as keyof typeof finalFormData] as string[]).length;
             if (currentCount < 2) {
-                // @ts-ignore - dynamic key access
-                finalFormData[field] = [...(finalFormData[field as keyof typeof finalFormData] as string[]), newInstagramUrl.trim()];
+                finalFormData[field as keyof typeof finalFormData] = [...(finalFormData[field as keyof typeof finalFormData] as string[]), newInstagramUrl.trim()];
             }
         }
 

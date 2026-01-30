@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { X, Calendar, MapPin, Clock, Youtube, Instagram } from 'lucide-react';
+import { X, Calendar, MapPin, Clock, Youtube, Instagram, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { getYouTubeId, getInstagramId } from '@/lib/validations';
+import { useAuth } from '@/lib/hooks';
 
 interface ShowPreviewModalProps {
     isOpen: boolean;
@@ -13,6 +15,7 @@ interface ShowPreviewModalProps {
 }
 
 export default function ShowPreviewModal({ isOpen, onClose, data }: ShowPreviewModalProps) {
+    const { user } = useAuth();
     if (!isOpen || !data) return null;
 
     const showDate = data.date ? new Date(data.date) : new Date();
@@ -116,12 +119,45 @@ export default function ShowPreviewModal({ isOpen, onClose, data }: ShowPreviewM
                                             <span className="w-10 h-1.5 bg-primary rounded-full" />
                                             Watch Highlights
                                         </h2>
-                                        <div className="grid grid-cols-1 gap-6">
-                                            {data.youtubeUrls?.slice(0, 1).map((url: string, i: number) => (
-                                                <div key={i} className="aspect-video rounded-[1.5rem] overflow-hidden border border-border bg-muted flex items-center justify-center">
-                                                    <Youtube size={48} className="text-red-500 opacity-50" />
+                                        <div className="grid grid-cols-1 gap-8">
+                                            {data.youtubeUrls?.map((url: string, i: number) => {
+                                                const videoId = getYouTubeId(url);
+                                                if (!videoId) return null;
+                                                return (
+                                                    <div key={`yt-${i}`} className="aspect-video rounded-[2rem] overflow-hidden border border-border shadow-2xl bg-black">
+                                                        <iframe
+                                                            className="w-full h-full"
+                                                            src={`https://www.youtube.com/embed/${videoId}`}
+                                                            title="YouTube video player"
+                                                            frameBorder="0"
+                                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                                            allowFullScreen
+                                                        ></iframe>
+                                                    </div>
+                                                );
+                                            })}
+                                            {data.instagramUrls?.length > 0 && (
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                    {data.instagramUrls?.map((url: string, i: number) => {
+                                                        const reelId = getInstagramId(url);
+                                                        if (!reelId) return null;
+                                                        return (
+                                                            <div key={`ig-${i}`} className="flex justify-center">
+                                                                <div className="rounded-[2rem] overflow-hidden border border-border shadow-2xl bg-white aspect-[9/16] w-full max-w-[320px]">
+                                                                    <iframe
+                                                                        className="w-full h-full"
+                                                                        src={`https://www.instagram.com/reel/${reelId}/embed`}
+                                                                        frameBorder="0"
+                                                                        scrolling="no"
+                                                                        // @ts-expect-error - legacy attribute
+                                                                        allowtransparency="true"
+                                                                    ></iframe>
+                                                                </div>
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
-                                            ))}
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -151,6 +187,23 @@ export default function ShowPreviewModal({ isOpen, onClose, data }: ShowPreviewM
                                     <Button variant="outline" disabled className="w-full rounded-full h-10 border-border text-[10px] font-bold uppercase tracking-widest opacity-50">
                                         Open in Maps
                                     </Button>
+                                </div>
+
+                                {/* Organizer Info */}
+                                <div className="p-8 rounded-[2rem] bg-muted/10 border border-border space-y-6">
+                                    <h3 className="font-bold flex items-center gap-2 uppercase tracking-tight text-sm">
+                                        <Users size={16} className="text-primary" />
+                                        Organized By
+                                    </h3>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-black text-xl border border-primary/20">
+                                            {user?.name?.charAt(0).toUpperCase() || 'O'}
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="font-black text-sm uppercase tracking-tight">{user?.name || 'Organizer'}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Verified Host</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
 import { format } from 'date-fns';
+import { getYouTubeId, getInstagramId } from '@/lib/validations';
 
 export default function ShowDetailsPage() {
     const { id } = useParams() as { id: string };
@@ -123,54 +124,83 @@ export default function ShowDetailsPage() {
                             </p>
                         </div>
 
-                        {/* Featuring Section */}
-                        <div className="space-y-8">
-                            <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
-                                <span className="w-8 h-1 bg-primary rounded-full" />
-                                FEATURING
-                            </h2>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                {show.showComedians.map(({ comedian }) => (
-                                    <div key={comedian.id} className="flex gap-4 p-4 rounded-2xl bg-muted/20 border border-border hover:border-primary/30 transition-all group">
-                                        <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                                            <Image
-                                                src={comedian.profileImageUrl || '/logo.png'}
-                                                alt={comedian.name}
-                                                fill
-                                                className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                            />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{comedian.name}</h3>
-                                            <p className="text-xs text-muted-foreground line-clamp-2 font-medium">{comedian.bio || 'Professional Stand-up Comedian.'}</p>
-                                            <div className="flex gap-3 pt-1">
-                                                <Youtube size={16} className="text-muted-foreground hover:text-red-500 cursor-pointer" />
-                                                <Instagram size={16} className="text-muted-foreground hover:text-pink-500 cursor-pointer" />
-                                            </div>
+                        {/* Organizer vs Comedians Section */}
+                        {show.creator?.role?.includes('ORGANIZER') ? (
+                            <div className="space-y-8">
+                                <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
+                                    <span className="w-8 h-1 bg-primary rounded-full" />
+                                    Organized by
+                                </h2>
+                                <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/20 border border-border hover:border-primary/30 transition-all group max-w-md">
+                                    <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center text-primary font-black text-3xl border border-primary/20">
+                                        {(show.creator as any)?.name?.charAt(0).toUpperCase() || 'O'}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <h3 className="font-bold text-xl group-hover:text-primary transition-colors">{(show.creator as any)?.name || 'Organizer'}</h3>
+                                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-[0.2em]">Verified Host</p>
+                                        <div className="flex gap-4 pt-2">
+                                            <Link href={`/profile/${(show.creator as any)?.id}`}>
+                                                <Button variant="outline" size="sm" className="rounded-full h-8 text-[10px] uppercase font-black tracking-widest px-4">
+                                                    View Profile
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
-                                ))}
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            /* Featuring Section */
+                            <div className="space-y-8">
+                                <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
+                                    <span className="w-8 h-1 bg-primary rounded-full" />
+                                    FEATURING
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    {show.showComedians.map(({ comedian }) => (
+                                        <div key={(comedian as any).id} className="flex gap-4 p-4 rounded-2xl bg-muted/20 border border-border hover:border-primary/30 transition-all group">
+                                            <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                                                <Image
+                                                    src={(comedian as any).profileImageUrl || '/logo.png'}
+                                                    alt={(comedian as any).name}
+                                                    fill
+                                                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                                />
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{(comedian as any).name}</h3>
+                                                <p className="text-xs text-muted-foreground line-clamp-2 font-medium">{(comedian as any).bio || 'Professional Stand-up Comedian.'}</p>
+                                                <div className="flex gap-3 pt-1">
+                                                    {(comedian as any).youtubeUrls?.map((url: string, i: number) => (
+                                                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <Youtube size={16} className="text-muted-foreground hover:text-red-500 cursor-pointer" />
+                                                        </a>
+                                                    ))}
+                                                    {(comedian as any).instagramUrls?.map((url: string, i: number) => (
+                                                        <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                                                            <Instagram size={16} className="text-muted-foreground hover:text-pink-500 cursor-pointer" />
+                                                        </a>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         {/* Social Feed / Media */}
-                        {(show.youtubeUrls.length > 0 || show.instagramUrls.length > 0) && (
+                        {(show.youtubeUrls?.length > 0 || show.instagramUrls?.length > 0) && (
                             <div className="space-y-6">
                                 <h2 className="text-2xl font-black uppercase italic tracking-tight flex items-center gap-2">
                                     <span className="w-8 h-1 bg-primary rounded-full" />
                                     Watch Highlights
                                 </h2>
-                                <div className="grid grid-cols-1 gap-6">
+                                <div className="grid grid-cols-1 gap-8">
                                     {show.youtubeUrls?.map((url, i) => {
-                                        const getYouTubeId = (url: string) => {
-                                            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-                                            const match = url.match(regExp);
-                                            return (match && match[2].length === 11) ? match[2] : null;
-                                        };
                                         const videoId = getYouTubeId(url);
                                         if (videoId) {
                                             return (
-                                                <div key={`yt-${i}`} className="aspect-video rounded-2xl overflow-hidden border border-border">
+                                                <div key={`yt-${i}`} className="aspect-video rounded-3xl overflow-hidden border border-border shadow-2xl bg-black">
                                                     <iframe
                                                         className="w-full h-full"
                                                         src={`https://www.youtube.com/embed/${videoId}`}
@@ -184,6 +214,30 @@ export default function ShowDetailsPage() {
                                         }
                                         return null;
                                     })}
+                                    {show.instagramUrls?.length > 0 && (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {show.instagramUrls?.map((url, i) => {
+                                                const reelId = getInstagramId(url);
+                                                if (reelId) {
+                                                    return (
+                                                        <div key={`ig-${i}`} className="flex justify-center">
+                                                            <div className="rounded-3xl overflow-hidden border border-border shadow-2xl bg-white aspect-[9/16] w-full max-w-[320px]">
+                                                                <iframe
+                                                                    className="w-full h-full"
+                                                                    src={`https://www.instagram.com/reel/${reelId}/embed`}
+                                                                    frameBorder="0"
+                                                                    scrolling="no"
+                                                                    // @ts-expect-error - legacy attribute
+                                                                    allowtransparency="true"
+                                                                ></iframe>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                }
+                                                return null;
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         )}

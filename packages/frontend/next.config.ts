@@ -42,6 +42,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'", // Tailwind uses inline styles
               "img-src 'self' data: https:",
               "font-src 'self' data:",
+              "frame-src 'self' https://www.youtube.com https://www.instagram.com",
               // In development, allow localhost connections; in production, restrict to same origin
               `connect-src 'self' ${isDev ? 'http://localhost:* ws://localhost:*' : ''} https://res.cloudinary.com`,
               "frame-ancestors 'none'",

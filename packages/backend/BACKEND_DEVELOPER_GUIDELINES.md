@@ -9,17 +9,20 @@
 ## 📋 Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
-2. [The Three-Layer Rule](#the-three-layer-rule)
-3. [Adding a New Feature: Complete Walkthrough](#adding-a-new-feature-complete-walkthrough)
-4. [Layer 1: API Routes (Controllers)](#layer-1-api-routes-controllers)
-5. [Layer 2: Services (Business Logic)](#layer-2-services-business-logic)
-6. [Layer 3: Repositories (Data Access)](#layer-3-repositories-data-access)
-7. [Error Handling](#error-handling)
-8. [Testing Guidelines](#testing-guidelines)
-9. [Code Review Checklist](#code-review-checklist)
-10. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
-11. [Common Scenarios](#common-scenarios)
-12. [Migration from Legacy Code](#migration-from-legacy-code)
+2. [Project Structure](#project-structure)
+3. [The Three-Layer Rule](#the-three-layer-rule)
+4. [Cross-Cutting Concerns: Middleware](#cross-cutting-concerns-middleware)
+5. [Adding a New Feature: Complete Walkthrough](#adding-a-new-feature-complete-walkthrough)
+6. [Layer 1: API Routes (Controllers)](#layer-1-api-routes-controllers)
+7. [Layer 2: Services (Business Logic)](#layer-2-services-business-logic)
+8. [Layer 3: Repositories (Data Access)](#layer-3-repositories-data-access)
+9. [Error Handling](#error-handling)
+10. [Core Configuration](#core-configuration)
+11. [Testing Guidelines](#testing-guidelines)
+12. [Code Review Checklist](#code-review-checklist)
+13. [Anti-Patterns to Avoid](#anti-patterns-to-avoid)
+14. [Common Scenarios](#common-scenarios)
+15. [Migration from Legacy Code](#migration-from-legacy-code)
 
 ---
 
@@ -85,6 +88,35 @@
 
 ---
 
+## Project Structure
+
+Understanding the purpose of each directory is crucial for maintaining architectural integrity.
+
+### `/errors`
+Contains **Domain Error** definitions and mapping logic.
+- `index.ts`: Defines `DomainError` base class and specific errors like `ValidationError`, `NotFoundError`, and `UnauthorizedError`.
+- `mapErrorToResponse`: A utility to convert domain errors into standardized HTTP responses (status code + error message).
+
+### `/lib`
+Shared utilities and external service wrappers.
+- `auth.ts`: Authentication helpers and session management.
+- `prisma.ts`: Singleton instance of the Prisma client.
+- `cloudinary.ts`, `razorpay.ts`, `email.ts`: Service-specific integrations.
+- `concurrency.ts`: Shared logic for handling race conditions or parallel execution.
+
+### `/prisma`
+Database schema and migration history.
+- `schema.prisma`: The source of truth for the database model.
+- `/migrations`: SQL files representing schema changes.
+- Ensure you run `npx prisma generate` after schema changes.
+
+### `/scripts`
+Internal maintenance, data seeding, and verification scripts.
+- `verify-p2-capacity.ts`: Example of a one-off verification script.
+- Scripts here should NEVER be called by the application at runtime.
+
+---
+
 ## The Three-Layer Rule
 
 ### Golden Rules (NEVER VIOLATE)
@@ -97,6 +129,29 @@
 | HTTP responses in services | Services throw domain errors |
 | Validation in routes | Validation in services |
 | Data transformation in repositories | Repositories return raw entities |
+
+---
+
+## Cross-Cutting Concerns: Middleware
+
+The `middleware.ts` file is the entry point for all requests and handles global concerns before they reach API routes.
+
+### CORS Handling
+- Automatically adds `Access-Control-*` headers to responses based on `ALLOWED_ORIGIN`.
+- Handles `OPTIONS` preflight requests globally.
+
+### Authentication & Sessions
+- Uses `next-auth/jwt` to retrieve and validate the user token.
+- Enforces session validity for protected routes.
+- **Onboarding Check**: Redirects users to `/onboarding` if they haven't completed their profile.
+
+### Role-Based Access Control (RBAC)
+- **Admin**: Strict whitelist check (`ADMIN_EMAIL`) and specialized session validation (`admin-secure-session`).
+- **Organizer**: Protects `/api/v1/organizer` and requires `ORGANIZER` roles.
+- **Comedian**: Protects `/api/v1/comedian` and requires `COMEDIAN` roles.
+
+### Path Matchers
+Ensure new route groups are added to the `config.matcher` in `middleware.ts` to be covered by these security checks.
 
 ---
 
@@ -843,62 +898,59 @@ await prisma.$transaction(async (tx) => {
 
 ## Error Handling
 
-### Domain Errors (in services/repositories)
+All backend errors are managed through a centralized system located in `/errors`. This ensures consistent API responses and simplifies error tracking.
 
-```typescript
-import { 
-    ValidationError,
-    NotFoundError,
-    UnauthorizedError,
-    ForbiddenError,
-    ConflictError,
-    BusinessError
-} from '@/errors'
+### Domain Errors
 
-// Service example
-if (!user) {
-    throw new NotFoundError('User')
-}
+Domain errors are custom classes that inherit from `DomainError` (found in `/errors/index.ts`). They represent business rule violations rather than technical failures.
 
-if (booking.userId !== currentUserId) {
-    throw new ForbiddenError('Cannot modify others\' bookings')
-}
-```
+| Error Class | HTTP Status | Description |
+|-------------|-------------|-------------|
+| `UnauthorizedError` | 401 | User is not authenticated or session is invalid. |
+| `ForbiddenError` | 403 | User is authenticated but lacks permission for the resource. |
+| `NotFoundError` | 404 | The requested resource (User, Show, Booking, etc.) does not exist. |
+| `ValidationError` | 400 | The input data fails business rules or format requirements. |
+| `BookingError` | 400 | Specific to booking workflow violations. |
 
-### HTTP Error Mapping (in routes)
+### The Error Mapping Pattern
+
+API routes MUST use the `mapErrorToResponse` utility. This prevents leaking internal stack traces and ensures the frontend receives a predictable JSON structure: `{ "error": "message" }`.
 
 ```typescript
 import { mapErrorToResponse } from '@/errors'
 
 try {
-    const result = await service.method()
+    const result = await yourService.doWork()
     return NextResponse.json(result)
 } catch (error) {
-    // Automatically maps domain errors to HTTP status codes
+    // Standardizes the error response
     const { status, error: message } = mapErrorToResponse(error)
     return NextResponse.json({ error: message }, { status })
 }
 ```
 
-### Custom Errors
+### Throwing Errors in Services
+
+Services should always throw the most specific error possible.
 
 ```typescript
-// errors/custom.ts
-export class InsufficientCreditsError extends Error {
-    constructor(required: number, available: number) {
-        super(`Insufficient credits: need ${required}, have ${available}`)
-        this.name = 'InsufficientCreditsError'
-    }
-}
+import { ValidationError, NotFoundError } from '@/errors'
 
-// errors/index.ts - Add mapping
-export function mapErrorToResponse(error: any) {
-    // ...existing mappings
-    if (error instanceof InsufficientCreditsError) {
-        return { status: 402, error: error.message }  // 402 Payment Required
+class ShowService {
+    async updateShow(id: string, data: any) {
+        const show = await repository.findById(id)
+        if (!show) {
+            throw new NotFoundError('Show') // Standardized: "Show not found"
+        }
+
+        if (data.title.length < 3) {
+            throw new ValidationError('Title is too short')
+        }
     }
 }
 ```
+
+---
 
 ---
 
@@ -1314,6 +1366,29 @@ import { ValidationError, NotFoundError } from '@/errors'
 // Repositories
 import { prisma } from '@/lib/prisma'
 ```
+
+---
+
+## Core Configuration
+
+The following files control the backend environment and build process.
+
+### `package.json`
+Defines dependencies and scripts. Key scripts include:
+- `npm run dev`: Starts the development server on port 4000.
+- `npm run build`: Generates the Prisma client and builds the Next.js application.
+- `npm run test:backend`: Runs the full backend test suite using Jest.
+- `npm run test:unit` | `test:integration`: Runs specific subsets of tests.
+
+### `next.config.ts`
+Configures the Next.js runtime environment.
+- **Experimental Features**: Configures `serverActions` with a 10MB body size limit.
+- **API Headers**: Sets global CORS headers for all `/api/:path*` routes to ensure frontend compatibility.
+
+### `tsconfig.json`
+Manages TypeScript compiler settings.
+- **Path Aliases**: Uses `@/*` as a shortcut for `./*` to avoid deep relative imports (e.g., `../../../lib` becomes `@/lib`).
+- **Strict Mode**: `strict: true` is mandatory to catch potential bugs at compile time.
 
 ---
 

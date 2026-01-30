@@ -23,7 +23,7 @@ export function ShowCard({ show }: ShowCardProps) {
     const displayImage = mainComedian?.profileImageUrl || show.posterImageUrl || '/logo.png';
 
     return (
-        <Card className="group overflow-hidden bg-card border-border hover:border-primary/50 transition-all duration-300 flex flex-col h-full shadow-lg hover:shadow-primary/5">
+        <Card className="group overflow-hidden bg-card/70 backdrop-blur-md border-primary/20 hover:border-primary/60 transition-all duration-300 flex flex-col h-full shadow-[0_10px_30px_rgba(0,0,0,0.5),0_0_15px_rgba(245,166,35,0.05)] hover:shadow-primary/10">
             {/* Image Container */}
             <div className="relative aspect-[4/5] overflow-hidden">
                 <Image

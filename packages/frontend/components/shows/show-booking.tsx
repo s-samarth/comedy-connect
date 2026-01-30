@@ -6,7 +6,8 @@ import { ShowResponse } from '@comedy-connect/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Ticket, AlertCircle, Loader2 } from 'lucide-react';
+import { Ticket, AlertCircle, Loader2, Calendar, Hourglass, Users, Languages, Theater, MapPin, Navigation, Info, Clock } from 'lucide-react';
+import { format } from 'date-fns';
 import { api } from '@/lib/api/client';
 
 interface ShowBookingProps {
@@ -53,103 +54,126 @@ export function ShowBooking({ show, user }: ShowBookingProps) {
     };
 
     return (
-        <Card className="sticky top-24 border-border bg-card shadow-xl overflow-hidden">
-            <CardHeader className="bg-muted/50 pb-4">
-                <CardTitle className="text-xl font-black uppercase italic tracking-tight">
-                    Book Tickets
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6 space-y-6">
-                {/* Price Display */}
-                <div className="flex items-baseline gap-2">
-                    <span className="text-4xl font-black text-primary italic">₹{show.ticketPrice}</span>
-                    <span className="text-muted-foreground text-sm font-bold uppercase tracking-widest">per ticket</span>
+        <Card className="sticky top-32 border-2 border-primary/60 bg-card/85 backdrop-blur-3xl shadow-[0_0_60px_rgba(0,0,0,0.6),0_0_30px_rgba(245,166,35,0.15)] overflow-hidden rounded-[2rem]">
+            <CardContent className="p-5 space-y-5">
+                {/* Unified Event Details Header */}
+                <h3 className="text-lg font-black uppercase italic tracking-tight flex items-center gap-2 border-b border-primary/20 pb-3">
+                    <Ticket className="text-primary" size={18} />
+                    Event Details
+                </h3>
+
+                {/* Vertical Details List */}
+                <div className="space-y-3 pt-1">
+                    <div className="flex items-center gap-4">
+                        <Calendar size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-black uppercase tracking-tight">{format(new Date(show.date), 'EEE, d MMM yyyy')}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Clock size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-black uppercase tracking-tight">{format(new Date(show.date), 'h:mm a')}</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Hourglass size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-bold">{show.durationMinutes || 60} Minutes</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Users size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-bold">Age Limit - 16yrs +</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Languages size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-bold">English, Hindi</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <Theater size={18} className="text-muted-foreground" />
+                        <p className="text-sm font-bold">Stand-up Comedy</p>
+                    </div>
+
+                    <div className="flex items-start gap-4">
+                        <MapPin size={18} className="text-muted-foreground mt-0.5" />
+                        <div className="flex-grow space-y-1">
+                            <div className="flex items-center justify-between">
+                                <p className="text-sm font-bold line-clamp-2">{show.venue}</p>
+                                <a href={show.googleMapsLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-primary/10 rounded-full text-primary hover:bg-primary/20 transition-colors">
+                                    <Navigation size={14} />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Status Messages */}
-                {isPastShow ? (
-                    <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
-                        <AlertCircle size={20} className="flex-shrink-0" />
-                        <p className="text-sm font-bold uppercase tracking-tight">This show has already ended.</p>
-                    </div>
-                ) : isSoldOut ? (
-                    <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
-                        <Ticket size={20} className="flex-shrink-0" />
-                        <p className="text-sm font-bold uppercase tracking-tight">🎫 SOLD OUT! Check back later.</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* Quantity Selector */}
-                        {user && (
-                            <div className="space-y-3">
-                                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                                    Number of Tickets
-                                </label>
-                                <Select
-                                    value={quantity.toString()}
-                                    onValueChange={(val) => setQuantity(parseInt(val))}
+                <div className="pt-3.5 border-t border-primary/20">
+                    {availableTickets < 30 && !isSoldOut && (
+                        <div className="flex items-center gap-3 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 mb-5">
+                            <Info size={16} className="flex-shrink-0" />
+                            <p className="text-[10px] font-black uppercase tracking-tight">Bookings are filling fast!</p>
+                        </div>
+                    )}
+
+                    {/* Status Messages */}
+                    {isPastShow ? (
+                        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
+                            <AlertCircle size={20} className="flex-shrink-0" />
+                            <p className="text-sm font-bold uppercase tracking-tight">This show has already ended.</p>
+                        </div>
+                    ) : isSoldOut ? (
+                        <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500">
+                            <Ticket size={20} className="flex-shrink-0" />
+                            <p className="text-sm font-bold uppercase tracking-tight">🎫 SOLD OUT! Check back later.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-5">
+                            {/* Quantity Selector */}
+                            {user && (
+                                <div className="flex items-center justify-between gap-4 p-3 bg-primary/10 rounded-xl border border-primary/30 shadow-inner">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary">
+                                        Tickets
+                                    </label>
+                                    <Select
+                                        value={quantity.toString()}
+                                        onValueChange={(val) => setQuantity(parseInt(val))}
+                                        disabled={isLoading}
+                                    >
+                                        <SelectTrigger className="w-20 h-9 rounded-lg border-primary/40 bg-background/80 font-black text-primary shadow-sm hover:border-primary transition-colors">
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-card border-primary/40">
+                                            {Array.from({ length: maxQuantity }, (_, i) => i + 1).map((num) => (
+                                                <SelectItem key={num} value={num.toString()} className="font-bold">
+                                                    {num}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+
+                            {/* Footer Price & Button */}
+                            <div className="flex items-center justify-between pt-2">
+                                <div className="space-y-0.5">
+                                    <p className="text-2xl font-black text-primary italic leading-none">₹{subtotal.toFixed(0)}</p>
+                                    {availableTickets < 20 && <p className="text-[10px] font-black text-yellow-500 uppercase tracking-widest">Filling Fast</p>}
+                                </div>
+                                <Button
+                                    className="h-14 px-10 rounded-2xl text-lg font-black uppercase tracking-tighter italic shadow-xl shadow-primary/20 active:scale-95 transition-all"
+                                    onClick={handleBooking}
                                     disabled={isLoading}
                                 >
-                                    <SelectTrigger className="w-full h-12 rounded-full border-border bg-muted/30 font-bold">
-                                        <SelectValue placeholder="Select quantity" />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-card border-border">
-                                        {Array.from({ length: maxQuantity }, (_, i) => i + 1).map((num) => (
-                                            <SelectItem key={num} value={num.toString()} className="font-bold">
-                                                {num} {num === 1 ? 'Ticket' : 'Tickets'}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-1">
-                                    {availableTickets} tickets available
-                                </p>
+                                    {isLoading ? (
+                                        <Loader2 className="animate-spin" size={24} />
+                                    ) : (
+                                        'Book Now'
+                                    )}
+                                </Button>
                             </div>
-                        )}
-
-                        {/* Price Breakdown */}
-                        {user && (
-                            <div className="space-y-3 p-4 bg-muted/30 rounded-2xl border border-border">
-                                <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                    <span>Subtotal</span>
-                                    <span>₹{subtotal.toFixed(2)}</span>
-                                </div>
-                                <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                                    <span>Booking Fee (8%)</span>
-                                    <span>₹{bookingFee.toFixed(2)}</span>
-                                </div>
-                                <div className="pt-3 border-t border-border flex justify-between items-center">
-                                    <span className="font-black uppercase tracking-tighter">Total Amount</span>
-                                    <span className="text-2xl font-black text-foreground">₹{total.toFixed(2)}</span>
-                                </div>
-                            </div>
-                        )}
-
-                        {error && (
-                            <p className="text-xs font-bold text-red-500 uppercase tracking-tight bg-red-500/10 p-3 rounded-lg border border-red-500/20">
-                                {error}
-                            </p>
-                        )}
-
-                        {/* Action Button */}
-                        <Button
-                            className="w-full h-14 rounded-full text-lg font-black uppercase tracking-tighter italic gap-2 transition-all active:scale-[0.98]"
-                            onClick={handleBooking}
-                            disabled={isLoading}
-                        >
-                            {isLoading ? (
-                                <Loader2 className="animate-spin" size={24} />
-                            ) : user ? (
-                                <>
-                                    <Ticket size={20} />
-                                    Confirm Booking
-                                </>
-                            ) : (
-                                'Sign in to Book'
-                            )}
-                        </Button>
-                    </>
-                )}
+                        </div>
+                    )}
+                </div>
             </CardContent>
         </Card>
     );

@@ -55,63 +55,28 @@ export default function ShowDetailsPage() {
                     Back to all shows
                 </Link>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-                    {/* Main Content */}
-                    <div className="lg:col-span-8 space-y-12">
-                        {/* Header / Hero */}
-                        <div className="space-y-6">
-                            <div className="relative aspect-video rounded-3xl overflow-hidden border border-border shadow-2xl">
-                                <Image
-                                    src={show.posterImageUrl || '/logo.png'}
-                                    alt={show.title}
-                                    fill
-                                    className="object-cover"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-                                <div className="absolute bottom-6 left-6 right-6 flex justify-between items-end">
-                                    <div className="space-y-2">
-                                        <Badge className="bg-primary text-primary-foreground font-black uppercase tracking-widest">
-                                            ₹{show.ticketPrice}
-                                        </Badge>
-                                        <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase leading-none">
-                                            {show.title}
-                                        </h1>
-                                    </div>
-                                </div>
-                            </div>
+                {/* Header Title moved above grid for better alignment */}
+                <div className="space-y-6 pt-8">
+                    <h1 className="text-2xl md:text-3xl font-black italic tracking-tighter uppercase leading-none">
+                        {show.title}
+                    </h1>
+                </div>
 
-                            {/* Quick Info Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 p-6 bg-muted/30 rounded-3xl border border-border">
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground uppercase">Date</p>
-                                    <div className="flex items-center gap-2 font-bold text-sm">
-                                        <Calendar size={14} className="text-primary" />
-                                        {format(showDate, 'EEE, MMM d')}
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground uppercase">Time</p>
-                                    <div className="flex items-center gap-2 font-bold text-sm">
-                                        <Clock size={14} className="text-primary" />
-                                        {format(showDate, 'h:mm a')}
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground uppercase">Venue</p>
-                                    <div className="flex items-center gap-2 font-bold text-sm">
-                                        <MapPin size={14} className="text-primary" />
-                                        <span className="line-clamp-1">{show.venue}</span>
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground uppercase">Duration</p>
-                                    <div className="flex items-center gap-2 font-bold text-sm">
-                                        <Clock size={14} className="text-primary" />
-                                        {show.durationMinutes || 60} mins
-                                    </div>
-                                </div>
-                            </div>
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                    {/* Main Content */}
+                    <div className="lg:col-span-9 space-y-12">
+                        {/* Hero Poster */}
+                        <div className="relative aspect-video rounded-3xl overflow-hidden border-2 border-primary/50 shadow-[0_0_40px_rgba(0,0,0,0.6),0_0_25px_rgba(245,166,35,0.15)] bg-black/20 backdrop-blur-sm">
+                            <Image
+                                src={show.posterImageUrl || '/logo.png'}
+                                alt={show.title}
+                                fill
+                                className="object-cover"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
                         </div>
+
+                        {/* Description */}
 
                         {/* About Section */}
                         <div className="space-y-4">
@@ -131,7 +96,7 @@ export default function ShowDetailsPage() {
                                     <span className="w-8 h-1 bg-primary rounded-full" />
                                     Organized by
                                 </h2>
-                                <div className="flex items-center gap-6 p-6 rounded-3xl bg-muted/20 border border-border hover:border-primary/30 transition-all group max-w-md">
+                                <div className="flex items-center gap-6 p-6 rounded-3xl bg-card/40 border-2 border-primary/40 hover:border-primary/70 backdrop-blur-md transition-all group max-w-md shadow-lg">
                                     <div className="relative w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-primary/10 flex items-center justify-center text-primary font-black text-3xl border border-primary/20">
                                         {(show.creator as any)?.name?.charAt(0).toUpperCase() || 'O'}
                                     </div>
@@ -157,7 +122,7 @@ export default function ShowDetailsPage() {
                                 </h2>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                     {show.showComedians.map(({ comedian }) => (
-                                        <div key={(comedian as any).id} className="flex gap-4 p-4 rounded-2xl bg-muted/20 border border-border hover:border-primary/30 transition-all group">
+                                        <div key={(comedian as any).id} className="flex gap-4 p-4 rounded-2xl bg-card/40 border-2 border-primary/30 hover:border-primary/60 backdrop-blur-md transition-all group shadow-md">
                                             <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
                                                 <Image
                                                     src={(comedian as any).profileImageUrl || '/logo.png'}
@@ -200,7 +165,7 @@ export default function ShowDetailsPage() {
                                         const videoId = getYouTubeId(url);
                                         if (videoId) {
                                             return (
-                                                <div key={`yt-${i}`} className="aspect-video rounded-3xl overflow-hidden border border-border shadow-2xl bg-black">
+                                                <div key={`yt-${i}`} className="aspect-video rounded-3xl overflow-hidden border border-primary/20 shadow-2xl bg-black">
                                                     <iframe
                                                         className="w-full h-full"
                                                         src={`https://www.youtube.com/embed/${videoId}`}
@@ -221,7 +186,7 @@ export default function ShowDetailsPage() {
                                                 if (reelId) {
                                                     return (
                                                         <div key={`ig-${i}`} className="flex justify-center">
-                                                            <div className="rounded-3xl overflow-hidden border border-border shadow-2xl bg-white aspect-[9/16] w-full max-w-[320px]">
+                                                            <div className="rounded-3xl overflow-hidden border border-primary/20 shadow-2xl bg-white aspect-[9/16] w-full max-w-[320px]">
                                                                 <iframe
                                                                     className="w-full h-full"
                                                                     src={`https://www.instagram.com/reel/${reelId}/embed`}
@@ -244,26 +209,9 @@ export default function ShowDetailsPage() {
                     </div>
 
                     {/* Sidebar / Booking */}
-                    <div className="lg:col-span-4 relative">
-                        <ShowBooking show={show} user={user} />
-
-                        {/* Venue Card */}
-                        <div className="mt-8 p-6 rounded-3xl bg-muted/20 border border-border space-y-4">
-                            <h3 className="font-bold flex items-center gap-2">
-                                <MapPin size={18} className="text-primary" />
-                                Location
-                            </h3>
-                            <p className="text-sm font-medium">{show.venue}</p>
-                            <a
-                                href={show.googleMapsLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="block"
-                            >
-                                <Button variant="outline" className="w-full rounded-full h-10 border-border text-xs font-bold uppercase tracking-widest">
-                                    Open in Google Maps
-                                </Button>
-                            </a>
+                    <div className="lg:col-span-3">
+                        <div className="sticky top-32 space-y-8">
+                            <ShowBooking show={show} user={user} />
                         </div>
                     </div>
                 </div>

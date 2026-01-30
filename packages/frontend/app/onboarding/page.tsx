@@ -136,7 +136,7 @@ function OnboardingForm() {
                                         value={formData.name}
                                         onChange={handleChange}
                                         className="h-12 rounded-full bg-muted/30 border-border focus:border-primary font-bold"
-                                        placeholder="Samarth Saraswat"
+                                        placeholder="Abhishek Singh Bassi"
                                     />
                                 </div>
 

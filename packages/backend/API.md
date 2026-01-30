@@ -53,7 +53,7 @@ The backend follows a **clean Service/Repository architecture** with complete se
 - ✅ **6 Repositories**: All data access encapsulated
 - ✅ **Consistent Error Handling**: `mapErrorToResponse()` used in all routes
 
-> **See**: [`SERVICES.md`](../SERVICES.md) for detailed service documentation
+> **See**: [`SERVICES.md`](../backend/SERVICES.md) for detailed service documentation
 
 ---
 

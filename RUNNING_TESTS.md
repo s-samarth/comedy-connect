@@ -130,7 +130,7 @@ npm run test:coverage
 
 ## Additional Documentation
 
-- [Main Testing Guide](../../docs/TESTING.md)
+- [Main Testing Guide](docs/TESTING.md)
 - [Backend Testing README](packages/backend/testing/README.md)
 - [Frontend Testing README](packages/frontend/testing/README.md)
 - [E2E Testing README](testing/e2e/README.md)

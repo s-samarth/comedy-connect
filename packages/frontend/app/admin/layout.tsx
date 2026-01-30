@@ -49,6 +49,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }
     }, [isAuthenticated, isAuthLoading, user, router])
 
+    const navLinks = useMemo(() => [
+        { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
+        { href: '/admin/comedians', label: 'Artists', icon: Users },
+        { href: '/admin/organizers', label: 'Guild', icon: ShieldCheck },
+        { href: '/admin/shows', label: 'Shows', icon: Calendar },
+        { href: '/admin/fees', label: 'Economics', icon: Settings },
+    ], []);
+
     if (isAuthLoading || (isAuthenticated && user?.role === 'ADMIN' && isSecurityLoading)) {
         return (
             <div className="min-h-screen flex flex-col items-center justify-center space-y-8 relative overflow-hidden bg-background">
@@ -73,13 +81,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         return <AdminPasswordPrompt onVerified={() => setIsVerified(true)} needsSetup={needsSetup} />
     }
 
-    const navLinks = useMemo(() => [
-        { href: '/admin', label: 'Dashboard', icon: LayoutGrid },
-        { href: '/admin/comedians', label: 'Artists', icon: Users },
-        { href: '/admin/organizers', label: 'Guild', icon: ShieldCheck },
-        { href: '/admin/shows', label: 'Shows', icon: Calendar },
-        { href: '/admin/fees', label: 'Economics', icon: Settings },
-    ], []);
 
     return (
         <div className="min-h-screen text-foreground font-sans selection:bg-primary/40 relative overflow-x-hidden">

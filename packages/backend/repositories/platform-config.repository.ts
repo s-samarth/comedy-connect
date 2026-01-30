@@ -11,7 +11,9 @@ export class PlatformConfigRepository {
      * Note: There should only be one config record
      */
     async get() {
-        return prisma.platformConfig.findFirst()
+        return prisma.platformConfig.findUnique({
+            where: { key: 'PLATFORM_FEES' }
+        })
     }
 
     /**
@@ -41,20 +43,17 @@ export class PlatformConfigRepository {
 
     /**
      * Upsert platform configuration
-     * Creates if doesn't exist, updates if exists
      */
-    async upsert(data: Prisma.PlatformConfigCreateInput) {
-        const config = await this.get()
-
-        if (config) {
-            return prisma.platformConfig.update({
-                where: { id: config.id },
-                data
-            })
-        }
-
-        return prisma.platformConfig.create({
-            data
+    async upsert(value: any) {
+        return prisma.platformConfig.upsert({
+            where: { key: 'PLATFORM_FEES' },
+            create: {
+                key: 'PLATFORM_FEES',
+                value
+            },
+            update: {
+                value
+            }
         })
     }
 }

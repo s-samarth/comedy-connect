@@ -9,15 +9,13 @@ export class ApprovalRepository {
     /**
      * Find comedian approval by user ID
      */
-    async findComedianApproval(userId: string) {
-        return prisma.comedianApproval.findUnique({
-            where: { userId },
+    async findComedianApproval(comedianId: string) {
+        return prisma.comedianApproval.findFirst({
+            where: { comedianId },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        role: true
+                comedian: {
+                    include: {
+                        user: true
                     }
                 }
             }
@@ -27,15 +25,13 @@ export class ApprovalRepository {
     /**
      * Find organizer approval by user ID
      */
-    async findOrganizerApproval(userId: string) {
-        return prisma.organizerApproval.findUnique({
-            where: { userId },
+    async findOrganizerApproval(organizerId: string) {
+        return prisma.organizerApproval.findFirst({
+            where: { organizerId },
             include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        role: true
+                organizer: {
+                    include: {
+                        user: true
                     }
                 }
             }
@@ -46,24 +42,24 @@ export class ApprovalRepository {
      * Upsert comedian approval
      */
     async upsertComedianApproval(
-        userId: string,
-        data: Omit<Prisma.ComedianApprovalCreateInput, 'user'>
+        comedianId: string,
+        adminId: string,
+        status: 'PENDING' | 'APPROVED' | 'REJECTED'
     ) {
         return prisma.comedianApproval.upsert({
-            where: { userId },
-            create: {
-                ...data,
-                user: { connect: { id: userId } }
-            },
-            update: data,
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        role: true
-                    }
+            where: {
+                comedianId_adminId: {
+                    comedianId,
+                    adminId
                 }
+            },
+            create: {
+                comedianId,
+                adminId,
+                status
+            },
+            update: {
+                status
             }
         })
     }
@@ -72,24 +68,24 @@ export class ApprovalRepository {
      * Upsert organizer approval
      */
     async upsertOrganizerApproval(
-        userId: string,
-        data: Omit<Prisma.OrganizerApprovalCreateInput, 'user'>
+        organizerId: string,
+        adminId: string,
+        status: 'PENDING' | 'APPROVED' | 'REJECTED'
     ) {
         return prisma.organizerApproval.upsert({
-            where: { userId },
-            create: {
-                ...data,
-                user: { connect: { id: userId } }
-            },
-            update: data,
-            include: {
-                user: {
-                    select: {
-                        id: true,
-                        email: true,
-                        role: true
-                    }
+            where: {
+                organizerId_adminId: {
+                    organizerId,
+                    adminId
                 }
+            },
+            create: {
+                organizerId,
+                adminId,
+                status
+            },
+            update: {
+                status
             }
         })
     }
@@ -98,16 +94,19 @@ export class ApprovalRepository {
      * Update comedian approval status
      */
     async updateComedianApprovalStatus(
-        userId: string,
-        status: 'PENDING' | 'APPROVED' | 'REJECTED',
-        adminNote?: string
+        comedianId: string,
+        adminId: string,
+        status: 'PENDING' | 'APPROVED' | 'REJECTED'
     ) {
         return prisma.comedianApproval.update({
-            where: { userId },
+            where: {
+                comedianId_adminId: {
+                    comedianId,
+                    adminId
+                }
+            },
             data: {
-                status,
-                adminNote,
-                approvedAt: status === 'APPROVED' ? new Date() : null
+                status
             }
         })
     }
@@ -116,16 +115,19 @@ export class ApprovalRepository {
      * Update organizer approval status
      */
     async updateOrganizerApprovalStatus(
-        userId: string,
-        status: 'PENDING' | 'APPROVED' | 'REJECTED',
-        adminNote?: string
+        organizerId: string,
+        adminId: string,
+        status: 'PENDING' | 'APPROVED' | 'REJECTED'
     ) {
         return prisma.organizerApproval.update({
-            where: { userId },
+            where: {
+                organizerId_adminId: {
+                    organizerId,
+                    adminId
+                }
+            },
             data: {
-                status,
-                adminNote,
-                approvedAt: status === 'APPROVED' ? new Date() : null
+                status
             }
         })
     }

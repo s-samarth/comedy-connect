@@ -38,12 +38,9 @@ class OrganizerService {
     async createOrganizerProfile(userId: string, data: any) {
         const profile = await organizerRepository.create({
             user: { connect: { id: userId } },
-            organizationName: data.organizationName,
-            organizationType: data.organizationType || 'COMPANY',
-            registrationNumber: data.registrationNumber,
-            address: data.address,
-            contactNumber: data.contactNumber,
-            website: data.website
+            name: data.organizationName || '',
+            description: data.description || '',
+            contact: data.contactNumber || ''
         } as any)
 
         return { profile }
@@ -68,12 +65,9 @@ class OrganizerService {
         }
 
         const updated = await organizerRepository.update(profile.id, {
-            organizationName: data.organizationName,
-            organizationType: data.organizationType,
-            registrationNumber: data.registrationNumber,
-            address: data.address,
-            contactNumber: data.contactNumber,
-            website: data.website
+            name: data.organizationName,
+            description: data.description,
+            contact: data.contactNumber
         })
 
         return { profile: updated }

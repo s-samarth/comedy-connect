@@ -76,13 +76,11 @@ class AdminStatsService {
         const pendingComedians = Number(pendingComediansResult[0]?.count || 0)
 
         return {
-            metrics: {
-                totalUsers,
-                newUsersToday,
-                activeShows,
-                totalRevenue,
-                pendingApprovals: pendingOrganizers + pendingComedians
-            }
+            totalUsers,
+            newUsersToday,
+            activeShows,
+            totalRevenue,
+            pendingApprovals: pendingOrganizers + pendingComedians
         }
     }
 }

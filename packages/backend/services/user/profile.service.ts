@@ -64,18 +64,18 @@ class ProfileService {
         const user = await userRepository.findById(userId)
 
         // Update comedian profile if applicable
-        if (user?.role === 'COMEDIAN' || user?.role === 'COMEDIAN_UNVERIFIED') {
+        if (user?.role === 'COMEDIAN_VERIFIED' || user?.role === 'COMEDIAN_UNVERIFIED') {
             const comedianProfile = await prisma.comedianProfile.upsert({
                 where: { userId },
                 create: {
                     userId,
-                    name: name || '',
+                    stageName: name || '',
                     bio: bio || '',
                     youtubeUrls: youtubeUrls || [],
                     instagramUrls: instagramUrls || []
                 } as any,
                 update: {
-                    name: name || undefined,
+                    stageName: name || undefined,
                     bio: bio || undefined,
                     youtubeUrls: youtubeUrls || undefined,
                     instagramUrls: instagramUrls || undefined,
@@ -86,41 +86,41 @@ class ProfileService {
             // Create approval request if unverified
             if (user.role === 'COMEDIAN_UNVERIFIED') {
                 await prisma.comedianApproval.upsert({
-                    where: { userId },
+                    where: {
+                        comedianId_adminId: {
+                            comedianId: comedianProfile.id,
+                            adminId: admin?.id || ''
+                        }
+                    },
                     create: {
-                        userId,
+                        comedianId: comedianProfile.id,
+                        adminId: admin?.id || '',
                         status: 'PENDING'
                     } as any,
                     update: {
-                        status: 'PENDING',
-                        updatedAt: new Date()
+                        status: 'PENDING'
                     }
                 })
             }
         }
 
         // Update organizer profile if applicable
-        if (user?.role === 'ORGANIZER' || user?.role === 'ORGANIZER_UNVERIFIED') {
+        if (user?.role === 'ORGANIZER_VERIFIED' || user?.role === 'ORGANIZER_UNVERIFIED') {
             const organizationData = data.organizationData
             if (organizationData) {
                 const organizerProfile = await prisma.organizerProfile.upsert({
                     where: { userId },
                     create: {
                         userId,
-                        organizationName: organizationData.organizationName || '',
-                        organizationType: organizationData.organizationType || 'COMPANY',
-                        registrationNumber: organizationData.registrationNumber || '',
-                        address: organizationData.address || '',
-                        contactNumber: organizationData.contactNumber || '',
-                        website: organizationData.website || ''
+                        name: organizationData.organizationName || name || '',
+                        description: organizationData.description || bio || '',
+                        contact: organizationData.contactNumber || phone || '',
+                        updatedAt: new Date()
                     } as any,
                     update: {
-                        organizationName: organizationData.organizationName,
-                        organizationType: organizationData.organizationType,
-                        registrationNumber: organizationData.registrationNumber,
-                        address: organizationData.address,
-                        contactNumber: organizationData.contactNumber,
-                        website: organizationData.website,
+                        name: organizationData.organizationName || name,
+                        description: organizationData.description || bio,
+                        contact: organizationData.contactNumber || phone,
                         updatedAt: new Date()
                     }
                 })
@@ -128,14 +128,19 @@ class ProfileService {
                 // Create approval request if unverified
                 if (user.role === 'ORGANIZER_UNVERIFIED') {
                     await prisma.organizerApproval.upsert({
-                        where: { userId },
+                        where: {
+                            organizerId_adminId: {
+                                organizerId: organizerProfile.id,
+                                adminId: admin?.id || ''
+                            }
+                        },
                         create: {
-                            userId,
+                            organizerId: organizerProfile.id,
+                            adminId: admin?.id || '',
                             status: 'PENDING'
                         } as any,
                         update: {
-                            status: 'PENDING',
-                            updatedAt: new Date()
+                            status: 'PENDING'
                         }
                     })
                 }
@@ -155,10 +160,10 @@ class ProfileService {
         }
 
         // Check for active shows (for verified creators)
-        if (userRole === 'COMEDIAN' || userRole === 'ORGANIZER') {
+        if (userRole === 'COMEDIAN_VERIFIED' || userRole === 'ORGANIZER_VERIFIED') {
             const activeShow = await prisma.show.findFirst({
                 where: {
-                    creatorId: userId,
+                    createdBy: userId,
                     isPublished: true,
                     date: { gte: new Date() }
                 }
@@ -173,7 +178,7 @@ class ProfileService {
             // Check for shows with bookings
             const showsWithBookings = await prisma.show.findFirst({
                 where: {
-                    creatorId: userId,
+                    createdBy: userId,
                     bookings: {
                         some: {
                             status: { in: ['CONFIRMED', 'CONFIRMED_UNPAID'] }

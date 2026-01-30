@@ -8,30 +8,32 @@ export class AdminRepository {
      * We can achieve this with Prisma include.
      */
     async findAllShowsWithCreator() {
-        // We stick to Prisma findMany for consistency unless performance is critical
-        // The previous Raw SQL query structure:
-        /*
-        SELECT s.*, u.email, op.name 
-        FROM Show s 
-        LEFT JOIN User u ... 
-        LEFT JOIN OrganizerProfile op ...
-        */
         const shows = await prisma.show.findMany({
             include: {
                 creator: {
                     include: {
-                        organizerProfile: true // Join to get name
+                        organizerProfile: true,
+                        comedianProfile: true
+                    }
+                },
+                bookings: {
+                    where: {
+                        status: { in: ['CONFIRMED', 'CONFIRMED_UNPAID'] }
+                    },
+                    select: {
+                        quantity: true,
+                        totalAmount: true,
+                        bookingFee: true,
+                        platformFee: true
                     }
                 },
                 _count: {
                     select: { bookings: true }
                 }
             },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { date: 'desc' }
         })
 
-        // Map to match the specific Raw SQL output structure if needed, or return Prisma objects
-        // The service will handle mapping
         return shows
     }
 

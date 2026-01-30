@@ -40,9 +40,8 @@ class ComedianService {
 
         const comedian = await comedianRepository.create({
             user: { connect: { id: userId } },
-            name: data.name,
+            stageName: data.name,
             bio: data.bio || '',
-            profileImageUrl: data.profileImageUrl,
             youtubeUrls: data.youtubeUrls || [],
             instagramUrls: data.instagramUrls || []
         } as any)
@@ -62,9 +61,8 @@ class ComedianService {
         }
 
         const updated = await comedianRepository.update(profile.id, {
-            name: data.name,
+            stageName: data.name,
             bio: data.bio,
-            profileImageUrl: data.profileImageUrl,
             youtubeUrls: data.youtubeUrls,
             instagramUrls: data.instagramUrls
         })

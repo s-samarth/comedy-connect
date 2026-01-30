@@ -16,7 +16,19 @@ export async function POST(request: Request) {
     // Delegate to service
     const result = await adminAuthService.setPassword(user.email, password, confirmPassword)
 
-    return NextResponse.json(result)
+    // Set secure session cookie
+    const response = NextResponse.json({ success: true })
+
+    if (result.sessionCookie) {
+      response.cookies.set('admin-secure-session', result.sessionCookie, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 2 * 60 * 60 // 2 hours
+      })
+    }
+
+    return response
   } catch (error) {
     const { status, error: message } = mapErrorToResponse(error)
     return NextResponse.json({ error: message }, { status })

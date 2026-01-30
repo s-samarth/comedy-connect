@@ -13,10 +13,21 @@ class AdminComedianService {
     async listComedianUsers() {
         const comedians = await prisma.user.findMany({
             where: {
-                role: { in: ['COMEDIAN', 'COMEDIAN_UNVERIFIED'] }
+                role: { in: ['COMEDIAN_VERIFIED', 'COMEDIAN_UNVERIFIED'] }
             },
             include: {
-                comedianProfile: true
+                comedianProfile: {
+                    include: {
+                        approvals: {
+                            include: {
+                                admin: {
+                                    select: { email: true }
+                                }
+                            },
+                            orderBy: { createdAt: 'desc' }
+                        }
+                    }
+                }
             },
             orderBy: { createdAt: 'desc' }
         })
@@ -66,16 +77,11 @@ class AdminComedianService {
             throw new ValidationError('Invalid fee percentage (0-100 required)')
         }
 
-        await prisma.$transaction([
-            (prisma.comedianProfile as any).update({
-                where: { id: comedianId },
-                data: { customPlatformFee: feePercent }
-            }),
-            (prisma.show as any).updateMany({
-                where: { creatorId: comedianId },
-                data: { platformFeePercent: feePercent }
-            })
-        ])
+        // Update the comedian profile fee
+        await prisma.comedianProfile.update({
+            where: { userId: comedianId },
+            data: { customPlatformFee: feePercent }
+        })
 
         return { success: true }
     }
@@ -84,41 +90,21 @@ class AdminComedianService {
      * Approve comedian
      */
     async approveComedian(comedianId: string) {
-        const comedian = await prisma.user.findUnique({
-            where: { id: comedianId }
-        })
-
-        if (!comedian) {
-            throw new NotFoundError('Comedian')
-        }
-
-        // Update shows to published if needed
-        await prisma.show.updateMany({
-            where: {
-                creatorId: comedianId,
-                isPublished: false
-            },
-            data: { isPublished: false }
-        })
-
-        // Upsert approval
-        await prisma.comedianApproval.upsert({
-            where: { userId: comedianId },
-            create: {
-                userId: comedianId,
-                status: 'APPROVED',
-                approvedAt: new Date()
-            } as any,
-            update: {
-                status: 'APPROVED',
-                approvedAt: new Date()
+        const user = await prisma.user.findUnique({
+            where: { id: comedianId },
+            include: {
+                comedianProfile: true
             }
         })
 
-        // Update user role
+        if (!user || !user.comedianProfile) {
+            throw new NotFoundError('Comedian')
+        }
+
+        // Update user role to verified
         await prisma.user.update({
             where: { id: comedianId },
-            data: { role: 'COMEDIAN' }
+            data: { role: 'COMEDIAN_VERIFIED' }
         })
 
         return { success: true }
@@ -128,9 +114,10 @@ class AdminComedianService {
      * Reject comedian
      */
     async rejectComedian(comedianId: string, reason?: string) {
-        await approvalRepository.upsertComedianApproval(comedianId, {
-            status: 'REJECTED',
-            adminNote: reason
+        // Just update the user role back to unverified
+        await prisma.user.update({
+            where: { id: comedianId },
+            data: { role: 'COMEDIAN_UNVERIFIED' }
         })
 
         return { success: true }
@@ -152,7 +139,7 @@ class AdminComedianService {
      */
     async enableComedian(comedianId: string) {
         await userRepository.updateProfile(comedianId, {
-            role: 'COMEDIAN'
+            role: 'COMEDIAN_VERIFIED'
         })
 
         return { success: true }

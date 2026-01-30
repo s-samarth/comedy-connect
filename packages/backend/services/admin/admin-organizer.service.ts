@@ -13,7 +13,7 @@ class AdminOrganizerService {
     async listOrganizerUsers() {
         const organizers = await prisma.user.findMany({
             where: {
-                role: { in: ['ORGANIZER', 'ORGANIZER_UNVERIFIED'] }
+                role: { in: ['ORGANIZER_VERIFIED', 'ORGANIZER_UNVERIFIED'] }
             },
             include: {
                 organizerProfile: true
@@ -46,16 +46,11 @@ class AdminOrganizerService {
             throw new ValidationError('Invalid fee percentage (0-100 required)')
         }
 
-        await prisma.$transaction([
-            (prisma.organizerProfile as any).update({
-                where: { id: organizerId },
-                data: { customPlatformFee: feePercent }
-            }),
-            (prisma.show as any).updateMany({
-                where: { creatorId: organizerId },
-                data: { platformFeePercent: feePercent }
-            })
-        ])
+        // Update the organizer profile fee
+        await prisma.organizerProfile.update({
+            where: { userId: organizerId },
+            data: { customPlatformFee: feePercent }
+        })
 
         return { success: true }
     }
@@ -64,41 +59,21 @@ class AdminOrganizerService {
      * Approve organizer
      */
     async approveOrganizer(organizerId: string) {
-        const organizer = await prisma.user.findUnique({
-            where: { id: organizerId }
-        })
-
-        if (!organizer) {
-            throw new NotFoundError('Organizer')
-        }
-
-        // Update shows
-        await prisma.show.updateMany({
-            where: {
-                creatorId: organizerId,
-                isPublished: false
-            },
-            data: { isPublished: false }
-        })
-
-        // Upsert approval
-        await prisma.organizerApproval.upsert({
-            where: { userId: organizerId },
-            create: {
-                userId: organizerId,
-                status: 'APPROVED',
-                approvedAt: new Date()
-            } as any,
-            update: {
-                status: 'APPROVED',
-                approvedAt: new Date()
+        const user = await prisma.user.findUnique({
+            where: { id: organizerId },
+            include: {
+                organizerProfile: true
             }
         })
 
-        // Update user role
+        if (!user || !user.organizerProfile) {
+            throw new NotFoundError('Organizer')
+        }
+
+        // Update user role to verified
         await prisma.user.update({
             where: { id: organizerId },
-            data: { role: 'ORGANIZER' }
+            data: { role: 'ORGANIZER_VERIFIED' }
         })
 
         return { success: true }
@@ -108,9 +83,10 @@ class AdminOrganizerService {
      * Reject organizer
      */
     async rejectOrganizer(organizerId: string, reason?: string) {
-        await approvalRepository.upsertOrganizerApproval(organizerId, {
-            status: 'REJECTED',
-            adminNote: reason
+        // Just update the user role back to unverified
+        await prisma.user.update({
+            where: { id: organizerId },
+            data: { role: 'ORGANIZER_UNVERIFIED' }
         })
 
         return { success: true }
@@ -131,8 +107,9 @@ class AdminOrganizerService {
      * Enable organizer
      */
     async enableOrganizer(organizerId: string) {
-        await userRepository.updateProfile(organizerId, {
-            role: 'ORGANIZER'
+        await prisma.user.update({
+            where: { id: organizerId },
+            data: { role: 'ORGANIZER_VERIFIED' }
         })
 
         return { success: true }

@@ -110,7 +110,10 @@ class AdminAuthService {
             data: { adminPasswordHash: hashedPassword }
         })
 
-        return { success: true }
+        // Create session cookie after setting password
+        const sessionCookie = await createAdminSessionCookie(email)
+
+        return { success: true, sessionCookie }
     }
 
     /**

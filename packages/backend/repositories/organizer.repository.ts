@@ -14,12 +14,9 @@ export class OrganizerRepository {
             where,
             select: {
                 id: true,
-                organizationName: true,
-                organizationType: true,
-                registrationNumber: true,
-                address: true,
-                contactNumber: true,
-                website: true,
+                name: true,
+                description: true,
+                contact: true,
                 userId: true,
                 user: {
                     select: {

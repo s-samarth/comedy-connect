@@ -14,13 +14,13 @@ class AdminFeesService {
 
         if (!config) {
             // Create default config if doesn't exist
-            config = await platformConfigRepository.create({
+            config = await platformConfigRepository.upsert({
                 platformFeePercent: 10,
                 feeSlabs: []
             })
         }
 
-        return { config }
+        return { config: config.value }
     }
 
     /**
@@ -32,10 +32,11 @@ class AdminFeesService {
         }
 
         const config = await platformConfigRepository.upsert({
+            platformFeePercent: 10, // Keep default for now or fetch existing
             feeSlabs: slabs
         })
 
-        return { success: true, config }
+        return { success: true, config: config.value }
     }
 }
 

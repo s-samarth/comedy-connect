@@ -14,9 +14,8 @@ export class ComedianRepository {
             where,
             select: {
                 id: true,
-                name: true,
+                stageName: true,
                 bio: true,
-                profileImageUrl: true,
                 youtubeUrls: true,
                 instagramUrls: true,
                 user: {

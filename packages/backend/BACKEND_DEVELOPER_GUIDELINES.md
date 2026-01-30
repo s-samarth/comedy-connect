@@ -527,6 +527,52 @@ Review a report (admin only).
 - **Response**: `{ success: boolean, message: string }`
 ```
 
+**File**: `REPOSITORIES.md` (add to tables and reference)
+
+1. Add the new repository to the appropriate table in the **Available Repositories** section.
+2. Add a detailed reference section under **Repository Reference**.
+
+```markdown
+### ReportRepository
+
+**File**: `repositories/report.repository.ts`
+
+#### Methods
+
+```typescript
+// Find operations
+findById(id: string): Promise<ShowReport | null>
+findPending(): Promise<ShowReport[]>
+
+// Write operations
+create(data: any): Promise<ShowReport>
+update(id: string, data: any): Promise<ShowReport>
+```
+```
+
+**File**: `SERVICES.md` (add to directory structure and reference)
+
+1. Add the new service file to the **Directory Structure** tree.
+2. Add a detailed reference section under the appropriate group (e.g., **Admin Services**).
+
+```markdown
+### ReportService
+**File**: `services/reports/report.service.ts`
+
+Handles show reporting and moderation.
+
+#### Methods
+
+##### `createReport(userId: string, data: any)`
+Creates a new show report.
+**Validation**: Show must exist.
+**Returns**: `{ success: boolean, report: ShowReport }`
+
+##### `listPendingReports()`
+Lists all reports with 'PENDING' status.
+**Returns**: `{ reports: ShowReport[] }`
+```
+
 ---
 
 ## Layer 1: API Routes (Controllers)
@@ -954,7 +1000,7 @@ class ShowService {
 
 ---
 
-## Testing Guidelines
+## Testing Guidelines (TO BE IGNORED FOR NOW)
 
 ### Unit Testing Services
 

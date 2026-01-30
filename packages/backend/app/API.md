@@ -18,17 +18,53 @@ The backend follows a **Service/Repository architecture**.
 
 ## 🔐 Authentication (`/auth`)
 
-### `GET /api/v1/auth/session`
-Returns the current active session.
-- **Response**: `SessionResponse` (from `@comedy-connect/types`)
-- **Note**: Supports both NextAuth and Admin Secure cookies.
-
-### `GET /api/v1/auth/me`
+### `GET /api/auth/me`
 Retrieves detailed profile info for the authenticated user.
 - **Auth Required**: Yes
 
-### `POST /api/v1/auth/signin`
-Initiates the OAuth sign-in flow (Google).
+### `POST /api/auth/check-user`
+Checks if a user exists by email.
+- **Body**: `{ email: string }`
+- **Response**: `{ exists: boolean }`
+
+### NextAuth Routes (`/api/auth/[...nextauth]`)
+Standard NextAuth.js routes for OAuth sign-in (Google) and session management.
+- Includes sign-in, sign-out, callback, and session endpoints
+
+---
+
+## 🔒 Admin Authentication (`/v1/admin/auth`)
+
+> [!IMPORTANT]
+> All admin authentication endpoints require the admin email to be whitelisted in `ADMIN_EMAIL` environment variable.
+
+### `POST /api/v1/admin/auth/login`
+Administrator login with email and password.
+- **Body**: `{ email: string, password: string }`
+- **Response**: Sets `admin-secure-session` cookie
+- **Error Codes**:
+  - `SETUP_REQUIRED`: Admin account exists but password not set
+
+### `POST /api/v1/admin/auth/logout`
+Logs out the admin user.
+- **Effect**: Deletes `admin-secure-session` cookie and redirects to login
+
+### `POST /api/v1/admin/auth/setup`
+Initial admin account setup (one-time).
+- **Body**: `{ email: string, password: string }`
+- **Validation**: Password must be at least 8 characters
+- **Effect**: Creates admin user and sets password hash
+
+### `POST /api/v1/admin/auth/reset/request`
+Request password reset code.
+- **Body**: `{ email: string }`
+- **Effect**: Generates 6-digit code, valid for 10 minutes, sends via email
+- **Dev Mode**: Returns code in response if email fails
+
+### `POST /api/v1/admin/auth/reset/confirm`
+Confirm password reset with code.
+- **Body**: `{ email: string, code: string, newPassword: string }`
+- **Validation**: Code must be valid and not expired
 
 ---
 

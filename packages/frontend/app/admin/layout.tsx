@@ -26,16 +26,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             }
 
             try {
-                const response = await fetch('/api/v1/admin/check-password-setup')
+                const response = await fetch('/api/v1/admin/check-session')
                 const data = await response.json()
-                setNeedsSetup(data.needsSetup)
 
-                if (!data.needsSetup) {
-                    const verifyResponse = await fetch('/api/v1/admin/verify-session')
-                    if (verifyResponse.ok) {
-                        setIsVerified(true)
-                    }
-                }
+                // Backend returns needsPasswordSetup when password not set
+                setNeedsSetup(data.needsPasswordSetup || false)
+
+                // Backend returns authenticated: true when session is verified
+                setIsVerified(data.authenticated || false)
             } catch (error) {
                 console.error('Security check failed:', error)
             } finally {

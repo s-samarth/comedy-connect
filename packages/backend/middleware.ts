@@ -85,12 +85,6 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Admin Secure portal logic
-  if (pathname.startsWith("/api/admin-secure") || pathname.startsWith("/admin-secure")) {
-    // Admin-secure handles its own session cookies, let it pass or check session
-    // For now, let the route handler manage it
-    return response
-  }
 
   // Fix Bug 3: Protect organizer routes with strict role check
   if (pathname.startsWith("/api/v1/organizer") || pathname.startsWith("/organizer")) {

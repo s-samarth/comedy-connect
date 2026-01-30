@@ -145,7 +145,7 @@ export default function Home() {
               <ul className="space-y-4 text-sm font-medium text-muted-foreground">
                 <li><Link href="/shows" className="hover:text-primary transition-colors">Shows</Link></li>
                 <li><Link href="/comedians" className="hover:text-primary transition-colors">Comedians</Link></li>
-                <li><Link href="/venues" className="hover:text-primary transition-colors">Venues</Link></li>
+                <li><Link href="/organisers" className="hover:text-primary transition-colors">Organisers</Link></li>
               </ul>
             </div>
             <div>

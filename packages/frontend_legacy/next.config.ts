@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
             },
             {
                 source: '/api/admin-secure/:path*',
-                destination: `${apiUrl}/api/admin-secure/:path*`,
+                destination: `${apiUrl}/api/v1/admin/auth/:path*`,
             },
         ]
     },

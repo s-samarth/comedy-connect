@@ -85,6 +85,16 @@ export const authOptions: NextAuthOptions = {
       }
       return session
     },
+    async redirect({ url, baseUrl }) {
+      // If we have an ALLOWED_ORIGIN (frontend), force redirect there
+      // Otherwise, stay on the same domain
+      const frontendUrl = process.env.ALLOWED_ORIGIN || baseUrl
+
+      // Ensure the redirect is to the allowed origin
+      if (url.startsWith("/")) return `${frontendUrl}${url}`
+      else if (new URL(url).origin === new URL(frontendUrl).origin) return url
+      return frontendUrl
+    },
   },
   // In production, redirect to frontend domain (ALLOWED_ORIGIN)
   // In local dev, relative paths work because frontend proxies /api/* to backend
@@ -144,7 +154,6 @@ export const authOptions: NextAuthOptions = {
       },
     },
   },
-  debug: true,
 }
 
 const handler = NextAuth(authOptions)

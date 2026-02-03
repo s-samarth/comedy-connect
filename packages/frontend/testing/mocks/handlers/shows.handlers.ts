@@ -38,7 +38,7 @@ export const showsHandlers = [
 
     // POST /api/v1/shows - Create show
     http.post('*/api/v1/shows', async ({ request }) => {
-        const body = await request.json();
+        const body = await request.json() as any;
 
         const newShow = {
             id: `show-${Date.now()}`,
@@ -53,7 +53,7 @@ export const showsHandlers = [
     // PATCH /api/v1/shows/:id - Update show
     http.patch('*/api/v1/shows/:id', async ({ params, request }) => {
         const { id } = params;
-        const updates = await request.json();
+        const updates = await request.json() as any;
 
         const shows = mockShows();
         const show = shows.find(s => s.id === id);

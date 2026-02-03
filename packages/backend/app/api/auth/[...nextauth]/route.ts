@@ -86,11 +86,10 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  // Redirect to frontend for auth pages (backend is API-only)
   pages: {
-    signIn: `${process.env.ALLOWED_ORIGIN}/auth/signin`,
-    signOut: `${process.env.ALLOWED_ORIGIN}/auth/signout`,
-    error: `${process.env.ALLOWED_ORIGIN}/auth/signin`,
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/signin',
   },
 }
 

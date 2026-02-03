@@ -86,11 +86,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
-  pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/signin',
-  },
+  // Note: Using NextAuth default pages since backend is API-only
+  // Frontend handles the actual sign-in UI
 }
 
 const handler = NextAuth(authOptions)

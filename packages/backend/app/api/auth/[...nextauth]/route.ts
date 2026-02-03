@@ -86,10 +86,12 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+  // In production, redirect to frontend domain (ALLOWED_ORIGIN)
+  // In local dev, relative paths work because frontend proxies /api/* to backend
   pages: {
-    signIn: '/auth/signin',
-    signOut: '/auth/signout',
-    error: '/auth/signin',
+    signIn: process.env.ALLOWED_ORIGIN ? `${process.env.ALLOWED_ORIGIN}/auth/signin` : '/auth/signin',
+    signOut: process.env.ALLOWED_ORIGIN ? `${process.env.ALLOWED_ORIGIN}/auth/signout` : '/auth/signout',
+    error: process.env.ALLOWED_ORIGIN ? `${process.env.ALLOWED_ORIGIN}/auth/signin` : '/auth/signin',
   },
 }
 

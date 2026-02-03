@@ -24,17 +24,13 @@ function SignInPage() {
         }
     }, [isAuthenticated, authLoading, router, user, callbackUrl]);
 
-    const handleGoogleSignIn = async () => {
+    const handleGoogleSignIn = () => {
         setIsSigningIn(true);
-        try {
-            await signIn('google', {
-                callbackUrl: callbackUrl,
-                prompt: 'consent'
-            });
-        } catch (error) {
-            console.error('Sign in error:', error);
-            setIsSigningIn(false);
-        }
+        // Redirect to backend's OAuth endpoint directly
+        // Frontend doesn't have NextAuth routes - backend handles all auth
+        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+        const encodedCallback = encodeURIComponent(callbackUrl);
+        window.location.href = `${backendUrl}/api/auth/signin/google?callbackUrl=${encodedCallback}`;
     };
 
     if (authLoading) {

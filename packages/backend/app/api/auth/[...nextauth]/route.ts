@@ -93,6 +93,58 @@ export const authOptions: NextAuthOptions = {
     signOut: process.env.ALLOWED_ORIGIN ? `${process.env.ALLOWED_ORIGIN}/auth/signout` : '/auth/signout',
     error: process.env.ALLOWED_ORIGIN ? `${process.env.ALLOWED_ORIGIN}/auth/signin` : '/auth/signin',
   },
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? '.comedyconnect.in' : 'localhost',
+      },
+    },
+    callbackUrl: {
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.callback-url` : `next-auth.callback-url`,
+      options: {
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? '.comedyconnect.in' : 'localhost',
+      },
+    },
+    csrfToken: {
+      name: process.env.NODE_ENV === "production" ? `next-auth.csrf-token` : `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? '.comedyconnect.in' : 'localhost',
+      },
+    },
+    pkceCodeVerifier: {
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.pkce.code_verifier` : `next-auth.pkce.code_verifier`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? '.comedyconnect.in' : 'localhost',
+      },
+    },
+    state: {
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.state` : `next-auth.state`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.NODE_ENV === "production" ? '.comedyconnect.in' : 'localhost',
+      },
+    },
+  },
+  debug: true,
 }
 
 const handler = NextAuth(authOptions)
